@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang=en-us>
+<head>
+	<meta charset=utf-8>
+	<title>UUM&amp;DS Boilerplate</title>
+	<meta name=description content="">
+	<meta name=viewport content="width=device-width,initial-scale=1">
+	<style type="text/css">
+    * {
+      font-family: 'arial narrow', 'arial', 'helvetica'
+    }
+    div.container {
+      clear: both;
+      position: relative;
+      width: 650px;
+    }
+    div.voucher_title {
+      clear: both;
+      float: left;
+      font-size: 2em;
+      text-transform: uppercase;
+    }
+    div.voucher_allotment {
+      float: right;
+      font-size: 2em;
+    }
+    div.style1 {
+      float: left;
+      text-transform: uppercase;
+      border: 1px solid #000;
+      padding-left: 5px;
+      padding-top: 5px;
+      padding-right: 5px;
+      padding-bottom: 5px;
+      width: 300px;
+      margin-top: 5px;
+      font-size: 0.8em
+    }
+    div.style1_right {
+      float: left;
+      margin-left: 5px;
+    }
+    div.style2 {
+      clear: both;
+      border: 1px solid #000;
+      width: 617px;
+      padding-left: 5px;
+      padding-top: 5px;
+      padding-right: 5px;
+      padding-bottom: 5px;
+      margin-top: 5px;
+      font-size: 0.8em
+    }
+    div.style3 {
+      float: left;
+      border: 1px solid #000;
+      width: 141px;
+      padding-left: 5px;
+      padding-top: 5px;
+      padding-right: 5px;
+      padding-bottom: 5px;
+      margin-top: 5px;
+      font-size: 0.8em
+    }
+    div.clear {
+      clear: both;
+      padding: 2px 2px 2px 2px;
+    }
+  </style>
+	<body>
+    <div class="container">
+      <div class="voucher_title">
+        Takelbon F.A.S.T. < 3,5 Ton
+      </div>
+      <div class="voucher_allotment">
+          <%= allotment_name %>
+      </div>
+    </div>
+    <div class="clear">
+      <div class="style1" style="clear: both;">
+          <strong>Takelbon nr.:</strong> <%= voucher_number %>
+      </div>
+      <div class="style1 style1_right">
+          <strong>Oproep nr.:</strong> <%= call_number %>
+      </div>
+    </div>
+
+    <div class="clear">
+      <div class="style1" style="clear: both;">
+          Dienstverlener
+      </div>
+
+      <div class="style1 style1_right">
+          Hinderverwekker
+      </div>
+    </div>
+
+    <div class="clear">
+      <div class="style1" style="clear: both; height: 120px">
+          <table border=0 width="100%">
+            <tr>
+              <td colspan="2"><strong><%= towing_service_name %></strong></td>
+            </tr>
+            <tr>
+              <td colspan="2"><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td>
+            </tr>
+            <tr>
+              <td><strong>Tel.:</strong> <%= towing_service_phone %></td>
+              <td><strong>BTW Nr.:</strong> <%= towing_service_vat %></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                  <%= towing_service_email %> <br />
+                  <%= towing_service_site %>
+              </td>
+            </tr>
+          </table>
+      </div>
+
+      <div class="style1 style1_right" style="height: 120px">
+          <table border="0">
+              <tr><td colspan="2">P&amp;V Assistance - I.m.a. BeNeLux</td></tr>
+              <tr><td colspan="2">Sq Des Conduites D'eau, 11-12<br/> 4020 Liège</td></tr>
+              <tr><td>Tel.: 02/229.00.11</td><td>BTW Nr.: BE 0402.236.531</td></tr>
+              <tr><td>NR.PL.: 1-GSA-659</td><td>MERK/TYPE: Ford C-Max</td></tr>
+          </table>
+      </div>
+    </div>
+
+    <div class="clear">
+      <div class="style2">
+          <table border="0">
+              <tr>
+                  <td><strong>Gemeente:</strong> <%= location %></td>
+                  <td><%= direction %> thv <%= indicator %></td>
+              </tr>
+              <tr>
+                  <td><strong>Aantal versperde rijstroken:</strong> <%= nr_of_blocked_lanes %></td>
+                  <td>Aanduiding rijstrook: <%= lane_indicator %></td>
+              </tr>
+          </table>
+      </div>
+
+    </div>
+
+    <div class="clear">
+      <div class="style3" style="margin-right: 5px">
+          <table border="0">
+              <tr><td>Datum</td><td><%= call_date %></td></tr>
+              <tr><td>Uur:</td><td><%= call_hour %></td></tr>
+              <tr><td colspan="2">Feestdag</td></tr>
+          </table>
+      </div>
+      <div class="style3" style="margin-right: 5px;">
+          <table border="0">
+              <tr><td>Aankomst:</td><td><%= signa_arrival %></td></tr>
+              <tr><td>Start takel:</td><td><%= towing_start %></td></tr>
+              <tr><td>Stop takel:</td><td><%= towing_end %></td></tr>
+          </table>
+      </div>
+      <div class="style3" style="margin-right: 5px;">
+          <table border="0">
+              <tr><td colspan="2">Extra info:</td></tr>
+              <tr><td colspan="2"><%= extra_info %></td>
+              <tr><td>Aant. Takelbons:</td><td><%= nr_of_v %></td></tr>
+          </table>
+      </div>
+      <div class="style3">
+          <table border="0">
+              <tr><td>PANNE</td><td>ONGEVAL</td></tr>
+              <tr><td colspan="2">ACHTERGEL.VTG</td></tr>
+              <tr><td colspan="2">LADING VERLIES</td>
+          </table>
+      </div>
+    </div>
+
+    <div class="clear">
+      <div class="style2">
+          <strong>Locatie/Depot afvoer:</strong> <%= towing_location_depot %>
+      </div>
+    </div>
+  </body>
+</html>

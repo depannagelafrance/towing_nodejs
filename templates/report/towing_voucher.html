@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang=en-us>
+<head>
+	<meta charset=utf-8>
+
+	<style type="text/css">
+    * {
+      font-family: 'arial narrow', 'arial', 'helvetica'
+    }
+    div.container {
+      clear: both;
+      position: relative;
+      width: 720px;
+			padding-top: 25px;
+    }
+    div.voucher_title {
+      clear: both;
+      float: left;
+      font-size: 1.5em;
+      text-transform: uppercase;
+    }
+    div.voucher_allotment {
+      float: right;
+      font-size: 1.5em;
+    }
+    div.style1 {
+      float: left;
+      text-transform: uppercase;
+      border: 1px solid #000;
+      padding-left: 1px;
+      padding-top: 1px;
+      padding-right: 1px;
+      padding-bottom: 1px;
+      width: 351px;
+      margin-top: 3px;
+      font-size: 0.8em
+    }
+		div.style1 table {
+			border-collapse: collapse;
+		}
+    div.style1_right {
+      float: left;
+      margin-left: 5px;
+    }
+    div.style2 {
+      clear: both;
+      border: 1px solid #000;
+
+      padding-left: 3px;
+      padding-top: 3px;
+      padding-right: 3px;
+      padding-bottom: 3px;
+      margin-top: 3px;
+      font-size: 0.8em
+    }
+    div.style3 {
+      float: left;
+      border: 1px solid #000;
+      width: 168px;
+      padding-left: 3px;
+      padding-top: 3px;
+      padding-right: 3px;
+      padding-bottom: 3px;
+      margin-top: 5px;
+      font-size: 0.8em
+    }
+    div.clear {
+      clear: both;
+      padding: 2px 2px 2px 2px;
+    }
+		div.style4 {
+			float: left;
+			margin-right: 4px;
+		}
+		div.style4 table {
+				border-collapse: collapse;
+				border: 1px solid #000;
+		}
+
+		div.style4 table th {
+			text-transform: uppercase;
+			text-align: center;
+			border: 1px solid #000;
+		}
+		div.style4 table th.small {
+				font-size: 0.6em;
+				font-weight: normal;
+		}
+		div.style4 table td {
+				font-size: 0.8em;
+				text-align: center;
+				border: 1px solid #000;
+		}
+		div.style4 table td.disabled {
+			background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAX/GZH4/4FsRpgAmAOSBBFwDkgAAIKuBATRTAAZAAAAAElFTkSuQmCC) repeat;
+		}
+		div.style4 ul {
+			margin-top: 0px;
+			padding-top: 0px;
+			padding-bottom: 0px;
+			margin-bottom: 0px;
+		}
+		div.style4 li {
+			font-size: 0.6em;
+		}
+		table.signature {
+			width: 100%;
+			border: 1px solid #000;
+			border-collapse: collapse;
+		}
+		table.signature th {
+				text-transform: uppercase;
+				font-size: 0.8em;
+				border: 1px solid #000;
+		}
+		table.signature td {
+			font-size: 0.8em;
+		}
+		div.financial_footer {
+				clear: both;
+				font-size: 0.6em;
+				padding-top: 15px;
+				text-align: center;
+		}
+		div.footer {
+				float: right;
+				font-size: 0.8em;
+				font-style: italic;
+				width: 200px;
+				text-align: right;
+		}
+
+		.label {
+			font-weight: bold;
+		}
+
+
+
+  </style>
+	<body>
+    <div class="container">
+      <div class="voucher_title">
+        Takelbon F.A.S.T. < 3,5 Ton
+      </div>
+      <div class="voucher_allotment">
+          <%= allotment_name %>
+      </div>
+
+	    <div class="clear">
+	      <div class="style1" style="clear: both;">
+	          <strong>Takelbon nr.:</strong> <%= voucher_number %>
+	      </div>
+	      <div class="style1 style1_right">
+	          <strong>Oproep nr.:</strong> <%= call_number %>
+	      </div>
+	    </div>
+
+    <div class="clear">
+      <div class="style1" style="clear: both; height: 100px; border: 0px; padding: 0 0 0 0; width: 355px;">
+					<table border=0 width="100%" class="signature" style="height: 100px">
+						<thead>
+								<tr><th colspan="2">Dienstverlener</th></tr>
+						</thead>
+            <tr>
+              <td colspan="2"><strong><%= towing_service_name %></strong></td>
+            </tr>
+            <tr>
+              <td colspan="2"><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td>
+            </tr>
+            <tr>
+              <td><strong>Tel.:</strong> <%= towing_service_phone %></td>
+              <td><strong>BTW Nr.:</strong> <%= towing_service_vat %></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                  <%= towing_service_email %> <br />
+                  <%= towing_service_site %>
+              </td>
+            </tr>
+          </table>
+      </div>
+
+      <div class="style1 style1_right" style="height: 100px; border: 0px; padding: 0 0 0 0; width: 355px;">
+						<table border=0 width="100%" class="signature" style="height: 100px">
+							<thead>
+									<tr><th colspan="2">Hinderverwekker</th></tr>
+							</thead>
+              <tr><td colspan="2">P&amp;V Assistance - I.m.a. BeNeLux</td></tr>
+              <tr><td colspan="2">Sq Des Conduites D'eau, 11-12<br/> 4020 Liège</td></tr>
+              <tr><td>Tel.: 02/229.00.11</td><td>BTW Nr.: BE 0402.236.531</td></tr>
+              <tr><td>NR.PL.: 1-GSA-659</td><td>MERK/TYPE: Ford C-Max</td></tr>
+          </table>
+      </div>
+    </div>
+
+    <div class="clear">
+      <div class="style2">
+          <table border="0">
+              <tr>
+                  <td><strong>Gemeente:</strong> <%= location %></td>
+                  <td><%= direction %> thv <%= indicator %></td>
+              </tr>
+              <tr>
+                  <td><strong>Aantal versperde rijstroken:</strong> <%= nr_of_blocked_lanes %></td>
+                  <td><strong>Aanduiding rijstrook:</strong> <%= lane_indicator %></td>
+              </tr>
+          </table>
+      </div>
+
+    </div>
+
+    <div class="clear">
+      <div class="style3" style="margin-right: 3px">
+          <table border="0">
+              <tr><td class="label">Datum:</td><td><%= call_date %></td></tr>
+              <tr><td class="label">Uur:</td><td><%= call_hour %></td></tr>
+              <tr><td colspan="2">Feestdag &#9744;</td></tr>
+          </table>
+      </div>
+      <div class="style3" style="margin-right: 3px;">
+          <table border="0">
+              <tr><td class="label">Aankomst:</td><td><%= signa_arrival %></td></tr>
+              <tr><td class="label">Start takel:</td><td><%= towing_start %></td></tr>
+              <tr><td class="label">Stop takel:</td><td><%= towing_end %></td></tr>
+          </table>
+      </div>
+      <div class="style3" style="margin-right: 5px;">
+          <table border="0">
+							<tr><td class="label">Signal.:</td><td>1-XXX-XXX</td></tr>
+							<tr><td class="label">Takel:</td><td>1-YYY-YYY</td></tr>
+              <tr><td class="label">Aant. Takelbons:</td><td><%= nr_of_vouchers %></td></tr>
+          </table>
+      </div>
+      <div class="style3">
+          <table border="0">
+              <tr><td>&#9746; PANNE</td><td>&#9744; ONGEVAL</td></tr>
+              <tr><td colspan="2">&#9744; ACHTERGEL.VTG</td></tr>
+              <tr><td colspan="2">&#9744; LADING VERLIES</td>
+          </table>
+      </div>
+    </div>
+
+    <div class="clear">
+      <div class="style2">
+          <strong>Locatie/Depot afvoer:</strong> <%= towing_location_depot %>
+      </div>
+    </div>
+
+		<div class="clear">
+			<div class="style4" style="width: 133px; font-size: 0.8em;">
+				<table width="100%">
+						<thead>
+							<tr><th>Type Takeling</th></tr>
+							<tr>
+								<th class="small">&nbsp;</th>
+						</thead>
+						<tbody>
+								<tr>
+										<td>Type I (Panne)</td>
+								</tr>
+								<tr>
+										<td>Type II (Achterg.)</td>
+								</tr>
+								<tr>
+										<td>Type III (Ongeval)</td>
+								</tr>
+								<tr>
+										<td>Signalisatie</td>
+								</tr>
+								<tr>
+										<td>Extra tijd Type III (15 min.)</td>
+								</tr>
+								<tr>
+										<td>Extra tijd signal. (15 min.)</td>
+								</tr>
+								<tr>
+										<td>Verloren voorwerp</td>
+								</tr>
+								<tr>
+										<td>Loze rit</td>
+								</tr>
+								<tr>
+										<td>Botsabsorbeerder (uur)</td>
+								</tr>
+								<tr>
+										<td>Totaal per tarief</td>
+								</tr>
+						</tbody>
+				</table>
+			</div>
+			<div class="style4" style="font-size: 0.8em; width: 190px;">
+				<table width="100%">
+						<thead>
+							<tr><th colspan="3">Basistarief</th></tr>
+							<tr>
+								<th class="small">Aantal</th>
+								<th class="small">Prijs (incl. BTW)</th>
+								<th class="small">Tot. (incl. BTW)</th>
+						</thead>
+						<tbody>
+								<tr>
+										<td></td>
+										<td>141,58</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>176,74</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>219,41</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>72,60</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>18,15</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>18,15</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td class="disabled"></td>
+										<td>121,00</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>72,60</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>72,60</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td colspan="2" class="disabled"></td>
+										<td>&nbsp;</td>
+								</tr>
+						</tbody>
+				</table>
+			</div>
+			<div class="style4" style="font-size: 0.8em; width: 190px;">
+				<table width="100%">
+						<thead>
+							<tr><th colspan="3">Tarief I</th></tr>
+							<tr>
+								<th class="small">Aantal</th>
+								<th class="small">Prijs (incl. BTW)</th>
+								<th class="small">Tot. (incl. BTW)</th>
+						</thead>
+						<tbody>
+								<tr>
+										<td>1,00</td>
+										<td>212,38</td>
+										<td>212,38</td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>265,12</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>329,12</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td>1</td>
+										<td>108,90</td>
+										<td>108,90</td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>24,20</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>24,20</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td class="disabled"></td>
+										<td>121,00</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>90,75</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>90,750</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td colspan="2" class="disabled"></td>
+										<td>321,28</td>
+								</tr>
+						</tbody>
+				</table>
+			</div>
+			<div class="style4" style="font-size: 0.8em; width: 190px;margin-right:0px;">
+				<table width="100%">
+						<thead>
+							<tr><th colspan="3">Tarief II</th></tr>
+							<tr>
+								<th class="small">Aantal</th>
+								<th class="small">Prijs (incl. BTW)</th>
+								<th class="small">Tot. (incl. BTW)</th>
+						</thead>
+						<tbody>
+								<tr>
+										<td></td>
+										<td>283,16</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>353,49</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>438,82</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>145,20</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>30,25</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>23,25</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td class="disabled"></td>
+										<td>121,00</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>108,905</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td></td>
+										<td>108,90</td>
+										<td></td>
+								</tr>
+								<tr>
+										<td colspan="2" class="disabled"></td>
+										<td>&nbsp;</td>
+								</tr>
+						</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="clear">
+			<div style="width: 131px; float: left; border: 1px solid #000; margin-right: 4px; font-size: 0.8em;">
+					Stallingskosten <br />
+					vanaf 4e kalenderdag
+			</div>
+			<div class="style4" style="width: 190px;">
+				<table width="100%">
+						<thead>
+							<tr>
+								<th class="small">Aantal</th>
+								<th class="small">Prijs (incl. BTW)</th>
+								<th class="small">Tot. (incl. BTW)</th>
+						</thead>
+						<tbody>
+								<tr>
+									<td></td>
+									<td>6,05</td>
+									<td></td>
+							</tr>
+						</tbody>
+					</table>
+			</div>
+			<div class="style4" style="border: 1px solid #000;width: 382px; margin-right: 0px;">
+				<ul>
+						<li>Basistarief: werkdagen 08:00 - 17:00u</li>
+						<li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
+						<li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="clear">
+			<div class="style1" style="border: 0px; background-color: #e0e0e0;font-size: 1.0em; width:325px">
+				<table style="border-collapse: collapse;border: 1px solid #000;width: 100%">
+						<tr><td style="border: 1px solid #000;">Algemeen totaal incl. BTW</td><td style="border:2px solid #000; text-align: right"> &euro; 321,28</td></tr>
+						<tr><td style="border: 1px solid #000;">Garantie Assistance </td><td style="border:2px solid #000; text-align: right"> &euro; 200,00</td></tr>
+						<tr><td style="border: 1px solid #000;">Ten laste van klant </td><td style="border:2px solid #000; text-align: right"> &euro; 121,28</td></tr>
+						<tr><td colspan="2" style="font-weight: bold; font-size: 0.8em; text-align: center; border-top: 1px solid #000; border-bottom: 1px solid #000;">Betalingswijze</td></tr>
+						<tr>
+								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">&#9744; Contant &#9744; Electronsch &#9746;Overname assistance</td>
+						</tr>
+						<tr>
+								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">
+										<span class="label">Assistance:</span> P&amp;V <br />
+										<span class="label">Dossiernr:</span> BP4P180363AC</td>
+						</tr>
+				</table>
+			</div>
+			<div class="style1 style1_right" style="text-transform: none; font-size: 0.6em; width: 379px; ">
+				De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
+				waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
+				en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
+			</div>
+			<div class="style1 style1_right" style="text-transform: none; font-size:1em; width: 383px; border: 0px; padding: 0 0 0 0;">
+				<table class="signature">
+					<thead>
+						<tr>
+							<th>Opgehaald door</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+								<td>
+										<span class="label">Naam/Firma:</span> Klant <br />
+										<span class="label">Datum:</span> 05/09/2014<br />
+										<br />
+										Handtekening
+
+										<br/>
+										<br/>
+								</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="clear">
+			<table class="signature">
+				<thead>
+					<tr>
+						<th>Voor akkoord (Dienstverlener)</th>
+						<th>Voor bevestiging (Politie)</th>
+						<th>Voor kennisname (Hinderverwekker)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+							<td valign="top" style="border: 1px solid #000; width: 33%">
+									(Gegevens uitvoerder/onderaannemer)
+
+									<table>
+											<tr><td class="label">Naam:</td><td>Depannage La France NV</td></tr>
+											<tr><td class="label" valign="top">Adres:</td><td>Tweemontstraat 310 <br />2100 Deurne</td></tr>
+											<tr><td class="label">Tel.:</td><td>+32 (0)3 325 19 15</td></tr>
+									</table>
+
+									<br />
+									Handtekening
+
+									<br/>
+									<br/>
+									<br />
+									<br />
+									<br />
+									<br />
+							</td>
+							<td valign="top" style="border: 1px solid #000; width: 33%">
+									(Gegevens Politiepost)
+
+									<table>
+											<tr><td class="label">Verkeerspost:</td><td>Geen PLG</td></tr>
+											<tr><td class="label">Tel.:</td><td>+32 (0)3 829 70 89 (tijdens kantoor uren)</td></tr>
+											<tr><td class="label">Tijdstip bevestiging:</td><td></td></tr>
+									</table>
+
+
+							</td>
+							<td valign="top">
+									(Gegevens Hinderverwekker)
+
+									<table>
+											<tr><td class="label">Naam:</td><td>Tss Bvba</td></tr>
+											<tr><td class="label" valign="top">Adres:</td><td>Hoogstraat 29 <br />2850 Boom</td></tr>
+											<tr><td class="label">Tel.:</td><td>0485462064</td></tr>
+									</table>
+
+									<br />
+									Handtekening
+
+									<br/>
+									<br/>
+									<br />
+									<br />
+									<br />
+									<br />
+							</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="clear">
+			<div class="style2">
+					<strong>Eventuele opmerkingen:</strong> <br />
+					<br />
+					<br />
+			</div>
+		</div>
+		<div class="clear">
+			<div class="footer">
+				exemplaar dienstverlener
+			</div>
+			<div class="financial_footer">
+					Depannage La France NV - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

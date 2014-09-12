@@ -1,0 +1,24 @@
+{
+  "name": "towing-sl",
+  "version": "0.0.1",
+  "description": "Service layer for the towing application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kris  Vandermast",
+  "license": "ISC",
+  "dependencies": {
+    "body": "^4.5.0",
+    "body-parser": "^1.7.0",
+    "connect": "^3.1.1",
+    "express": "^4.8.7",
+    "mysql": "^2.4.3",
+    "node-phantom": "^0.2.5",
+    "nodemailer": "^1.2.2",
+    "phantom": "^0.6.5",
+    "phantomjs": "^1.9.7-15",
+    "send-data": "^3.3.3",
+    "underscore": "^1.7.0"
+  }
+}
