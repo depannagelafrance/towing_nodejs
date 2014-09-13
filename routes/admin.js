@@ -204,20 +204,70 @@ router.delete('/insurance/:id/:token', function($req, $res) {
 // -- -------------------------------------------------
 // -- COLLECTOR MANAGEMENT
 // -- -------------------------------------------------
-router.get('/collector/:token', function($req, $res) {
 
+const SQL_ALL_COLLECTORS    = "CALL R_FETCH_ALL_COLLECTORS(?);";
+const SQL_COLLECTOR_BY_ID   = "CALL R_FETCH_COLLECTOR_BY_ID(?,?);";
+const SQL_CREATE_COLLECTOR  = "CALL R_ADD_COLLECTOR(?,?);";
+const SQL_UPDATE_COLLECTOR  = "CALL R_UPDATE_COLLECTOR(?,?,?);";
+const SQL_DELETE_COLLECTOR  = "CALL R_DELETE_COLLECTOR(?,?);";
+
+router.get('/collector/:token', function($req, $res) {
+  var $token = $req.params.token;
+
+  db.many(SQL_ALL_COLLECTORS, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/collector/:id/:token', function($req, $res) {
+  var $id = $req.params.id;
+  var $token = $req.params.token;
+
+  db.one(SQL_COLLECTOR_BY_ID, [$id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
 });
 
 router.post('/collector/:token', function($req, $res) {
+  var $token = $req.params.token;
 
+  var $name = ju.requires('name', $req.body);
+
+  db.one(SQL_CREATE_COLLECTOR, [$name, $token], function($error, $result, $fields) {
+    if('error' in $result) {
+      ju.send($req, $res, $result);
+    } else {
+      var $id = $result.id;
+
+      db.one(SQL_COLLECTOR_BY_ID, [$id, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
+    }
+  });
 });
 
 router.put('/collector/:id/:token', function($req, $res) {
+  var $id = $req.params.id;
+  var $token = $req.params.token;
 
+  db.one(SQL_UPDATE_COLLECTOR, [$id, $token], function($error, $result, $fields) {
+    if('error' in $result) {
+      ju.send($req, $res, $result);
+    } else {
+      db.one(SQL_COLLECTOR_BY_ID, [$id, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
+    }
+  });
 });
 
 router.delete('/collector/:id/:token', function($req, $res) {
+  var $id = $req.params.id;
+  var $token = $req.params.token;
 
+  db.one(SQL_DELETE_COLLECTOR, [$id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
 });
 
 

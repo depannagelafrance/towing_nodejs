@@ -16,7 +16,6 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_FETCH_DOSSIER_BY_ID               = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
 const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER  = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
 
-
 // -- DEFAULT GETTER RETURNS NOTHING
 router.get('/', function($req, $res) {
   throw new InvalidRequest();
