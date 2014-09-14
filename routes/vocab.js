@@ -11,37 +11,39 @@ const TAG = 'vocab.js';
 var router = express.Router();
 
 
-// -- -------------------------------------------------
-// -- INSURANCE MANAGEMENT
-// -- -------------------------------------------------
-const SQL_ALL_INSURANCES    = "CALL R_FETCH_ALL_INSURANCES(?);";
+//-- SQL CONSTANTS
+const SQL_ALL_INSURANCES                = "CALL R_FETCH_ALL_INSURANCES(?);";
+const SQL_ALL_COLLECTORS                = "CALL R_FETCH_ALL_COLLECTORS(?);";
+const SQL_ALL_TRAFFIC_LANES             = "CALL R_FETCH_ALL_TRAFFIC_LANES(?);";
+const SQL_ALL_COUNTRY_LICENCE_PLATES    = "CALL R_FETCH_ALL_LICENCE_PLATE_COUNTRIES(?);";
 
-router.get('/insurances/:token', function($req, $res) {
+// -- FACILITATORS
+function fetchVocabularies($req, $res, $sp) {
   var $token = $req.params.token;
 
-  console.log($token + " was found");
+  LOG.d(TAG, "Using token: " + $token);
+  LOG.d(TAG, "Executing stored procedure: " + $sp);
 
-  db.many(SQL_ALL_INSURANCES, [$token], function($error, $result, $fields) {
+  db.many($sp, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
+}
+
+//-- ROUTES
+router.get('/insurances/:token', function($req, $res) {
+  fetchVocabularies($req, $res, SQL_ALL_INSURANCES);
 });
-
-
-// -- -------------------------------------------------
-// -- COLLECTOR MANAGEMENT
-// -- -------------------------------------------------
-
-const SQL_ALL_COLLECTORS    = "CALL R_FETCH_ALL_COLLECTORS(?);";
 
 router.get('/collectors/:token', function($req, $res) {
-  var $token = $req.params.token;
-
-  db.many(SQL_ALL_COLLECTORS, [$token], function($error, $result, $fields) {
-    ju.send($req, $res, $result);
-  });
+  fetchVocabularies($req, $res, SQL_ALL_COLLECTORS);
 });
 
+router.get('/traffic_lanes/:token', function($req, $res) {
+  fetchVocabularies($req, $res, SQL_ALL_TRAFFIC_LANES);
+});
 
-
+router.get('/country_licence_plates/:token', function($req, $res) {
+  fetchVocabularies($req, $res, SQL_ALL_COUNTRY_LICENCE_PLATES);
+});
 
 module.exports = router;
