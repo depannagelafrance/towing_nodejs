@@ -11,7 +11,7 @@ const TAG = 'admin.js';
 var router = express.Router();
 
 
-//-- DEFINE CONSTANST
+//-- DEFINE CONSTANTS
 const SQL_CREATE_USER         = "CALL R_CREATE_USER(?, ?, ?, ?, ?);";
 const SQL_USER_BY_ID          = "CALL R_FETCH_USER_BY_ID(?,?);";
 const SQL_ALL_USERS           = "CALL R_FETCH_ALL_USERS(?);";
@@ -112,21 +112,78 @@ router.put('/users/unlock/:user_id/:token', function($req, $res) {
 // -- -------------------------------------------------
 // -- CALENDAR MANAGEMENT
 // -- -------------------------------------------------
-// FETCH CALENDAR ITEMS
-router.get('/calendar/:year/:token', function($req, $res) {
+const SQL_CREATE_CALENDAR_ITEM = "CALL R_ADD_CALENDAR_ITEM(?,?,?);";
+const SQL_UPDATE_CALENDAR_ITEM = "CALL R_UPDATE_CALENDAR_ITEM(?,?,?,?);";
+const SQL_DELETE_CALENDAR_ITEM = "CALL R_DELETE_CALENDAR_ITEM(?,?);";
+const SQL_ALL_CALENDAR_ITEMS   = "CALL R_FETCH_ALL_CALENDAR_ITEMS(?,?);";
+const SQL_CALENDAR_ITEM_BY_ID  = "CALL R_CALENDAR_ITEM_BY_ID(?,?);";
 
+router.get('/calendar/year/:year/:token', function($req, $res) {
+  var $token  = ju.requires('token', $req.params);
+
+  $year = ju.requiresInt('year', $req.params);
+
+  db.many(SQL_ALL_CALENDAR_ITEMS, [$year, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/calendar/id/:id/:token', function($req, $res) {
+  var $token  = ju.requires('token', $req.params);
+
+  var $id = ju.requiresInt('id', $req.params);
+
+  db.one(SQL_CALENDAR_ITEM_BY_ID, [$id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
 });
 
 router.post('/calendar/:token', function($req, $res) {
+  var $token = $req.params.token;
 
+  var $name = ju.requires('name', $req.body);
+  var $date = ju.requires('date', $req.body);
+
+  db.one(SQL_CREATE_CALENDAR_ITEM, [$name, $date, $token], function($error, $result, $fields) {
+    if('error' in $result) {
+      ju.send($req, $res, $result);
+    } else {
+      var $id = $result.id;
+
+      db.one(SQL_CALENDAR_ITEM_BY_ID, [$id, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
+    }
+  });
 });
 
 router.put('/calendar/:id/:token', function($req, $res) {
+  var $id     = ju.requiresInt('id', $req.params);
+  var $token  = $req.params.token;
 
+  var $name = ju.requires('name', $req.body);
+  var $date = ju.requires('date', $req.body);
+
+  db.one(SQL_UPDATE_CALENDAR_ITEM, [$id, $name, $date, $token], function($error, $result, $fields) {
+    if('error' in $result) {
+      ju.send($req, $res, $result);
+    } else {
+      var $id = $result.id;
+
+      db.one(SQL_CALENDAR_ITEM_BY_ID, [$id, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
+    }
+  });
 });
 
 router.delete('/calendar/:id/:token', function($req, $res) {
+  var $id     = ju.requiresInt('id', $req.params);
+  var $token  = $req.params.token;
 
+  db.one(SQL_DELETE_CALENDAR_ITEM, [$id, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+  });
 });
 
 
@@ -142,8 +199,6 @@ const SQL_DELETE_INSURANCE  = "CALL R_DELETE_INSURANCE(?,?);";
 
 router.get('/insurance/:token', function($req, $res) {
   var $token = $req.params.token;
-
-  console.log($token + " was found");
 
   db.many(SQL_ALL_INSURANCES, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -200,6 +255,7 @@ router.delete('/insurance/:id/:token', function($req, $res) {
     ju.send($req, $res, $result);
   });
 });
+
 
 // -- -------------------------------------------------
 // -- COLLECTOR MANAGEMENT

@@ -47,6 +47,8 @@ var one = function($sql, $params, $callback) {
 };
 
 var many = function($sql, $params, $callback) {
+	LOG.d(TAG, "Executing <" + $sql + "> with parameters: " + JSON.stringify($params));
+
   connection.query($sql, $params, function($error, $rows, $fields) {
     $result = $rows;
 

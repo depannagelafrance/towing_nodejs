@@ -1,3 +1,4 @@
+var _         = require('underscore');
 var util      = require('util');
 var sendJson  = require("send-data/json");
 
@@ -5,19 +6,37 @@ function RequiredKeyMissing($key) {
   Error.call(this);
   this.key = $key;
   this.statusCode = 400;
-  this.message = 'Required field missing';
+  this.message = 'Required field missing: ' + $key;
+}
+
+function RequiredIntMissing($key) {
+  Error.call(this);
+  this.key = $key;
+  this.statusCode = 400;
+  this.message = 'Required field is not an number: ' + $key;
 }
 
 util.inherits(RequiredKeyMissing, Error);
+util.inherits(RequiredIntMissing, Error);
 
 var requires = function($key, $jsonData) {
     if($jsonData[$key]) {
-      console.log("Found required key: " + $key);
-
       return $jsonData[$key];
     }
 
     throw new RequiredKeyMissing($key);
+}
+
+var requiresInt = function($key, $jsonData) {
+  $value = requires($key, $jsonData);
+
+  if($value) {
+    if(_.isNaN(parseInt($value))) {
+      throw new RequiredIntMissing($key);
+    }
+  }
+
+  return $value;
 }
 
 var send = function($req, $res, $result) {
@@ -41,4 +60,5 @@ var send = function($req, $res, $result) {
 }
 
 exports.requires = requires;
+exports.requiresInt = requiresInt;
 exports.send = send;
