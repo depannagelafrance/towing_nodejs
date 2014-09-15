@@ -1,17 +1,12 @@
 // require modules
-var mysql = require('mysql');
+var mysql       = require('mysql');
 var LOG         = require('../util/logger.js');
+var settings    = require('../settings/settings.js');
 
 const TAG = "database.js";
 
 // connect to mysql
-var connection = mysql.createConnection({
-	user : "root",
-	password : "root",
-	database : "depannage_lafrance",
-	port : 8889,
-// debug: true
-});
+var connection = mysql.createConnection(settings.mysql);
 
 connection.connect(function($err) {
   // connected! (unless `err` is set)
