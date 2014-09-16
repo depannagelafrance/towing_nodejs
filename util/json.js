@@ -36,26 +36,35 @@ var requiresInt = function($key, $jsonData) {
     }
   }
 
-  return $value;
+  return parseInt($value);
 }
 
 var send = function($req, $res, $result) {
   $res.setHeader('Content-Type', 'application/json');
 
-  if('error' in $result) {
-    $res.status($result.statusCode || 400);
+  if($result) {
+    if('error' in $result) {
+      $res.status($result.statusCode || 400);
+
+      $errormsg = JSON.stringify({
+          message: $result.error || 'Internal server error',
+          error: {}
+      });
+
+      $res.end($errormsg);
+    } else {
+      $res.status(200);
+      sendJson($req, $res, $result);
+    }
+  } else {
+    $res.status(500);
 
     $errormsg = JSON.stringify({
-        message: $result.error || 'Internal server error',
+        message: 'Internal server error',
         error: {}
     });
 
-    console.log($errormsg);
-
     $res.end($errormsg);
-  } else {
-    $res.status(200);
-    sendJson($req, $res, $result);
   }
 }
 

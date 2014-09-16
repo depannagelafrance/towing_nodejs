@@ -16,6 +16,10 @@ const SQL_ALL_INSURANCES                = "CALL R_FETCH_ALL_INSURANCES(?);";
 const SQL_ALL_COLLECTORS                = "CALL R_FETCH_ALL_COLLECTORS(?);";
 const SQL_ALL_TRAFFIC_LANES             = "CALL R_FETCH_ALL_TRAFFIC_LANES(?);";
 const SQL_ALL_COUNTRY_LICENCE_PLATES    = "CALL R_FETCH_ALL_LICENCE_PLATE_COUNTRIES(?);";
+const SQL_ALL_DIRECTIONS                = "CALL R_FETCH_ALL_DIRECTIONS(?);";
+const SQL_ALL_INDICATORS_BY_DIRECTIONS  = "CALL R_FETCH_INDICATORS_BY_DIRECTION(?, ?);";
+const SQL_ALL_INCIDENT_TYPES            = "CALL R_FETCH_ALL_INCIDENT_TYPES(?)";
+
 
 // -- FACILITATORS
 function fetchVocabularies($req, $res, $sp) {
@@ -38,12 +42,29 @@ router.get('/collectors/:token', function($req, $res) {
   fetchVocabularies($req, $res, SQL_ALL_COLLECTORS);
 });
 
+router.get('/directions/:token', function($req, $res) {
+  fetchVocabularies($req, $res, SQL_ALL_DIRECTIONS);
+});
+
+router.get('/indicators/:direction/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $direction = ju.requires('direction', $req.params);
+
+  db.many(SQL_ALL_INDICATORS_BY_DIRECTIONS, [$direction, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
 router.get('/traffic_lanes/:token', function($req, $res) {
   fetchVocabularies($req, $res, SQL_ALL_TRAFFIC_LANES);
 });
 
 router.get('/country_licence_plates/:token', function($req, $res) {
   fetchVocabularies($req, $res, SQL_ALL_COUNTRY_LICENCE_PLATES);
+});
+
+router.get('/incident_types/:token', function($req, $res) {
+  fetchVocabularies($req, $res, SQL_ALL_INCIDENT_TYPES);
 });
 
 module.exports = router;
