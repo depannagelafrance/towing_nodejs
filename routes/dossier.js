@@ -16,7 +16,6 @@ var router = express.Router();
 //-- DEFINE CONSTANST
 const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-//CALL R_UPDATE_TOWING_VOUCHER`(<{IN p_dossier_id BIGINT}>, <{IN p_voucher_id BIGINT}>, <{IN p_insurance_id BIGINT}>, <{IN p_insurance_dossier_nr VARCHAR(45)}>, <{IN p_warranty_holder VARCHAR(255)}>, <{IN p_collector_id BIGINT}>, <{IN p_vehicule_type VARCHAR(255)}>, <{IN p_vehicule_licence_plate VARCHAR(15)}>, <{IN p_vehicule_country VARCHAR(5)}>, <{IN p_signa_by VARCHAR(255)}>, <{IN p_signa_by_vehicule VARCHAR(15)}>, <{IN p_signa_arrival DATETIME}>, <{IN p_towed_by VARCHAR(255)}>, <{IN p_towed_by_vehicule VARCHAR(15)}>, <{IN p_towing_depot VARCHAR(512)}>, <{IN p_towing_called DATETIME}>, <{IN p_towing_arrival DATETIME}>, <{IN p_towing_start DATETIME}>, <{IN p_towing_end DATETIME}>, <{IN p_police_signature DATE}>, <{IN p_recipient_signature DATE}>, <{IN p_vehicule_collected DATE}>, <{IN p_cic DATETIME}>, <{IN p_additional_info TEXT}>, <{IN p_token VARCHAR(255)}>);
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
 
 const SQL_FETCH_DOSSIER_BY_ID               = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
@@ -24,6 +23,8 @@ const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER  = "CALL R_FETCH_TOWING_VOUCHERS_BY_D
 const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
 const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER  = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
 const SQL_FETCH_ALL_DOSSIERS_BY_FILTER      = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
+const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES    = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
+const SQL_FETCH_ALL_VOUCHERS_BY_FILTER      = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
 
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
@@ -60,6 +61,33 @@ router.get('/list/check/:token', function($req, $res) {
 
 router.get('/list/invoice/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_READY_FOR_INVOICE);
+});
+
+router.get('/list/vouchers/new/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_VOUCHERS_BY_FILTER, [STATUS_NEW, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+  });
+});
+
+router.get('/list/vouchers/completed/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_VOUCHERS_BY_FILTER, [STATUS_COMPLETED, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+  });
+});
+
+router.get('/list/available_activities/:dossier/:voucher/:token', function($req, $res) {
+  var $dossier_id = ju.requiresInt('dossier', $req.params);
+  var $voucher    = ju.requiresInt('voucher', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  //fetch the towing activities information
+  db.many(SQL_FETCH_ALL_AVAILABLE_ACTIVITIES, [$dossier_id, $voucher, $token], function($error, $a_result, $fields) {
+      ju.send($req, $res, $result);
+  });
 });
 
 
