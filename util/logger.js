@@ -1,4 +1,4 @@
-const DEBUG_LEVEL = 500;
+const DEBUG_LEVEL = 1000;
 
 const LEVEL_DEBUG = 1000;
 const LEVEL_INFO  = 500;
@@ -11,7 +11,7 @@ const LEVEL_LABELS = {
 }
 
 var log = function($tag, $message, $level) {
-  if(DEBUG_LEVEL <= $level) {
+  if(DEBUG_LEVEL >= $level) {
     console.log(
       $tag
       + " - "

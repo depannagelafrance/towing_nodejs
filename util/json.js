@@ -44,9 +44,10 @@ var send = function($req, $res, $result) {
 
   if($result) {
     if('error' in $result) {
-      $res.status($result.statusCode || 400);
+      $res.status($result.statusCode || 500);
 
       $errormsg = JSON.stringify({
+          statusCode: $result.statusCode || 500,
           message: $result.error || 'Internal server error',
           error: {}
       });

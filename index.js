@@ -20,7 +20,7 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
 
 app.use(function (req, res, next) {
   LOG.d(TAG, ">>> BODY ========================");
-  LOG.d(TAG, JSON.stringify(req.body)); // populated!
+  LOG.d(TAG, JSON.stringify(req.body));
   LOG.d(TAG, "<<< BODY ========================");
   next();
 })
@@ -52,11 +52,12 @@ app.use('/search',  search);
 app.use(function($err, $req, $res, next) {
     LOG.d(TAG,'Ai! This we like not!');
 
-    LOG.e(TAG, $err.stack);
+    LOG.e(TAG, $err);
 
     $res.status($err.statusCode || 500);
 
     $errormsg = JSON.stringify({
+        statusCode: $err.statusCode || 500,
         message: $err.message,
         error: {}
     });

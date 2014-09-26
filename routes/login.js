@@ -21,11 +21,14 @@ const SQL_FETCH_USER_ROLES    = "CALL R_FETCH_USER_ROLES(?); ";
 
 // -- ONLY POSTS ARE ALLOWED
 router.get('/', function($req, $res) {
+  LOG.d(TAG, "GET '/'");
+
   throw new common.InvalidRequest();
 });
 
 // -- PROCESS LOGIN
 router.post('/', function($req, $res) {
+  LOG.d(TAG, "POST '/'");
   $jsonData = $req.body;
 
   $login  = ju.requires('login', $jsonData);
@@ -54,6 +57,7 @@ router.post('/', function($req, $res) {
 
 // -- PROCESS TOKEN LOGIN
 router.post('/token', function($req, $res) {
+  LOG.d(TAG, "POST '/token'");
   $jsonData = $req.body;
 
   $token  = ju.requires('token', $jsonData);
@@ -65,6 +69,8 @@ router.post('/token', function($req, $res) {
 
 //-- PROCESS FORGOT PASSWORD
 router.post('/forgot', function($req, $res) {
+  LOG.d(TAG, "POST '/forgot'");
+  
   throw new common.InvalidRequest();
 });
 
