@@ -19,6 +19,7 @@ const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?,
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
 
 const SQL_FETCH_DOSSIER_BY_ID               = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
+const SQL_FETCH_DOSSIER_BY_NUMBER           = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
 const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER  = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
 const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
 const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER  = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
@@ -132,6 +133,21 @@ router.get('/:dossier/:token', function($req, $res) {
   fetchDossierById($req, $res, $dossier_id, $token);
 });
 
+
+router.get('/find/dossier_number/:dossier/:token', function($req, $res) {
+  var $dossier_nr = ju.requiresInt('dossier', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  //fetch the towing activities information
+  db.one(SQL_FETCH_DOSSIER_BY_NUMBER, [$dossier_nr, $token], function($error, $result, $fields) {
+      if('error' in $result) {
+        ju.send($req, $res, $result);
+      } else {
+        fetchDossierById($req, $res, $result.id, $token);
+      }
+  });
+});
+
 // -- CREATE DOSSIER, TOWING VOUCHER
 router.post('/:token', function($req, $res) {
   $token  = ju.requires('token', $req.params);
@@ -173,54 +189,58 @@ router.put('/:dossier/:token', function($req, $res) {
     } else {
       $i = 0;
 
-      $vouchers.forEach(function($voucher) {
-        $voucher_id           = $voucher.id;
-        $insurance_id         = $voucher.insurance_id;
-        $insurance_dossier_nr = $voucher.insurance_dossiernr;
-        $warranty_holder      = $voucher.insurance_warranty_held_by;
-        $collector_id         = $voucher.collector_id;
-        $police_signature_date    = $voucher.police_signature_dt;
-        $recipient_signature_date = $voucher.recipient_signature_dt;
-        $vehicule_type            = $voucher.vehicule_type;
-        $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
-        $vehicule_country     = $voucher.vehicule_country;
-        $vehicule_collected   = $voucher.vehicule_collected;
-        $towed_by             = $voucher.towed_by;
-        $towed_by_vehicule    = $voucher.towed_by_vehicle;
-        $towing_called        = $voucher.towing_called;
-        $towing_arrival       = $voucher.towing_arrival;
-        $towing_start         = $voucher.towing_start;
-        $towing_completed     = $voucher.towing_completed;
-        $towing_depot         = $voucher.towing_depot;
-        $signa_by             = $voucher.signa_by;
-        $signa_by_vehicule    = $voucher.signa_by_vehicle;
-        $signa_arrival        = $voucher.signa_arrival;
-        $cic                  = $voucher.cic;
-        $additional_info      = $voucher.additional_info
+      if(!$vouchers || $vouchers.length == 0) {
+        fetchDossierById($req, $res, $result.id, $token);
+      } else {
+        $vouchers.forEach(function($voucher) {
+          $voucher_id           = $voucher.id;
+          $insurance_id         = $voucher.insurance_id;
+          $insurance_dossier_nr = $voucher.insurance_dossiernr;
+          $warranty_holder      = $voucher.insurance_warranty_held_by;
+          $collector_id         = $voucher.collector_id;
+          $police_signature_date    = $voucher.police_signature_dt;
+          $recipient_signature_date = $voucher.recipient_signature_dt;
+          $vehicule_type            = $voucher.vehicule_type;
+          $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
+          $vehicule_country     = $voucher.vehicule_country;
+          $vehicule_collected   = $voucher.vehicule_collected;
+          $towed_by             = $voucher.towed_by;
+          $towed_by_vehicule    = $voucher.towed_by_vehicle;
+          $towing_called        = $voucher.towing_called;
+          $towing_arrival       = $voucher.towing_arrival;
+          $towing_start         = $voucher.towing_start;
+          $towing_completed     = $voucher.towing_completed;
+          $towing_depot         = $voucher.towing_depot;
+          $signa_by             = $voucher.signa_by;
+          $signa_by_vehicule    = $voucher.signa_by_vehicle;
+          $signa_arrival        = $voucher.signa_arrival;
+          $cic                  = $voucher.cic;
+          $additional_info      = $voucher.additional_info
 
-        //p_dossier_id , p_voucher_id , p_insurance_id , p_insurance_dossier_nr VARCHAR(45),
-        //p_warranty_holder VARCHAR(255), p_collector_id , p_vehicule_type VARCHAR(255),
-        //p_vehicule_licence_plate VARCHAR(15), p_vehicule_country VARCHAR(5),
-        //p_signa_by VARCHAR(255), p_signa_by_vehicule VARCHAR(15), p_signa_arrival DATETIME,
-        //p_towed_by VARCHAR(255), p_towed_by_vehicule VARCHAR(15), p_towing_depot VARCHAR(512),
-        //p_towing_called DATETIME, p_towing_arrival DATETIME, p_towing_start DATETIME,
-        //p_towing_end DATETIME, p_police_signature DATE, p_recipient_signature DATE,
-        //p_vehicule_collected DATE, p_cic DATETIME, p_additional_info TEXT, p_token VARCHAR(255)
-        $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
-                   $warranty_holder, $collector_id, $vehicule_type,
-                   $vehicule_licence_plate, $vehicule_country,
-                   $signa_by, $signa_by_vehicule, $signa_arrival,
-                   $towed_by, $towed_by_vehicule, $towing_depot,
-                   $towing_called, $towing_arrival, $towing_start,
-                   $towing_completed, $police_signature_date, $recipient_signature_date,
-                   $vehicule_collected, $cic, $additional_info, $token];
+          //p_dossier_id , p_voucher_id , p_insurance_id , p_insurance_dossier_nr VARCHAR(45),
+          //p_warranty_holder VARCHAR(255), p_collector_id , p_vehicule_type VARCHAR(255),
+          //p_vehicule_licence_plate VARCHAR(15), p_vehicule_country VARCHAR(5),
+          //p_signa_by VARCHAR(255), p_signa_by_vehicule VARCHAR(15), p_signa_arrival DATETIME,
+          //p_towed_by VARCHAR(255), p_towed_by_vehicule VARCHAR(15), p_towing_depot VARCHAR(512),
+          //p_towing_called DATETIME, p_towing_arrival DATETIME, p_towing_start DATETIME,
+          //p_towing_end DATETIME, p_police_signature DATE, p_recipient_signature DATE,
+          //p_vehicule_collected DATE, p_cic DATETIME, p_additional_info TEXT, p_token VARCHAR(255)
+          $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
+                     $warranty_holder, $collector_id, $vehicule_type,
+                     $vehicule_licence_plate, $vehicule_country,
+                     $signa_by, $signa_by_vehicule, $signa_arrival,
+                     $towed_by, $towed_by_vehicule, $towing_depot,
+                     $towing_called, $towing_arrival, $towing_start,
+                     $towing_completed, $police_signature_date, $recipient_signature_date,
+                     $vehicule_collected, $cic, $additional_info, $token];
 
-        db.one(SQL_UPDATE_TOWING_VOUCHER, $params, function($error, $result, $fields){
-          if(++$i == $vouchers.length) {
-            fetchDossierById($req, $res, $result.id, $token);
-          }
+          db.one(SQL_UPDATE_TOWING_VOUCHER, $params, function($error, $result, $fields){
+            if(++$i == $vouchers.length) {
+              fetchDossierById($req, $res, $result.id, $token);
+            }
+          });
         });
-      });
+      }
     }
   });
 });
