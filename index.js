@@ -1,12 +1,14 @@
 const TAG = 'index.js';
 
 // -- IMPORT REQUIRED LIBARIES
-var express     = require('express');
+var express     = require('express.io');
 var bodyParser  = require('body-parser');
 var LOG         = require('./util/logger.js');
 
 // -- CREATE APPLICATION AND ROUTING
 var app = express();
+app.http().io();
+
 var router = express.Router();
 
 // parse application/x-www-form-urlencoded
