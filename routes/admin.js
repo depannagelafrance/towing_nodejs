@@ -22,6 +22,7 @@ const SQL_DELETE_USER         = "CALL R_DELETE_USER(?, ?);";
 const SQL_PURGE_ROLES         = "CALL R_PURGE_USER_ROLES(?, ?);";
 const SQL_ASSIGN_ROLE         = "CALL R_ASSIGN_USER_ROLE(?, ?, ?);";
 const SQL_ALL_USER_ROLES      = "CALL R_FETCH_ALL_USER_ROLES(?,?);";
+const SQL_ALL_AVAILABLE_ROLES = "CALL R_FETCH_AVAILABLE_ROLES(?);";
 
 
 // -- ONLY POSTS ARE ALLOWED
@@ -42,6 +43,14 @@ router.get('/users/:token', function($req,$res) {
   var $token = $req.params.token;
 
   db.many(SQL_ALL_USERS, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/roles/:token', function($req, $res) {
+  var $token = $req.params.token;
+
+  db.many(SQL_ALL_AVAILABLE_ROLES, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
 });
