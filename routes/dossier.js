@@ -26,6 +26,8 @@ const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER  = "CALL R_FETCH_TOWING_PAYMENTS_BY_V
 const SQL_FETCH_ALL_DOSSIERS_BY_FILTER      = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
 const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES    = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
 const SQL_FETCH_ALL_VOUCHERS_BY_FILTER      = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
+const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
+const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT  = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
 
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
@@ -86,8 +88,66 @@ router.get('/list/available_activities/:dossier/:voucher/:token', function($req,
   var $token      = ju.requires('token', $req.params);
 
   //fetch the towing activities information
-  db.many(SQL_FETCH_ALL_AVAILABLE_ACTIVITIES, [$dossier_id, $voucher, $token], function($error, $a_result, $fields) {
+  db.many(SQL_FETCH_ALL_AVAILABLE_ACTIVITIES, [$dossier_id, $voucher, $token], function($error, $result, $fields) {
       ju.send($req, $res, $result);
+  });
+});
+
+router.get('/list/available_allotments/direction/:direction/:token', function($req, $res) {
+  var $direction  = ju.requiresInt('direction', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION, [$direction, null, $token], function($error, $result, $fields) {
+      if($result && !('error' in $result) && $result.length > 0)
+      {
+        $allotments = [];
+
+        $result.forEach(function($allotment) {
+          db.many(SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT, [$allotment.id, $token], function($error, $a_result, $fields) {
+            $allotment.towing_services = $a_result;
+
+            $allotments.push($allotment);
+
+            if($allotments.length == $result.length) {
+              ju.send($req, $res, $allotments);
+            }
+          });
+        });
+      }
+      else
+      {
+        ju.send($req, $res, $result);
+      }
+  });
+});
+
+router.get('/list/available_allotments/direction/:direction/indicator/:indicator/:token', function($req, $res) {
+  var $direction  = ju.requiresInt('direction', $req.params);
+  var $indicator  = $req.params.indicator;
+  var $token      = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION, [$direction, $indicator, $token], function($error, $result, $fields) {
+    if($result && !('error' in $result) && $result.length > 0)
+    {
+      $allotments = [];
+
+
+      $result.forEach(function($allotment) {
+        db.many(SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT, [$allotment.id, $token], function($error, $a_result, $fields) {
+          $allotment.towing_services = $a_result;
+
+          $allotments.push($allotment);
+
+          if($allotments.length == $result.length) {
+            ju.send($req, $res, $allotments);
+          }
+        });
+      });
+    }
+    else
+    {
+      ju.send($req, $res, $result);
+    }
   });
 });
 
