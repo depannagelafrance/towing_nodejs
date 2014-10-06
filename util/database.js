@@ -29,6 +29,10 @@ var one = function($sql, $params, $callback) {
   connection.query($sql, $params, function($error, $rows, $fields) {
     $result = $rows;
 
+    if($error) {
+      LOG.e(TAG, $error);
+    }
+
 		if($result && $result.length > 0) {
 			$result = $result.slice(0, $result.length - 1);
 		}

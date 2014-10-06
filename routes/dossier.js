@@ -16,7 +16,7 @@ var router = express.Router();
 //-- DEFINE CONSTANST
 const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
+const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
 
 const SQL_FETCH_DOSSIER_BY_ID               = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
 const SQL_FETCH_DOSSIER_BY_NUMBER           = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
@@ -28,6 +28,15 @@ const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES    = "CALL R_FETCH_ALL_AVAILABLE_ACTIVI
 const SQL_FETCH_ALL_VOUCHERS_BY_FILTER      = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
 const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
 const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT  = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
+
+const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
+const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
+
+const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
+const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
+
+const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?); ";
+const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
@@ -169,6 +178,22 @@ function fetchDossierById($req, $res, $dossier_id, $token) {
             $voucher.towing_payments = $p_result;
         });
 
+        //towing depot
+        db.one(SQL_FETCH_TOWING_DEPOT, [$voucher.id, $token], function($error, $t_result, $fields){
+            $voucher.depot = $t_result;
+        });
+
+        //towing customer
+        db.one(SQL_FETCH_CUSTOMER, [$voucher.id, $token], function($error, $t_result, $fields){
+            $voucher.customer = $t_result;
+        });
+
+        //towing causer
+        db.one(SQL_FETCH_CAUSER, [$voucher.id, $token], function($error, $t_result, $fields){
+            $voucher.causer = $t_result;
+        });
+
+
         //fetch the towing activities information
         db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $a_result, $fields) {
           $voucher.towing_activities = $a_result;
@@ -270,18 +295,57 @@ router.put('/:dossier/:token', function($req, $res) {
           $towing_arrival       = $voucher.towing_arrival;
           $towing_start         = $voucher.towing_start;
           $towing_completed     = $voucher.towing_completed;
-          $towing_depot         = $voucher.towing_depot;
           $signa_by             = $voucher.signa_by;
           $signa_by_vehicule    = $voucher.signa_by_vehicle;
           $signa_arrival        = $voucher.signa_arrival;
           $cic                  = $voucher.cic;
-          $additional_info      = $voucher.additional_info
+          $additional_info      = $voucher.additional_info;
+
+          //upate the voucher's depot if it is available
+          if($voucher.depot && $voucher.depot.id) {
+            $_depot = $voucher.depot;
+
+            $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
+                       $_depot.street_pobox, $_depot.zip, $_depot.city, $token];
+
+            db.one(SQL_UPDATE_TOWING_DEPOT, $params, function($error, $result, $fields){
+              //fire and forget!
+            });
+          }
+
+          if($voucher.causer && $voucher.causer.id) {
+            $_customer = $voucher.causer;
+
+            $params = [$_customer.id, $voucher_id,
+                       $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+                       $_customer.street, $_customer.street_number, $_customer.street_pobox,
+                       $_customer.zip, $_customer.city, $_customer.country,
+                       $token];
+
+            db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
+              //fire and forget!
+            });
+          }
+
+          if($voucher.customer && $voucher.customer.id) {
+            $_customer = $voucher.customer;
+
+            $params = [$_customer.id, $voucher_id,
+                       $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+                       $_customer.street, $_customer.street_number, $_customer.street_pobox,
+                       $_customer.zip, $_customer.city, $_customer.country,
+                       $token];
+
+            db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
+              //fire and forget!
+            });
+          }
 
           //p_dossier_id , p_voucher_id , p_insurance_id , p_insurance_dossier_nr VARCHAR(45),
           //p_warranty_holder VARCHAR(255), p_collector_id , p_vehicule_type VARCHAR(255),
           //p_vehicule_licence_plate VARCHAR(15), p_vehicule_country VARCHAR(5),
           //p_signa_by VARCHAR(255), p_signa_by_vehicule VARCHAR(15), p_signa_arrival DATETIME,
-          //p_towed_by VARCHAR(255), p_towed_by_vehicule VARCHAR(15), p_towing_depot VARCHAR(512),
+          //p_towed_by VARCHAR(255), p_towed_by_vehicule VARCHAR(15),
           //p_towing_called DATETIME, p_towing_arrival DATETIME, p_towing_start DATETIME,
           //p_towing_end DATETIME, p_police_signature DATE, p_recipient_signature DATE,
           //p_vehicule_collected DATE, p_cic DATETIME, p_additional_info TEXT, p_token VARCHAR(255)
@@ -289,7 +353,7 @@ router.put('/:dossier/:token', function($req, $res) {
                      $warranty_holder, $collector_id, $vehicule_type,
                      $vehicule_licence_plate, $vehicule_country,
                      $signa_by, $signa_by_vehicule, $signa_arrival,
-                     $towed_by, $towed_by_vehicule, $towing_depot,
+                     $towed_by, $towed_by_vehicule,
                      $towing_called, $towing_arrival, $towing_start,
                      $towing_completed, $police_signature_date, $recipient_signature_date,
                      $vehicule_collected, $cic, $additional_info, $token];
