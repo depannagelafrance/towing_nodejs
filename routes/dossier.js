@@ -5,6 +5,7 @@ var express   = require('express');
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var LOG       = require('../util/logger.js');
+var dossier   = require('../model/dossier.js');
 var util      = require('util');
 
 var TAG = 'dossier.js';
@@ -164,50 +165,8 @@ router.get('/list/available_allotments/direction/:direction/indicator/:indicator
 
 // -- GET A DOSSIER BY ID
 function fetchDossierById($req, $res, $dossier_id, $token) {
-  var $dossier = {};
-
-  db.one(SQL_FETCH_DOSSIER_BY_ID, [$dossier_id, $token], function($error, $d_result, $fields) {
-    $dossier = $d_result;
-
-    db.many(SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER, [$dossier_id, $token],function($error, $v_result, $fields) {
-      $vouchers = [];
-
-      $v_result.forEach(function($voucher) {
-        //fetch the towing payments information
-        db.one(SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $p_result, $fields) {
-            $voucher.towing_payments = $p_result;
-        });
-
-        //towing depot
-        db.one(SQL_FETCH_TOWING_DEPOT, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.depot = $t_result;
-        });
-
-        //towing customer
-        db.one(SQL_FETCH_CUSTOMER, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.customer = $t_result;
-        });
-
-        //towing causer
-        db.one(SQL_FETCH_CAUSER, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.causer = $t_result;
-        });
-
-
-        //fetch the towing activities information
-        db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $a_result, $fields) {
-          $voucher.towing_activities = $a_result;
-
-          $vouchers.push($voucher);
-
-          if($vouchers.length == $v_result.length) {
-            $dossier.towing_vouchers = $vouchers;
-
-            ju.send($req, $res, {'dossier': $dossier});
-          }
-        });
-      });
-    });
+  dossier.findById($dossier_id, $token, function($dossier) {
+    ju.send($req, $res, {'dossier': $dossier});
   });
 }
 

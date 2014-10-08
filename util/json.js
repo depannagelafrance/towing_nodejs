@@ -42,8 +42,8 @@ var requiresInt = function($key, $jsonData) {
 var send = function($req, $res, $result) {
   $res.setHeader('Content-Type', 'application/json');
 
-  if($result) {
-    if('error' in $result) {
+  if($result && $result !== "undefined" && !_.isUndefined($result)) {
+    if(_.has($result, 'error') || ($result[0] !== "undefined" && !_.isUndefined($result[0]) && _.has($result[0], 'error'))) {
       $res.status($result.statusCode || 500);
 
       $errormsg = JSON.stringify({

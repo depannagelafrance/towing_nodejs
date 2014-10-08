@@ -25,9 +25,6 @@ const SQL_ALL_INCIDENT_TYPES            = "CALL R_FETCH_ALL_INCIDENT_TYPES(?)";
 function fetchVocabularies($req, $res, $sp) {
   var $token = $req.params.token;
 
-  LOG.d(TAG, "Using token: " + $token);
-  LOG.d(TAG, "Executing stored procedure: " + $sp);
-
   db.many($sp, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });

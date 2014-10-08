@@ -189,10 +189,10 @@
 							<thead>
 									<tr><th colspan="2">Hinderverwekker</th></tr>
 							</thead>
-              <tr><td colspan="2">P&amp;V Assistance - I.m.a. BeNeLux</td></tr>
-              <tr><td colspan="2">Sq Des Conduites D'eau, 11-12<br/> 4020 Liège</td></tr>
-              <tr><td>Tel.: 02/229.00.11</td><td>BTW Nr.: BE 0402.236.531</td></tr>
-              <tr><td>NR.PL.: 1-GSA-659</td><td>MERK/TYPE: Ford C-Max</td></tr>
+              <tr><td colspan="2"><%=causer_name%></td></tr>
+              <tr><td colspan="2"><%=causer_address%></td></tr>
+              <tr><td>Tel.:<%=causer_phone%></td><td>BTW Nr.: <%=causer_vat%></td></tr>
+              <tr><td>NR.PL.: <%=vehicule_licence_plate%></td><td>MERK/TYPE: <%=vehicule_type%></td></tr>
           </table>
       </div>
     </div>
@@ -231,8 +231,8 @@
       </div>
       <div class="style3" style="margin-right: 5px;">
           <table border="0">
-							<tr><td class="label">Signal.:</td><td>1-XXX-XXX</td></tr>
-							<tr><td class="label">Takel:</td><td>1-YYY-YYY</td></tr>
+							<tr><td class="label">Signal.:</td><td><%=signa_licence_plate%></td></tr>
+							<tr><td class="label">Takel:</td><td><?=towing_licence_plate?></td></tr>
               <tr><td class="label">Aant. Takelbons:</td><td><%= nr_of_vouchers %></td></tr>
           </table>
       </div>
