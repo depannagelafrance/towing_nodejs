@@ -5,6 +5,7 @@ var fs          = require('fs');
 var path        = require('path');
 var phantom     = require('phantom');
 var dateFormat  = require('dateformat');
+var crypto      = require('crypto');
 
 var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
@@ -57,16 +58,31 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
           page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
           page.set('content', $compiled_template);
 
-          page.render("/tmp/test.pdf", function (error) {
 
+          var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
 
+          console.log(filename);
+
+          page.render("/tmp/"+filename, function (error) {
             if (error) { 
               console.log('Error rendering PDF: %s', error);
               ph.exit();
             } else {
-              fs.readFile("/tmp/test.pdf", "base64", function(error, data) {
-                //console.log(data);
-                $res.end('');
+              fs.readFile("/tmp/" + filename, "base64", function(error, data) {
+
+                ju.send($req, $res, {
+                  "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
+                  "content_type" : "application/pdf",
+                  "data" : data
+                });
+
+
+                //TODO: unline the file
+                fs.unlink('/tmp/' + filename, function (err) {
+                  if (err) console.log(err);
+                  console.log('successfully deleted /tmp/' + filename);
+                });
+
                 ph.exit();
               });
             }
@@ -83,8 +99,6 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
 function convertToVoucherReportParams($dossier) {
   $voucher = $dossier.towing_vouchers[0];
 
-  console.log($dossier);
-  console.log($dossier.towing_company);
 
   return {
     "allotment_name"      : $dossier.allotment_name,
