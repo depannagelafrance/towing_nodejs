@@ -76,8 +76,7 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
                   "data" : data
                 });
 
-
-                //TODO: unline the file
+                // delete the file
                 fs.unlink('/tmp/' + filename, function (err) {
                   if (err) console.log(err);
                   console.log('successfully deleted /tmp/' + filename);
@@ -86,7 +85,6 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
                 ph.exit();
               });
             }
-
           });
         });
       });
@@ -100,7 +98,7 @@ function convertToVoucherReportParams($dossier) {
   $voucher = $dossier.towing_vouchers[0];
 
 
-  return {
+  var $params = {
     "allotment_name"      : $dossier.allotment_name,
     "voucher_number"      : $voucher.voucher_number,
     "call_number"         : $dossier.call_number,
@@ -120,6 +118,7 @@ function convertToVoucherReportParams($dossier) {
     "indicator"           : $dossier.indicator_name,
     "lane_indicator"      : "PECH",
     "call_date"           : dateFormat($dossier.call_date, "dd/mm/yyyy"),
+    "cb_is_holiday"       : $dossier.call_date_is_holiday == 1 ? '&#9746;' : '&#9744;',
     "call_hour"           : dateFormat($dossier.call_date, "hh:MM"),
     "signa_arrival"       : "19:22",
     "signa_licence_plate" : "1-XXX-XXX",
@@ -136,8 +135,20 @@ function convertToVoucherReportParams($dossier) {
     "causer_phone"        : '02/229.00.11',
     "causer_vat"          : 'BE 0402.236.531',
     "vehicule_type"       : 'Ford C-MAX',
-    "vehicule_licence_plate" : '1-GSA-659'
+    "vehicule_licence_plate" : '1-GSA-659',
+    'cb_incident_type_panne'                  : $dossier.incident_type_code == 'PANNE' ? '&#9746;' : '&#9744;',
+    'cb_incident_type_ongeval'                : $dossier.incident_type_code == 'ONGEVAL' ? '&#9746;' : '&#9744;',
+    'cb_incident_type_achtergelaten_voertuig' : $dossier.incident_type_code == 'ACHTERGELATEN_VOERTUIG' ? '&#9746;' : '&#9744;',
+    'cb_incident_type_signalisatie'           : $dossier.incident_type_code == 'SIGNALISATIE' ? '&#9746;' : '&#9744;',
+    'cb_incident_type_verloren_voorwerp'      : $dossier.incident_type_code == 'VERLOREN_VOORWERP' ? '&#9746;' : '&#9744;',
+    'cb_incident_type_botsabsorbeerder'       : $dossier.incident_type_code == 'BOTSABSORBEERDER' ? '&#9746;' : '&#9744;',
   };
+
+
+
+
+
+  return $params;
 }
 
 module.exports = router;

@@ -218,7 +218,7 @@
           <table border="0">
               <tr><td class="label">Datum:</td><td><%= call_date %></td></tr>
               <tr><td class="label">Uur:</td><td><%= call_hour %></td></tr>
-              <tr><td colspan="2">Feestdag &#9744;</td></tr>
+              <tr><td colspan="2"><%=cb_is_holiday%> Feestdag</td></tr>
           </table>
       </div>
       <div class="style3" style="margin-right: 3px;">
@@ -238,9 +238,10 @@
       </div>
       <div class="style3">
           <table border="0">
-              <tr><td>&#9746; PANNE</td><td>&#9744; ONGEVAL</td></tr>
-              <tr><td colspan="2">&#9744; ACHTERGEL.VTG</td></tr>
-              <tr><td colspan="2">&#9744; LADING VERLIES</td>
+              <tr><td><%=cb_incident_type_panne%> PANNE</td>
+									<td><%=cb_incident_type_ongeval%> ONGEVAL</td></tr>
+              <tr><td colspan="2"><%=cb_incident_type_achtergelaten_voertuig%> ACHTERGEL.VTG</td></tr>
+              <tr><td colspan="2"><?=cb_incident_type_verloren_voorwerp%> LADING VERLIES</td>
           </table>
       </div>
     </div>
