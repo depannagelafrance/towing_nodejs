@@ -92,7 +92,7 @@ router.post('/users/:token', function($req, $res) {
 
           db.one(SQL_PURGE_ROLES, [$id, $token], function($error, $result, $fields) {
             for($i = 0; $i < $roles.length; $i++) {
-              db.one(SQL_ASSIGN_ROLE, [$id, $roles[$i].id, $token], function($error, $result, $fields){});
+              db.one(SQL_ASSIGN_ROLE, [$id, $roles[$i], $token], function($error, $result, $fields){});
             }
 
             db.many(SQL_ALL_USER_ROLES, [$id, $token], function($error, $result, $fields) {
@@ -137,7 +137,7 @@ router.put('/users/:user_id/:token', function($req, $res) {
 
           db.one(SQL_PURGE_ROLES, [$id, $token], function($error, $result, $fields) {
             for($i = 0; $i < $roles.length; $i++) {
-              db.one(SQL_ASSIGN_ROLE, [$id, $roles[$i].id, $token], function($error, $result, $fields){});
+              db.one(SQL_ASSIGN_ROLE, [$id, $roles[$i], $token], function($error, $result, $fields){});
             }
 
             db.many(SQL_ALL_USER_ROLES, [$id, $token], function($error, $result, $fields) {
