@@ -189,9 +189,9 @@
 							<thead>
 									<tr><th colspan="2">Hinderverwekker</th></tr>
 							</thead>
-              <tr><td colspan="2"><%=causer_name%></td></tr>
-              <tr><td colspan="2"><%=causer_address%></td></tr>
-              <tr><td>Tel.:<%=causer_phone%></td><td>BTW Nr.: <%=causer_vat%></td></tr>
+              <tr><td colspan="2"><%=customer_name%></td></tr>
+              <tr><td colspan="2"><%=customer_address%></td></tr>
+              <tr><td>Tel.:<%=customer_phone%></td><td>BTW Nr.: <%=customer_vat%></td></tr>
               <tr><td>NR.PL.: <%=vehicule_licence_plate%></td><td>MERK/TYPE: <%=vehicule_type%></td></tr>
           </table>
       </div>
@@ -544,8 +544,8 @@
 					<tbody>
 						<tr>
 								<td>
-										<span class="label">Naam/Firma:</span> Klant <br />
-										<span class="label">Datum:</span> 05/09/2014<br />
+										<span class="label">Naam/Firma:</span> <%=collected_by%> <br />
+										<span class="label">Datum:</span> <%=collection_date%><br />
 										<br />
 										Handtekening
 
@@ -573,9 +573,9 @@
 									(Gegevens uitvoerder/onderaannemer)
 
 									<table>
-											<tr><td class="label">Naam:</td><td>Depannage La France NV</td></tr>
-											<tr><td class="label" valign="top">Adres:</td><td>Tweemontstraat 310 <br />2100 Deurne</td></tr>
-											<tr><td class="label">Tel.:</td><td>+32 (0)3 325 19 15</td></tr>
+											<tr><td class="label">Naam:</td><td><%=towing_service_name%></td></tr>
+											<tr><td class="label" valign="top">Adres:</td><td><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td></tr>
+											<tr><td class="label">Tel.:</td><td><%=towing_service_phone%></td></tr>
 									</table>
 
 									<br />
@@ -592,9 +592,9 @@
 									(Gegevens Politiepost)
 
 									<table>
-											<tr><td class="label">Verkeerspost:</td><td>Geen PLG</td></tr>
-											<tr><td class="label">Tel.:</td><td>+32 (0)3 829 70 89 (tijdens kantoor uren)</td></tr>
-											<tr><td class="label">Tijdstip bevestiging:</td><td></td></tr>
+											<tr><td class="label">Verkeerspost:</td><td><%=traffic_post%></td></tr>
+											<tr><td class="label">Tel.:</td><td><%=traffic_post_phone%> (tijdens kantoor uren)</td></tr>
+											<tr><td class="label">Tijdstip bevestiging:</td><td><%=traffic_post_confirmation%></td></tr>
 									</table>
 
 									<br />
@@ -606,9 +606,9 @@
 									(Gegevens Hinderverwekker)
 
 									<table>
-											<tr><td class="label">Naam:</td><td>Tss Bvba</td></tr>
-											<tr><td class="label" valign="top">Adres:</td><td>Hoogstraat 29 <br />2850 Boom</td></tr>
-											<tr><td class="label">Tel.:</td><td>0485462064</td></tr>
+											<tr><td class="label">Naam:</td><td><%=causer_name%></td></tr>
+											<tr><td class="label" valign="top">Adres:</td><td><%=causer_address%></td></tr>
+											<tr><td class="label">Tel.:</td><td><%=causer_phone%></td></tr>
 									</table>
 
 									<br />
@@ -634,24 +634,24 @@
 		</div>
 		<div class="clear">
 			<div class="footer">
-				exemplaar dienstverlener
+				<%=copy_for%>
 			</div>
 			<div class="financial_footer">
-					Depannage La France NV - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
+					<%=towing_service_name%> - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
 			</div>
 		</div>
 		<div class="page-break clear">
 				<p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
-				<p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de ‘veiligheid en de vlotheid van het verkeer’ te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
+				<p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
 				<p>Indien de wegpolitie in de onmogelijkheid verkeert om deze takelbon ter plaatse af te tekenen vindt u op de voorzijde het oproepnummer dat CICANT en de Wegpolitie aan deze oproep hebben gegeven.</p>
 				<p>Verkeersposten:<br />
-						A = Verkeerspost Antwerpen, d’Herbouvillekaai 9, 2020 Antwerpen<br />
+						A = Verkeerspost Antwerpen, d'Herbouvillekaai 9, 2020 Antwerpen<br />
 						B = Verkeerspost Brecht, Bethovenstraat 65, 2960 Brecht <br />
 						G = Verkeerspost Grobbendonk, Herentalsesteenweg 42, 2280 Grobbendonk <br />
 						T = Verkeerspost Turnhout, Steenweg op Gierle 336, 2300 Turnhout <br />
 				</p>
 				<p>Agentschap Wegen en Verkeer:<br/>
-					Wegen en Verkeer Antwerpen district 121, d’Herbouvillekaai 11, 2020 Antwerpen<br />
+					Wegen en Verkeer Antwerpen district 121, d'Herbouvillekaai 11, 2020 Antwerpen<br />
 					tel. +32 (0)3 241 51 11
 				</p>
 		</div>

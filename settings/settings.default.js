@@ -16,4 +16,9 @@ var mysql = {
 // debug: true
 }
 
+var fs = {
+  tmp : "/tmp/"
+}
+
 exports.mysql = mysql;
+exports.fs = fs;

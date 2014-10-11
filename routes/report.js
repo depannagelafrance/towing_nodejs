@@ -10,6 +10,7 @@ var crypto      = require('crypto');
 var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
 var LOG       = require('../util/logger.js');
+var settings  = require('../settings/settings.js');
 
 var dossier   = require('../model/dossier.js');
 
@@ -32,14 +33,14 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
 
     fs.readFile($filename, 'utf8', function($err, $data){
       if($err) { 
-        console.log($err);
+        LOG.d(TAG, JSON.stringify($err));
         throw $err;
       }
 
       var $template = _.template($data);
       var $vars = convertToVoucherReportParams($dossier);
 
-      LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
+      //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
 
       $compiled_template = $template($vars);
 
@@ -52,23 +53,24 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
             loadPlugins: false
            };
 
-          console.log(JSON.stringify(page.settings));
-
           page.set('viewportSize', { width: 800, height: 600 });
           page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
           page.set('content', $compiled_template);
 
 
           var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
+          var folder = settings.fs.tmp;
 
-          console.log(filename);
+          LOG.d(TAG, "Generating file: " + filename);
 
-          page.render("/tmp/"+filename, function (error) {
+          page.render(folder + filename, function (error) {
             if (error) { 
-              console.log('Error rendering PDF: %s', error);
+              LOG.e(TAG, "Could not render PDF file: " + JSON.stringify(error));
               ph.exit();
             } else {
-              fs.readFile("/tmp/" + filename, "base64", function(error, data) {
+
+
+              fs.readFile(folder + filename, "base64", function(error, data) {
 
                 ju.send($req, $res, {
                   "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
@@ -77,9 +79,12 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
                 });
 
                 // delete the file
-                fs.unlink('/tmp/' + filename, function (err) {
-                  if (err) console.log(err);
-                  console.log('successfully deleted /tmp/' + filename);
+                fs.unlink(folder + filename, function (err) {
+                  if (err) {
+                    LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                  } else {
+                    LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                  }
                 });
 
                 ph.exit();
@@ -134,6 +139,10 @@ function convertToVoucherReportParams($dossier) {
     "causer_address"      : 'Sq Des Conquites D\'eau, 11-12 <br />4020 Liège',
     "causer_phone"        : '02/229.00.11',
     "causer_vat"          : 'BE 0402.236.531',
+    "customer_name"       : 'P&amp;V assistance - I.m.a. BeNeLux',
+    "customer_address"    : 'Sq Des Conquites D\'eau, 11-12 <br />4020 Liège',
+    "customer_phone"      : '02/229.00.11',
+    "customer_vat"        : 'BE 0402.236.531',
     "vehicule_type"       : 'Ford C-MAX',
     "vehicule_licence_plate" : '1-GSA-659',
     'cb_incident_type_panne'                  : $dossier.incident_type_code == 'PANNE' ? '&#9746;' : '&#9744;',
@@ -142,6 +151,12 @@ function convertToVoucherReportParams($dossier) {
     'cb_incident_type_signalisatie'           : $dossier.incident_type_code == 'SIGNALISATIE' ? '&#9746;' : '&#9744;',
     'cb_incident_type_verloren_voorwerp'      : $dossier.incident_type_code == 'VERLOREN_VOORWERP' ? '&#9746;' : '&#9744;',
     'cb_incident_type_botsabsorbeerder'       : $dossier.incident_type_code == 'BOTSABSORBEERDER' ? '&#9746;' : '&#9744;',
+    'collected_by'                : 'Klant',
+    'collection_date'             : '01/01/2014',
+    'traffic_post'                : 'Geen ploeg',
+    'traffic_post_phone'          : '+32 (0)3 829 70 89',
+    'traffic_post_confirmation'   : '',
+    'copy_for'                    : 'exemplaar dienstverlener',
   };
 
 
