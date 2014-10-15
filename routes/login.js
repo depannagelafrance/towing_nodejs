@@ -17,6 +17,8 @@ const SQL_PROCESS_LOGIN       = "CALL R_LOGIN(?,?);";
 const SQL_PROCESS_TOKEN_AUTH  = "CALL R_LOGIN_TOKEN(?)";
 const SQL_FETCH_USER_MODULES  = "CALL R_FETCH_USER_MODULES(?); ";
 const SQL_FETCH_USER_ROLES    = "CALL R_FETCH_USER_ROLES(?); ";
+const SQL_FETCH_COMPANY_DEPOT = "CALL R_FETCH_COMPANY_DEPOT(?);";
+const SQL_FETCH_USER_COMPANY  = "CALL R_FETCH_USER_COMPANY(?);";
 
 
 // -- ONLY POSTS ARE ALLOWED
@@ -28,7 +30,6 @@ router.get('/', function($req, $res) {
 
 // -- PROCESS LOGIN
 router.post('/', function($req, $res) {
-  LOG.d(TAG, "POST '/'");
   $jsonData = $req.body;
 
   $login  = ju.requires('login', $jsonData);
@@ -38,7 +39,20 @@ router.post('/', function($req, $res) {
     if($result && 'token' in $result) {
       $result.user_modules = [];
       $result.user_roles = [];
+      $result.company = {};
+      $result.company_depot = {};
 
+      //fetch the user's company
+      db.one(SQL_FETCH_USER_COMPANY, [$result.token], function($error, $company, $fields) {
+        $result.company = $company;
+      });
+
+      //fetch the company's depot
+      db.one(SQL_FETCH_COMPANY_DEPOT, [$result.token], function($error, $depot, $fields) {
+        $result.company_depot = $depot;
+      });
+
+      //fetch the users current modules and roles
       db.many(SQL_FETCH_USER_MODULES, [$result.token], function($error, $modules, $fields) {
         $result.user_modules = $modules;
 
@@ -70,7 +84,7 @@ router.post('/token', function($req, $res) {
 //-- PROCESS FORGOT PASSWORD
 router.post('/forgot', function($req, $res) {
   LOG.d(TAG, "POST '/forgot'");
-  
+
   throw new common.InvalidRequest();
 });
 

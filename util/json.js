@@ -20,8 +20,25 @@ util.inherits(RequiredKeyMissing, Error);
 util.inherits(RequiredIntMissing, Error);
 
 var requires = function($key, $jsonData) {
-    if($jsonData[$key]) {
-      return $jsonData[$key];
+    if(_.isArray($key)) {
+      var $val = null;
+
+      _.each($key, function($k) {
+        if($jsonData[$k] && !$val) {
+          $val = $jsonData[$k];
+        }
+      });
+
+      if(!$val) {
+        throw new RequiredKeyMissing($key.join());   
+      } else {
+        return $val;
+      }
+
+    } else {
+      if($jsonData[$key]) {
+        return $jsonData[$key];
+      }
     }
 
     throw new RequiredKeyMissing($key);

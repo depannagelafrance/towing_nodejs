@@ -34,10 +34,10 @@ const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); 
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
 
 const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
-const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?); ";
-const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
@@ -217,8 +217,8 @@ router.put('/:dossier/:token', function($req, $res) {
   $company_id       = ju.requiresInt('company_id', $dossier);
   $incident_type_id = ju.requiresInt('incident_type_id', $dossier);
   $allotment_id     = ju.requiresInt('allotment_id', $dossier);
-  $direction_id     = ju.requiresInt('direction_id', $dossier);
-  $indicator_id     = ju.requiresInt('indicator_id', $dossier);
+  $direction_id     = ju.requiresInt(['direction_id', 'allotment_direction_id'], $dossier);
+  $indicator_id     = ju.requiresInt(['indicator_id', 'allotment_direction_indicator_id'], $dossier);
   $traffic_lane_id  = $dossier.traffic_lane_id;
   $traffic_post_id  = $dossier.police_traffic_post_id;
 
@@ -279,6 +279,7 @@ router.put('/:dossier/:token', function($req, $res) {
                        $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
                        $_customer.street, $_customer.street_number, $_customer.street_pobox,
                        $_customer.zip, $_customer.city, $_customer.country,
+                       $_customer.phone,
                        $token];
 
             db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
@@ -293,6 +294,7 @@ router.put('/:dossier/:token', function($req, $res) {
                        $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
                        $_customer.street, $_customer.street_number, $_customer.street_pobox,
                        $_customer.zip, $_customer.city, $_customer.country,
+                       $_customer.phone,
                        $token];
 
             db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
