@@ -64,6 +64,8 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
           LOG.d(TAG, "Generating file: " + filename);
 
           page.render(folder + filename, function (error) {
+            LOG.d(TAG, "Page render error? " + JSON.stringify(error));
+            
             if (error)
             { 
               LOG.e(TAG, "Could not render PDF file: " + JSON.stringify(error));
