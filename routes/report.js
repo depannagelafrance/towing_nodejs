@@ -48,7 +48,8 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
         ph.createPage(function (page) {
           page.settings = {
             loadImages: true,
-            localToRemoteUrlAccessEnabled: true,
+            localToRemoteUrlAccessEnabled: false,
+            encoding: "utf8",
             javascriptEnabled: true,
             loadPlugins: false
            };
