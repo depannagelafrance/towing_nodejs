@@ -12,8 +12,11 @@ const LEVEL_LABELS = {
 
 var log = function($tag, $message, $level) {
   if(DEBUG_LEVEL >= $level) {
+    
     console.log(
-      $tag
+      new Date().toISOString()
+      + " - "
+      + $tag
       + " - "
       + LEVEL_LABELS[$level]
       + " - "
