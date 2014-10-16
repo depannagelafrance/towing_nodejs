@@ -64,13 +64,16 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
           LOG.d(TAG, "Generating file: " + filename);
 
           page.render(folder + filename, function (error) {
-            if (error) { 
+            if (error)
+            { 
               LOG.e(TAG, "Could not render PDF file: " + JSON.stringify(error));
               ph.exit();
-            } else {
-
-
-              fs.readFile(folder + filename, "base64", function(error, data) {
+            }
+            else
+            {
+              fs.readFile(folder + filename, "base64", function(a_error, data) {
+                LOG.d(TAG, "Read file: " + folder + filename);
+                LOG.d(TAG, "Error: " + JSON.stringify(a_error));
 
                 ju.send($req, $res, {
                   "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
