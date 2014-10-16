@@ -17,6 +17,8 @@ var router = express.Router();
 //-- DEFINE CONSTANST
 const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
 
 const SQL_FETCH_DOSSIER_BY_ID                   = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
@@ -214,6 +216,19 @@ router.post('/:token', function($req, $res) {
   });
 });
 
+router.post('/voucher/:dossier_id/:token', function($req, $res) {
+  $dossier_id = ju.requiresInt('dossier_id', $req.params);
+  $token  = ju.requires('token', $req.params);
+
+  db.one(SQL_CREATE_TOWING_VOUCHER, [$dossier_id, $token], function($error, $result, $fields) {
+    if($result && 'error' in $result) {
+      ju.send($req, $res, $result);
+    } else {
+      fetchDossierById($req, $res, $dossier_id, $token);
+    }
+  });
+});
+
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
@@ -330,7 +345,7 @@ router.put('/:dossier/:token', function($req, $res) {
 
           db.one(SQL_UPDATE_TOWING_VOUCHER, $params, function($error, $result, $fields){
             if(++$i == $vouchers.length) {
-              fetchDossierById($req, $res, $result.id, $token);
+              fetchDossierById($req, $res, $dossier_id, $token);
             }
           });
         });

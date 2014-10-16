@@ -49,7 +49,7 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
           page.settings = {
             loadImages: true,
             localToRemoteUrlAccessEnabled: false,
-            javascriptEnabled: true,
+            javascriptEnabled: false,
             loadPlugins: false
            };
 
@@ -65,7 +65,7 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
 
           page.render(folder + filename, function (error) {
             LOG.d(TAG, "Page render error? " + JSON.stringify(error));
-            
+
             if (error)
             { 
               LOG.e(TAG, "Could not render PDF file: " + JSON.stringify(error));
