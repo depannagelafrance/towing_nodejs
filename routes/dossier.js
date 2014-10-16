@@ -19,16 +19,17 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
 
-const SQL_FETCH_DOSSIER_BY_ID               = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
-const SQL_FETCH_DOSSIER_BY_NUMBER           = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
-const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER  = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
-const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
-const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER  = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
-const SQL_FETCH_ALL_DOSSIERS_BY_FILTER      = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
-const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES    = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
-const SQL_FETCH_ALL_VOUCHERS_BY_FILTER      = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
-const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
-const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT  = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
+const SQL_FETCH_DOSSIER_BY_ID                   = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
+const SQL_FETCH_DOSSIER_BY_NUMBER               = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
+const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER      = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
+const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER     = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
+const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER      = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
+const SQL_FETCH_ALL_DOSSIERS_BY_FILTER          = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
+const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES        = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
+const SQL_FETCH_ALL_VOUCHERS_BY_FILTER          = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
+const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION     = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
+const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT      = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
+const SQL_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT  = "CALL R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT(?,?); ";
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
@@ -161,6 +162,14 @@ router.get('/list/available_allotments/direction/:direction/indicator/:indicator
   });
 });
 
+router.get('/list/traffic_posts/allotment/:allotment_id/:token', function($req, $res) {
+  var $allotment_id = ju.requiresInt('allotment_id', $req.params);
+  var $token        = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT, [$allotment_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
 
 
 // -- GET A DOSSIER BY ID
