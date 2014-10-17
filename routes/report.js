@@ -3,7 +3,8 @@ var _           = require('underscore');
 var express     = require('express');
 var fs          = require('fs');
 var path        = require('path');
-var phantom     = require('phantom');
+//var phantom     = require('phantom');
+var phantom = require('node-phantom-simple');
 var dateFormat  = require('dateformat');
 var crypto      = require('crypto');
 
@@ -44,69 +45,142 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
 
       $compiled_template = $template($vars);
 
-      phantom.create(function (ph) {
-        ph.createPage(function (page) {
-          page.settings = {
+ phantom.create(function (error, ph) {
+   console.log("phantom.create");
+   console.log(error);
+
+
+    var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
+    var folder = settings.fs.tmp;
+
+    ph.createPage(function (error, page) {
+      console.log("ph.createPage");
+      console.log(error);
+      page.settings = {
+        loadImages: true,
+        localToRemoteUrlAccessEnabled: true,
+        javascriptEnabled: true,
+        loadPlugins: false
+       };
+      page.set('viewportSize', { width: 800, height: 600 });
+      page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
+      page.set('content', $compiled_template, function (error) {
+        if (error) {
+          console.log('Error setting content: ', error);
+        }
+      });
+
+      page.onResourceRequested = function (rd, req) {
+        console.log("REQUESTING: ", rd[0]["url"]);
+      }
+      page.onResourceReceived = function (rd) {
+        rd.stage == "end" && console.log("LOADED: ", rd["url"]);
+      }
+      page.onLoadFinished = function (status) {
+        console.log("Finished loading: " + status);
+
+        page.render(folder + filename, function (error) {
+          if (error) {
+            console.log('Error rendering PDF: %s', error);
+          } else {
+            console.log("PDF GENERATED : ", status);
+
+            fs.readFile(folder + filename, "base64", function(a_error, data) {
+              LOG.d(TAG, "Read file: " + folder + filename);
+              LOG.d(TAG, "Error: " + JSON.stringify(a_error));
+
+              ju.send($req, $res, {
+                "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
+                "content_type" : "application/pdf",
+                "data" : data
+              });
+
+              // delete the file
+              fs.unlink(folder + filename, function (err) {
+                if (err) {
+                  LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                } else {
+                  LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                }
+              });
+
+              ph.exit();
+            });
+          }
+
+          ph.exit();
+        });
+      }
+    });
+  });
+
+
+      /*phantom.create(function (ph) {
+        ph.createPage(function (page)
+        {
+          var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
+          var folder = settings.fs.tmp;
+
+          page.settings =
+          {
             loadImages: true,
             localToRemoteUrlAccessEnabled: false,
             javascriptEnabled: false,
             loadPlugins: false
-           };
+          };
 
           page.set('viewportSize', { width: 800, height: 600 });
           page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
           page.set('content', $compiled_template);
 
-
-          var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
-          var folder = settings.fs.tmp;
-
           LOG.d(TAG, "Generating file: " + filename);
 
-          page.render(folder + filename, function (error) {
-            LOG.d(TAG, "Page render error? " + JSON.stringify(error));
+          page.render(folder + filename, function () {
+            fs.readFile(folder + filename, "base64", function(a_error, data) {
+              LOG.d(TAG, "Read file: " + folder + filename);
+              LOG.d(TAG, "Error: " + JSON.stringify(a_error));
 
-            if (error)
-            { 
-              LOG.e(TAG, "Could not render PDF file: " + JSON.stringify(error));
-              ph.exit();
-            }
-            else
-            {
-              fs.readFile(folder + filename, "base64", function(a_error, data) {
-                LOG.d(TAG, "Read file: " + folder + filename);
-                LOG.d(TAG, "Error: " + JSON.stringify(a_error));
-
-                ju.send($req, $res, {
-                  "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                  "content_type" : "application/pdf",
-                  "data" : data
-                });
-
-                // delete the file
-                fs.unlink(folder + filename, function (err) {
-                  if (err) {
-                    LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                  } else {
-                    LOG.d(TAG, 'successfully deleted /tmp/' + filename);
-                  }
-                });
-
-                ph.exit();
+              ju.send($req, $res, {
+                "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
+                "content_type" : "application/pdf",
+                "data" : data
               });
-            }
+
+              // delete the file
+              fs.unlink(folder + filename, function (err) {
+                if (err) {
+                  LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                } else {
+                  LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                }
+              });
+
+              ph.exit();
+            });
           });
         });
-      });
+      });*/
     });
   });
 
 
 });
 
+
+function convertToAddressString($info) {
+  var $address = '';
+
+  $address = $address + $info.street + ' ' + $info.street_number;
+  $address = $address + ($info.street_pobox ? '/' + $info.street_pobox : '');
+  $address = $address + '<br />';
+  $address = $address + $info.zip + ' ' + $info.city;
+  $address = $address + '<br />' + $info.country;
+
+  return $address;
+}
+
 function convertToVoucherReportParams($dossier) {
   $voucher = $dossier.towing_vouchers[0];
-
 
   try {
     var $params = {
@@ -141,16 +215,16 @@ function convertToVoucherReportParams($dossier) {
       "extra_info"          : "",
       "nr_of_vouchers"      : 1,
       "towing_location_depot" :  $voucher.depot.display_name,
-      "causer_name"         : 'P&amp;V assistance - I.m.a. BeNeLux',
-      "causer_address"      : 'Sq Des Conquites D\'eau, 11-12 <br />4020 Liège',
-      "causer_phone"        : '02/229.00.11',
-      "causer_vat"          : 'BE 0402.236.531',
-      "customer_name"       : 'P&amp;V assistance - I.m.a. BeNeLux',
-      "customer_address"    : 'Sq Des Conquites D\'eau, 11-12 <br />4020 Liège',
-      "customer_phone"      : '02/229.00.11',
-      "customer_vat"        : 'BE 0402.236.531',
-      "vehicule_type"       : 'Ford C-MAX',
-      "vehicule_licence_plate" : '1-GSA-659',
+      "causer_name"         : $voucher.causer.company_name ? $voucher.causer.company_name : $voucher.causer.last_name + ' ' + $voucher.causer.first_name,
+      "causer_address"      : convertToAddressString($voucher.causer),
+      "causer_phone"        : $voucher.causer.phone,
+      "causer_vat"          : $voucher.causer.vat,
+      "customer_name"       : $voucher.customer.company_name ? $voucher.customer.company_name : $voucher.customer.last_name + ' ' + $voucher.customer.first_name,
+      "customer_address"    : convertToAddressString($voucher.customer),
+      "customer_phone"      : $voucher.customer.phone,
+      "customer_vat"        : $voucher.customer,
+      "vehicule_type"       : $voucher.vehicule_type,
+      "vehicule_licence_plate" : $voucher.vehicule_licenceplate,
       'cb_incident_type_panne'                  : $dossier.incident_type_code == 'PANNE' ? '&#9746;' : '&#9744;',
       'cb_incident_type_ongeval'                : $dossier.incident_type_code == 'ONGEVAL' ? '&#9746;' : '&#9744;',
       'cb_incident_type_achtergelaten_voertuig' : $dossier.incident_type_code == 'ACHTERGELATEN_VOERTUIG' ? '&#9746;' : '&#9744;',
@@ -169,6 +243,7 @@ function convertToVoucherReportParams($dossier) {
   }
   catch($e)
   {
+    console.error($e);
     LOG.e(TAG, "Error while setting parameters: " + JSON.stringify($e));
   }
 
