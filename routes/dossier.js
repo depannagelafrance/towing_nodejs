@@ -37,10 +37,10 @@ const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); 
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
 
 const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
-const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?); ";
-const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
@@ -303,7 +303,7 @@ router.put('/:dossier/:token', function($req, $res) {
                        $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
                        $_customer.street, $_customer.street_number, $_customer.street_pobox,
                        $_customer.zip, $_customer.city, $_customer.country,
-                       $_customer.phone,
+                       $_customer.phone, $_customer.email,
                        $token];
 
             db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
@@ -318,7 +318,7 @@ router.put('/:dossier/:token', function($req, $res) {
                        $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
                        $_customer.street, $_customer.street_number, $_customer.street_pobox,
                        $_customer.zip, $_customer.city, $_customer.country,
-                       $_customer.phone,
+                       $_customer.phone, $_customer.email,
                        $token];
 
             db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
