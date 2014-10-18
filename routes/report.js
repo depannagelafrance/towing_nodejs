@@ -71,10 +71,10 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
       });
 
       page.onResourceRequested = function (rd, req) {
-        console.log("REQUESTING: ", rd[0]["url"]);
+        //console.log("REQUESTING: ", rd[0]["url"]);
       }
       page.onResourceReceived = function (rd) {
-        rd.stage == "end" && console.log("LOADED: ", rd["url"]);
+        //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
       }
       page.onLoadFinished = function (status) {
         console.log("Finished loading: " + status);

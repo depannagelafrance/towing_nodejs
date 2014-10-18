@@ -14,11 +14,13 @@
     "connect": "^3.1.1",
     "express": "^4.8.7",
     "mysql": "^2.4.3",
-    "node-phantom": "^0.2.5",
     "nodemailer": "^1.2.2",
     "phantom": "^0.6.5",
     "phantomjs": "^1.9.7-15",
     "send-data": "^3.3.3",
-    "underscore": "^1.7.0"
+    "underscore": "^1.7.0",
+    "node-phantom-simple": "^1.2.0",
+    "dateformat": "^1.0.8",
+    "express.io": "^1.1.13"
   }
 }
