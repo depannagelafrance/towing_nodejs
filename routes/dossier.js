@@ -42,6 +42,8 @@ const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?
 const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?); ";
 const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
+const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTIVITY(?,?,?,?);";
+
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
 const STATUS_COMPLETED          = "COMPLETED";
@@ -325,6 +327,15 @@ router.put('/:dossier/:token', function($req, $res) {
               //fire and forget!
             });
           }
+
+          if($voucher.towing_activities) {
+            $voucher.towing_activities.forEach(function($activity) {
+              db.one(SQL_UPDATE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity.activity_id, $activity.amount, $token], function($error, $result, $fields) {
+                //fire and forget
+              });
+            });
+          }
+
 
           //p_dossier_id , p_voucher_id , p_insurance_id , p_insurance_dossier_nr VARCHAR(45),
           //p_warranty_holder VARCHAR(255), p_collector_id , p_vehicule_type VARCHAR(255),
