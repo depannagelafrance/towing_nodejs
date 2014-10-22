@@ -44,6 +44,10 @@ const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?
 
 const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTIVITY(?,?,?,?);";
 
+const SQL_ADD_COLLECTOR_SIGNATURE   = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_CAUSER_SIGNATURE      = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_POLICE_SIGNATURE      = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
+
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
 const STATUS_COMPLETED          = "COMPLETED";
@@ -231,6 +235,35 @@ router.post('/voucher/:dossier_id/:token', function($req, $res) {
   });
 });
 
+router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $res) {
+  $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  $token      = ju.requires('token', $req.params);
+  $category   = ju.requires('category', $req.params);
+
+  $sql = "";
+
+  //validate incomming category
+  switch($category) {
+    case 'signature_police':
+      $sql = SQL_ADD_POLICE_SIGNATURE; break;
+    case 'signature_collector':
+      $sql = SQL_ADD_COLLECTOR_SIGNATURE; break;
+    case 'signature_causer':
+      $sql = SQL_ADD_CAUSER_SIGNATURE; break;
+    default:
+      throw new common.InvalidRequest();
+  }
+
+  $content_type = ju.requires('content_type', $req.body);
+  $file_size    = ju.requiresInt('file_size', $req.body);
+  $content      = ju.requires('content', $req.body);
+
+  //insert object
+  db.one($sql, [$voucher_id, $content_type, $file_size, $content, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+  });
+});
+
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
@@ -336,15 +369,6 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
-
-          //p_dossier_id , p_voucher_id , p_insurance_id , p_insurance_dossier_nr VARCHAR(45),
-          //p_warranty_holder VARCHAR(255), p_collector_id , p_vehicule_type VARCHAR(255),
-          //p_vehicule_licence_plate VARCHAR(15), p_vehicule_country VARCHAR(5),
-          //p_signa_by VARCHAR(255), p_signa_by_vehicule VARCHAR(15), p_signa_arrival DATETIME,
-          //p_towed_by VARCHAR(255), p_towed_by_vehicule VARCHAR(15),
-          //p_towing_called DATETIME, p_towing_arrival DATETIME, p_towing_start DATETIME,
-          //p_towing_end DATETIME, p_police_signature DATE, p_recipient_signature DATE,
-          //p_vehicule_collected DATE, p_cic DATETIME, p_additional_info TEXT, p_token VARCHAR(255)
           $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
                      $warranty_holder, $collector_id, $vehicule_type,
                      $vehicule_licence_plate, $vehicule_country,

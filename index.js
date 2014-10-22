@@ -35,15 +35,17 @@ var admin     = require('./routes/admin.js');
 var report    = require('./routes/report.js');
 var search    = require('./routes/search.js');
 var vocab     = require('./routes/vocab.js');
+var doc       = require('./routes/document.js');
 
 
-app.use('/',        index);
-app.use('/vocab',   vocab);
-app.use('/login',   login);
-app.use('/dossier', dossier);
-app.use('/admin',   admin);
-app.use('/report',  report);
-app.use('/search',  search);
+app.use('/',          index);
+app.use('/vocab',     vocab);
+app.use('/login',     login);
+app.use('/dossier',   dossier);
+app.use('/admin',     admin);
+app.use('/report',    report);
+app.use('/search',    search);
+app.use('/document', doc);
 
 
 

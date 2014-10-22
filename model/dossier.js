@@ -16,6 +16,7 @@ const SQL_FETCH_TOWING_COMPANY              = "CALL R_FETCH_TOWING_COMPANY_BY_DO
 
 const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
 
+const SQL_FETCH_CAUSER_SIGNATURE            = "CALL R_FETCH_CAUSER_SIGNATURE_BY_VOUCHER(?,?);";
 
 var findById = function($dossier_id, $token, cb) {
   var $dossier = {};
@@ -50,6 +51,11 @@ var findById = function($dossier_id, $token, cb) {
         //towing causer
         db.one(SQL_FETCH_CAUSER, [$voucher.id, $token], function($error, $t_result, $fields){
             $voucher.causer = $t_result;
+        });
+
+        //fetch the reference to the causer signature
+        db.one(SQL_FETCH_CAUSER_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields){
+            $voucher.signature_causer = $t_result;
         });
 
         //fetch the towing activities information
