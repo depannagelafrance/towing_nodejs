@@ -45,125 +45,76 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
 
       $compiled_template = $template($vars);
 
- phantom.create(function (error, ph) {
-   console.log("phantom.create");
-   console.log(error);
+     phantom.create(function (error, ph) {
+       console.log("phantom.create");
+       console.log(error);
 
 
-    var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
-    var folder = settings.fs.tmp;
+        var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
+        var folder = settings.fs.tmp;
 
-    ph.createPage(function (error, page) {
-      console.log("ph.createPage");
-      console.log(error);
-      page.settings = {
-        loadImages: true,
-        localToRemoteUrlAccessEnabled: true,
-        javascriptEnabled: true,
-        loadPlugins: false
-       };
-      page.set('viewportSize', { width: 800, height: 600 });
-      page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
-      page.set('content', $compiled_template, function (error) {
-        if (error) {
-          console.log('Error setting content: ', error);
-        }
-      });
+        ph.createPage(function (error, page) {
+          console.log("ph.createPage");
+          console.log(error);
+          page.settings = {
+            loadImages: true,
+            localToRemoteUrlAccessEnabled: true,
+            javascriptEnabled: true,
+            loadPlugins: false
+           };
+          page.set('viewportSize', { width: 800, height: 600 });
+          page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
+          page.set('content', $compiled_template, function (error) {
+            if (error) {
+              console.log('Error setting content: ', error);
+            }
+          });
 
-      page.onResourceRequested = function (rd, req) {
-        //console.log("REQUESTING: ", rd[0]["url"]);
-      }
-      page.onResourceReceived = function (rd) {
-        //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
-      }
-      page.onLoadFinished = function (status) {
-        console.log("Finished loading: " + status);
+          page.onResourceRequested = function (rd, req) {
+            //console.log("REQUESTING: ", rd[0]["url"]);
+          }
+          page.onResourceReceived = function (rd) {
+            //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
+          }
+          page.onLoadFinished = function (status) {
+            console.log("Finished loading: " + status);
 
-        page.render(folder + filename, function (error) {
-          if (error) {
-            console.log('Error rendering PDF: %s', error);
-          } else {
-            console.log("PDF GENERATED : ", status);
+            page.render(folder + filename, function (error) {
+              if (error) {
+                console.log('Error rendering PDF: %s', error);
+              } else {
+                console.log("PDF GENERATED : ", status);
 
-            fs.readFile(folder + filename, "base64", function(a_error, data) {
-              LOG.d(TAG, "Read file: " + folder + filename);
-              LOG.d(TAG, "Error: " + JSON.stringify(a_error));
+                fs.readFile(folder + filename, "base64", function(a_error, data) {
+                  LOG.d(TAG, "Read file: " + folder + filename);
+                  LOG.d(TAG, "Error: " + JSON.stringify(a_error));
 
-              ju.send($req, $res, {
-                "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                "content_type" : "application/pdf",
-                "data" : data
-              });
+                  ju.send($req, $res, {
+                    "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
+                    "content_type" : "application/pdf",
+                    "data" : data
+                  });
 
-              // delete the file
-              fs.unlink(folder + filename, function (err) {
-                if (err) {
-                  LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                } else {
-                  LOG.d(TAG, 'successfully deleted /tmp/' + filename);
-                }
-              });
+                  // delete the file
+                  fs.unlink(folder + filename, function (err) {
+                    if (err) {
+                      LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                    } else {
+                      LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                    }
+                  });
+
+                  ph.exit();
+                });
+              }
 
               ph.exit();
             });
           }
-
-          ph.exit();
         });
-      }
+      });
     });
   });
-
-
-      /*phantom.create(function (ph) {
-        ph.createPage(function (page)
-        {
-          var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
-          var folder = settings.fs.tmp;
-
-          page.settings =
-          {
-            loadImages: true,
-            localToRemoteUrlAccessEnabled: false,
-            javascriptEnabled: false,
-            loadPlugins: false
-          };
-
-          page.set('viewportSize', { width: 800, height: 600 });
-          page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
-          page.set('content', $compiled_template);
-
-          LOG.d(TAG, "Generating file: " + filename);
-
-          page.render(folder + filename, function () {
-            fs.readFile(folder + filename, "base64", function(a_error, data) {
-              LOG.d(TAG, "Read file: " + folder + filename);
-              LOG.d(TAG, "Error: " + JSON.stringify(a_error));
-
-              ju.send($req, $res, {
-                "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                "content_type" : "application/pdf",
-                "data" : data
-              });
-
-              // delete the file
-              fs.unlink(folder + filename, function (err) {
-                if (err) {
-                  LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                } else {
-                  LOG.d(TAG, 'successfully deleted /tmp/' + filename);
-                }
-              });
-
-              ph.exit();
-            });
-          });
-        });
-      });*/
-    });
-  });
-
-
 });
 
 
@@ -197,22 +148,22 @@ function convertToVoucherReportParams($dossier) {
       "towing_service_vat"  : $dossier.towing_company.vat,
       "towing_service_email": $dossier.towing_company.email,
       "towing_service_site" : $dossier.towing_company.website,
-      "location"            : "Borgerhout",
-      "nr_of_blocked_lanes" : 0,
+      "location"            : "",
+      "nr_of_blocked_lanes" : "",
       "direction"           : $dossier.direction_name,
       "indicator"           : $dossier.indicator_name,
-      "lane_indicator"      : "PECH",
+      "lane_indicator"      : $dossier.traffic_lane_name,
       "call_date"           : dateFormat($dossier.call_date, "dd/mm/yyyy"),
       "cb_is_holiday"       : $dossier.call_date_is_holiday == 1 ? '&#9746;' : '&#9744;',
-      "call_hour"           : dateFormat($dossier.call_date, "hh:MM"),
-      "signa_arrival"       : "19:22",
-      "signa_licence_plate" : "1-XXX-XXX",
-      "towing_arrival"      : "19:20",
-      "towing_start"        : "19:22",
-      "towing_end"          : "19:34",
-      "towing_licence_plate": "1-YYY-YYY",
+      "call_hour"           : dateFormat($dossier.call_date, "HH:MM"),
+      "signa_arrival"       : dateFormat($voucher.signa_arrival, "HH:MM"),
+      "signa_licence_plate" : $voucher.signa_by_vehicle,
+      "towing_arrival"      : dateFormat($voucher.towing_arrival, "HH:MM"),
+      "towing_start"        : dateFormat($voucher.towing_start, "HH:MM"),
+      "towing_end"          : dateFormat($voucher.towing_completed, "HH:MM"),
+      "towing_licence_plate": $voucher.towed_by_vehicle,
       "payment_method"      : "Contant",
-      "extra_info"          : "",
+      "extra_info"          : $voucher.additional_info,
       "nr_of_vouchers"      : 1,
       "towing_location_depot" :  $voucher.depot.display_name,
       "causer_name"         : $voucher.causer.company_name ? $voucher.causer.company_name : $voucher.causer.last_name + ' ' + $voucher.causer.first_name,
@@ -222,7 +173,7 @@ function convertToVoucherReportParams($dossier) {
       "customer_name"       : $voucher.customer.company_name ? $voucher.customer.company_name : $voucher.customer.last_name + ' ' + $voucher.customer.first_name,
       "customer_address"    : convertToAddressString($voucher.customer),
       "customer_phone"      : $voucher.customer.phone,
-      "customer_vat"        : $voucher.customer,
+      "customer_vat"        : $voucher.customer.vat,
       "vehicule_type"       : $voucher.vehicule_type,
       "vehicule_licence_plate" : $voucher.vehicule_licenceplate,
       'cb_incident_type_panne'                  : $dossier.incident_type_code == 'PANNE' ? '&#9746;' : '&#9744;',
@@ -231,12 +182,14 @@ function convertToVoucherReportParams($dossier) {
       'cb_incident_type_signalisatie'           : $dossier.incident_type_code == 'SIGNALISATIE' ? '&#9746;' : '&#9744;',
       'cb_incident_type_verloren_voorwerp'      : $dossier.incident_type_code == 'VERLOREN_VOORWERP' ? '&#9746;' : '&#9744;',
       'cb_incident_type_botsabsorbeerder'       : $dossier.incident_type_code == 'BOTSABSORBEERDER' ? '&#9746;' : '&#9744;',
-      'collected_by'                : 'Klant',
-      'collection_date'             : '01/01/2014',
-      'traffic_post'                : 'Geen ploeg',
-      'traffic_post_phone'          : '+32 (0)3 829 70 89',
+      'collected_by'                : $voucher.collector_name,
+      'collection_date'             : dateFormat($voucher.vehicule_collected, "dd/mm/yyyy"),
+      'traffic_post'                : $dossier.traffic_post_name,
+      'traffic_post_phone'          : $dossier.traffic_post_phone,
       'traffic_post_confirmation'   : '',
       'copy_for'                    : 'exemplaar dienstverlener',
+      'insurance_name'              : $voucher.insurance_id,
+      'insurance_dossier'           : $voucher.insurance_dossiernr,
     };
 
     return $params;

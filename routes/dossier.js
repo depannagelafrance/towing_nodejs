@@ -47,6 +47,13 @@ const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTI
 const SQL_ADD_COLLECTOR_SIGNATURE   = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_CAUSER_SIGNATURE      = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_POLICE_SIGNATURE      = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_INSURANCE_DOCUMENT    = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
+
+const SQL_FETCH_ALL_INTERNAL_COMMUNICATION = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
+const SQL_FETCH_ALL_EMAIL_COMMUNICATION    = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS(?,?,?); ";
+const SQL_FETCH_ALL_EMAIL_RECIPIENTS       = "CALL R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS(?,?); ";
+const SQL_ADD_DOSSIER_COMMUNICATION        = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
+const SQL_ADD_DOSSIER_COMM_RECIPIENT       = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
 
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
@@ -239,6 +246,7 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
   $voucher_id = ju.requiresInt('voucher_id', $req.params);
   $token      = ju.requires('token', $req.params);
   $category   = ju.requires('category', $req.params);
+  $file_name  = "";
 
   $sql = "";
 
@@ -250,6 +258,10 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
       $sql = SQL_ADD_COLLECTOR_SIGNATURE; break;
     case 'signature_causer':
       $sql = SQL_ADD_CAUSER_SIGNATURE; break;
+    case 'insurance_document':
+      $sql = SQL_ADD_INSURANCE_DOCUMENT;
+      $filename = ju.requires('file_name', $req.body);
+      break;
     default:
       throw new common.InvalidRequest();
   }
@@ -258,8 +270,15 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
   $file_size    = ju.requiresInt('file_size', $req.body);
   $content      = ju.requires('content', $req.body);
 
+
+  $params = [$voucher_id, $content_type, $file_size, $content, $token];
+
+  if($file_name && $file_name != "" && $category == 'insurance_document') {
+    $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $token];
+  }
+
   //insert object
-  db.one($sql, [$voucher_id, $content_type, $file_size, $content, $token], function($error, $result, $fields) {
+  db.one($sql, $params, function($error, $result, $fields) {
       ju.send($req, $res, $result);
   });
 });
@@ -387,6 +406,94 @@ router.put('/:dossier/:token', function($req, $res) {
       }
     }
   });
+});
+
+// -----------------------------------------------------------------------------
+// DOSSIER COMMUNICATIONS
+// -----------------------------------------------------------------------------
+
+router.get('/communication/:type/:dossier/:voucher/:token', function($req, $res) {
+  var $token      = ju.requires('token', $req.params);
+  var $type       = ju.requires('type', $req.params);
+  var $dossier_id = ju.requiresInt('dossier', $req.params);
+  var $voucher_id = ju.intValueOf('voucher', $req.params);
+
+
+  var $params = [$dossier_id, $voucher_id, $token];
+
+  switch($type) {
+    case 'email':
+      db.many(SQL_FETCH_ALL_EMAIL_COMMUNICATION, $params, function($error, $result, $fields) {
+          if($result.length > 0  && !('error' in $result)) {
+            $comms = [];
+
+            $result.forEach(function($item) {
+              db.many(SQL_FETCH_ALL_EMAIL_RECIPIENTS, [$item.id, $token], function($error, $r_result, $fields) {
+                  $item.recipients = $r_result;
+
+                  $comms.push($item);
+
+                  if($comms.length >= $result.length) {
+                    ju.send($req, $res, $comms);
+                  }
+              });
+            });
+          } else {
+            ju.send($req, $res, $result);
+          }
+      });
+
+      break;
+    case 'internal':
+      db.many(SQL_FETCH_ALL_INTERNAL_COMMUNICATION, $params, function($error, $result, $fields) {
+          ju.send($req, $res, $result);
+      });
+
+      break;
+    default:
+      throw new common.InvalidRequest();
+  }
+});
+
+router.post('/communication/:type/:token', function($req, $res) {
+  var $token      = ju.requires('token', $req.params);
+  var $type       = ju.requires('type', $req.params);
+
+  var $dossier_id = ju.requiresInt('dossier_id', $req.body);
+  var $voucher_id = ju.intValueOf('voucher_id', $req.body);
+  var $message    = ju.requires('message', $req.body);
+
+  switch($type) {
+    case 'email':
+      $subject    = ju.requires('subject', $req.body);
+      $recipients = ju.requires('recipients', $req.body);
+
+      $params = [$dossier_id, $voucher_id, 'EMAIL', $subject, $message, $token];
+
+      db.one(SQL_ADD_DOSSIER_COMMUNICATION, $params, function($error, $result, $fields) {
+          if($result && $result.status == 'OK') {
+              $recipients.forEach(function($recipient) {
+                db.one(SQL_ADD_DOSSIER_COMM_RECIPIENT, [$result.communication_id, $recipient.type, $recipient.email, $token], function($error, $result, $fields) {
+                  //fire and forget
+                });
+              });
+          }
+
+          ju.send($req, $res, $result);
+      });
+
+      break;
+    case 'internal':
+      $params = [$dossier_id, $voucher_id, 'INTERNAL', null, $message, $token];
+
+      db.one(SQL_ADD_DOSSIER_COMMUNICATION, $params, function($error, $result, $fields) {
+          ju.send($req, $res, $result);
+      });
+
+      break;
+    default:
+      throw new common.InvalidRequest();
+  }
 });
 
 

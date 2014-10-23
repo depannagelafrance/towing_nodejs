@@ -44,6 +44,29 @@ var requires = function($key, $jsonData) {
     throw new RequiredKeyMissing($key);
 }
 
+var value = function($key, $jsonData) {
+  if($jsonData[$key]) {
+    return $jsonData[$key];
+  }
+
+  return null;
+}
+
+var intValue = function($key, $jsonData) {
+  $value = value($key, $jsonData);
+
+  if($value) {
+    if(_.isNaN(parseInt($value))) {
+      return null;
+    }
+  } else {
+    return null;
+  }
+
+  return parseInt($value);
+}
+
+
 var requiresInt = function($key, $jsonData) {
   $value = requires($key, $jsonData);
 
@@ -88,4 +111,6 @@ var send = function($req, $res, $result) {
 
 exports.requires = requires;
 exports.requiresInt = requiresInt;
+exports.valueOf = value;
+exports.intValueOf = intValue;
 exports.send = send;
