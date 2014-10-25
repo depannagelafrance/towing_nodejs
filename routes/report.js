@@ -25,9 +25,10 @@ var router = express.Router();
 
 
 // -- ONLY POSTS ARE ALLOWED
-router.get('/towing_voucher/:id/:token', function($req, $res) {
+router.get('/towing_voucher/:type/:id/:token', function($req, $res) {
   var $dossier_id = ju.requiresInt('id', $req.params);
-  var $token = ju.requires('token', $req.params);
+  var $token      = ju.requires('token', $req.params);
+  var $type       = ju.requires('type', $req.params);
 
   dossier.findById($dossier_id, $token, function($dossier){
     var $filename='./templates/report/towing_voucher.html';
@@ -39,23 +40,17 @@ router.get('/towing_voucher/:id/:token', function($req, $res) {
       }
 
       var $template = _.template($data);
-      var $vars = convertToVoucherReportParams($dossier);
+      var $vars = convertToVoucherReportParams($dossier, $type);
 
       //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
 
       $compiled_template = $template($vars);
 
-     phantom.create(function (error, ph) {
-       console.log("phantom.create");
-       console.log(error);
-
-
+      phantom.create(function (error, ph) {
         var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
         var folder = settings.fs.tmp;
 
         ph.createPage(function (error, page) {
-          console.log("ph.createPage");
-          console.log(error);
           page.settings = {
             loadImages: true,
             localToRemoteUrlAccessEnabled: true,
@@ -130,8 +125,18 @@ function convertToAddressString($info) {
   return $address;
 }
 
-function convertToVoucherReportParams($dossier) {
+function convertToVoucherReportParams($dossier, $type) {
   $voucher = $dossier.towing_vouchers[0];
+
+  $copy_for = "";
+
+  switch($type) {
+    case 'towing':    $copy_for = "Exemplaar dienstverlener"; break;
+    case 'collector': $copy_for = "Exemplaar afhaler";        break;
+    case 'customer':  $copy_for = "Exemplaar klant";          break;
+    default:
+      $copy_for = "Exemplaar dienstverlener";
+  }
 
   try {
     var $params = {
@@ -187,7 +192,7 @@ function convertToVoucherReportParams($dossier) {
       'traffic_post'                : $dossier.traffic_post_name,
       'traffic_post_phone'          : $dossier.traffic_post_phone,
       'traffic_post_confirmation'   : '',
-      'copy_for'                    : 'exemplaar dienstverlener',
+      'copy_for'                    : $copy_for,
       'insurance_name'              : $voucher.insurance_id,
       'insurance_dossier'           : $voucher.insurance_dossiernr,
     };
