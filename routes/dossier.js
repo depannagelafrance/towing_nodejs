@@ -283,6 +283,84 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
   });
 });
 
+router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+  $depot = ju.requires('depot', $req.body);
+
+  //upate the voucher's depot if it is available
+  if(depot.id) {
+    $_depot = $depot;
+
+    $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
+               $_depot.street_pobox, $_depot.zip, $_depot.city, $token];
+
+    db.one(SQL_UPDATE_TOWING_DEPOT, $params, function($error, $result, $fields){
+      if($result && 'id' in $result) {
+        ju.send($req, $res, $depot);
+      } else {
+        ju.send($req, $res, $result);
+      }
+    });
+  }
+});
+
+router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+  $_causer = ju.requires('causer', $req.body);
+
+  if($_causer && $_causer.id) {
+    $_customer = $_causer;
+
+    $params = [$_customer.id, $voucher_id,
+               $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+               $_customer.street, $_customer.street_number, $_customer.street_pobox,
+               $_customer.zip, $_customer.city, $_customer.country,
+               $_customer.phone, $_customer.email,
+               $token];
+
+    db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
+      if($result && 'id' in $result) {
+        ju.send($req, $res, $_causer);
+      } else {
+        ju.send($req, $res, $result);
+      }
+    });
+  }
+
+});
+
+router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+  $_customer = ju.requires('customer', $req.body);
+
+  if($_customer && $_customer.id) {
+
+    $params = [$_customer.id, $voucher_id,
+               $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+               $_customer.street, $_customer.street_number, $_customer.street_pobox,
+               $_customer.zip, $_customer.city, $_customer.country,
+               $_customer.phone, $_customer.email,
+               $token];
+
+    db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
+      if($result && 'id' in $result) {
+        ju.send($req, $res, $_customer);
+      } else {
+        ju.send($req, $res, $result);
+      }
+    });
+  }
+});
+
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
