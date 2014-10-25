@@ -380,11 +380,12 @@ router.post('/collector/:token', function($req, $res) {
 });
 
 router.put('/collector/:id/:token', function($req, $res) {
-  var $id = $req.params.id;
-  var $token = $req.params.token;
+  var $id     = ju.requiresInt('id', $req.params);
+  var $token  = ju.requires('token', $req.params);
+  var $name   = ju.requires('name', $req.body);
 
-  db.one(SQL_UPDATE_COLLECTOR, [$id, $token], function($error, $result, $fields) {
-    if('error' in $result) {
+  db.one(SQL_UPDATE_COLLECTOR, [$id, $name, $token], function($error, $result, $fields) {
+    if(!$result && 'error' in $result) {
       ju.send($req, $res, $result);
     } else {
       db.one(SQL_COLLECTOR_BY_ID, [$id, $token], function($error, $result, $fields) {
