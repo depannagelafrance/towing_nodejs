@@ -61,7 +61,11 @@ router.get('/users/:user_id/:token', function($req, $res) {
   var $token = $req.params.token;
 
   db.one(SQL_USER_BY_ID, [$id, $token], function($error, $result, $fields) {
-    ju.send($req, $res, $result);
+    db.many(SQL_ALL_USER_ROLES, [$result.id, $token], function($error, $r_result, $fields) {
+      $result.user_roles = $r_result;
+
+      ju.send($req, $res, $result);
+    });
   });
 });
 
