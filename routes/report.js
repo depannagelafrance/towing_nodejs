@@ -3,19 +3,22 @@ var _           = require('underscore');
 var express     = require('express');
 var fs          = require('fs');
 var path        = require('path');
-//var phantom     = require('phantom');
-var phantom = require('node-phantom-simple');
+var phantom     = require('node-phantom-simple');
 var dateFormat  = require('dateformat');
 var crypto      = require('crypto');
 
+var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
 var LOG       = require('../util/logger.js');
 var settings  = require('../settings/settings.js');
 
+
 var dossier   = require('../model/dossier.js');
 
 const TAG = 'report.js';
+
+const SQL_FETCH_CAUSER_SIGNATURE            = "CALL R_FETCH_CAUSER_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
 
 // -- CONFIGURE ROUTING
 var router = express.Router();
@@ -25,8 +28,9 @@ var router = express.Router();
 
 
 // -- ONLY POSTS ARE ALLOWED
-router.get('/towing_voucher/:type/:id/:token', function($req, $res) {
-  var $dossier_id = ju.requiresInt('id', $req.params);
+router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req, $res) {
+  var $dossier_id = ju.requiresInt('dossier_id', $req.params);
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
   var $token      = ju.requires('token', $req.params);
   var $type       = ju.requires('type', $req.params);
 
@@ -40,74 +44,98 @@ router.get('/towing_voucher/:type/:id/:token', function($req, $res) {
       }
 
       var $template = _.template($data);
-      var $vars = convertToVoucherReportParams($dossier, $type);
+      var $vars = convertToVoucherReportParams($dossier, $voucher_id, $type, $token);
 
-      //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
+      db.one(SQL_FETCH_CAUSER_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields)
+      {
+        $signature_causer = null;
 
-      $compiled_template = $template($vars);
+        if($result && 'content' in $result) {
+          $signature_causer = $result.content;
+        }
 
-      phantom.create(function (error, ph) {
-        var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
-        var folder = settings.fs.tmp;
+        $vars.signature_causer = $signature_causer;
 
-        ph.createPage(function (error, page) {
-          page.settings = {
-            loadImages: true,
-            localToRemoteUrlAccessEnabled: true,
-            javascriptEnabled: true,
-            loadPlugins: false
-           };
-          page.set('viewportSize', { width: 800, height: 600 });
-          page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
-          page.set('content', $compiled_template, function (error) {
-            if (error) {
-              console.log('Error setting content: ', error);
-            }
-          });
 
-          page.onResourceRequested = function (rd, req) {
-            //console.log("REQUESTING: ", rd[0]["url"]);
-          }
-          page.onResourceReceived = function (rd) {
-            //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
-          }
-          page.onLoadFinished = function (status) {
-            console.log("Finished loading: " + status);
 
-            page.render(folder + filename, function (error) {
+        //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
+
+        $compiled_template = $template($vars);
+
+        phantom.create(function (error, ph) {
+          var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
+          var folder = settings.fs.tmp;
+
+          ph.createPage(function (error, page)
+          {
+            page.settings = {
+              loadImages: true,
+              localToRemoteUrlAccessEnabled: false,
+              javascriptEnabled: false,
+              loadPlugins: false,
+              quality: 75
+             };
+            page.set('viewportSize', { width: 800, height: 600 });
+            page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
+            page.set('content', $compiled_template, function (error) {
               if (error) {
-                console.log('Error rendering PDF: %s', error);
-              } else {
-                console.log("PDF GENERATED : ", status);
-
-                fs.readFile(folder + filename, "base64", function(a_error, data) {
-                  LOG.d(TAG, "Read file: " + folder + filename);
-                  LOG.d(TAG, "Error: " + JSON.stringify(a_error));
-
-                  ju.send($req, $res, {
-                    "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                    "content_type" : "application/pdf",
-                    "data" : data
-                  });
-
-                  // delete the file
-                  fs.unlink(folder + filename, function (err) {
-                    if (err) {
-                      LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                    } else {
-                      LOG.d(TAG, 'successfully deleted /tmp/' + filename);
-                    }
-                  });
-
-                  ph.exit();
-                });
+                console.log('Error setting content: ', error);
               }
-
-              ph.exit();
             });
-          }
-        });
-      });
+
+            page.onResourceRequested = function (rd, req)
+            {
+              //console.log("REQUESTING: ", rd[0]["url"]);
+            }
+
+            page.onResourceReceived = function (rd)
+            {
+              //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
+            }
+
+            page.onLoadFinished = function (status)
+            {
+              console.log("Finished loading: " + status);
+
+              page.render(folder + filename, function (error)
+              {
+                if (error)
+                {
+                  console.log('Error rendering PDF: %s', error);
+                }
+                else
+                {
+                  console.log("PDF GENERATED : ", status);
+
+                  fs.readFile(folder + filename, "base64", function(a_error, data) {
+                    LOG.d(TAG, "Read file: " + folder + filename);
+                    LOG.d(TAG, "Error: " + JSON.stringify(a_error));
+
+                    ju.send($req, $res, {
+                      "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
+                      "content_type" : "application/pdf",
+                      "data" : data
+                    });
+
+                    // delete the file
+                    // fs.unlink(folder + filename, function (err) {
+                    //   if (err) {
+                    //     LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                    //   } else {
+                    //     LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                    //   }
+                    // });
+
+                    ph.exit();
+                  });
+                }
+
+                ph.exit();
+              });
+            }
+          }); //end ph.create
+        }); //end phantom.create
+      }); //end db.one(causer signature)
     });
   });
 });
@@ -125,9 +153,19 @@ function convertToAddressString($info) {
   return $address;
 }
 
-function convertToVoucherReportParams($dossier, $type) {
-  $voucher = $dossier.towing_vouchers[0];
+function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
+  $voucher = null;
 
+  //filter our the correct towing voucher
+  for($i = 0; $i < $dossier.towing_vouchers.length && !$voucher; $i++)
+    $voucher = ($dossier.towing_vouchers[$i].id == $voucher_id ? $dossier.towing_vouchers[$i] : null);
+
+  if(!$voucher)
+    $voucher = $dossier.towing_vouchers[0];
+
+
+  // ---------------------------------------------------------------------------
+  // Setting the "copy for text"
   $copy_for = "";
 
   switch($type) {
@@ -138,6 +176,9 @@ function convertToVoucherReportParams($dossier, $type) {
       $copy_for = "Exemplaar dienstverlener";
   }
 
+
+  // ---------------------------------------------------------------------------
+  // setting variables
   try {
     var $params = {
       "allotment_name"      : $dossier.allotment_name,

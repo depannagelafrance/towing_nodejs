@@ -137,6 +137,14 @@
 		.label {
 			font-weight: bold;
 		}
+		img.signature {
+    	width: 150px;
+    	height: auto;
+		}
+		img.signature_collector {
+			width: 100px;
+			height: auto;
+		}
 
 
 
@@ -544,13 +552,21 @@
 					<tbody>
 						<tr>
 								<td>
-										<span class="label">Naam/Firma:</span> <%=collected_by%> <br />
-										<span class="label">Datum:</span> <%=collection_date%><br />
-										<br />
-										Handtekening
-
-										<br/>
-										<br/>
+										<table border="0">
+											<tr>
+												<td>
+														<span class="label">Naam/Firma:</span> <%=collected_by%> <br />
+														<span class="label">Datum:</span> <%=collection_date%><br />
+												</td>
+												<td>
+													<% if(signature_causer) { %>
+														<img src="data:image/png;base64,<%=signature_causer %>" class="signature_collector" />
+													<% } else { %>
+														Geen handtekening
+													<% } %>
+												</td>
+											</tr>
+										</table>
 								</td>
 						</tr>
 					</tbody>
@@ -579,14 +595,12 @@
 									</table>
 
 									<br />
-									Handtekening
-
-									<br/>
-									<br/>
-									<br />
-									<br />
-									<br />
-									<br />
+								Handtekening
+								<% if(signature_causer) { %>
+									<img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+								<% } else { %>
+									Geen handtekening
+								<% } %>
 							</td>
 							<td valign="top" style="border: 1px solid #000; width: 33%">
 									(Gegevens Politiepost)
@@ -599,7 +613,11 @@
 
 									<br />
 									Handtekening
-
+									<% if(signature_causer) { %>
+										<img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+									<% } else { %>
+										Geen handtekening
+									<% } %>
 
 							</td>
 							<td valign="top">
@@ -613,13 +631,11 @@
 
 									<br />
 									Handtekening
-
-									<br/>
-									<br/>
-									<br />
-									<br />
-									<br />
-									<br />
+									<% if(signature_causer) { %>
+										<img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+									<% } else { %>
+										Geen handtekening
+									<% } %>
 							</td>
 					</tr>
 				</tbody>
