@@ -408,7 +408,36 @@ router.delete('/collector/:id/:token', function($req, $res) {
   });
 });
 
+// -- -------------------------------------------------
+// -- TIMEFRAME ACTIVITY MANAGEMENT
+// -- -------------------------------------------------
+const SQL_FETCH_ALL_TIMEFRAMES              = "CALL R_FETCH_ALL_TIMEFRAMES(?);";
+const SQL_FETCH_ALL_TIMEFRAME_ACTIVITIES    = "CALL R_FETCH_ALL_TIMEFRAME_ACTIVITIES(?);";
+const SQL_FETCH_ALL_TIMEFRAME_ACTIVITY_FEES = "CALL R_FETCH_ALL_TIMEFRAME_ACTIVITY_FEES(?,?);";
 
+router.get('/timeframe/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
 
+  db.many(SQL_FETCH_ALL_TIMEFRAMES, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/timeframe/activities/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_TIMEFRAME_ACTIVITIES, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $timeframe_id = ju.requiresInt('timeframe', $req.params);
+
+  db.many(SQL_FETCH_ALL_TIMEFRAME_ACTIVITY_FEES, [$timeframe_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
 
 module.exports = router;
