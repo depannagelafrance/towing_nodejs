@@ -291,7 +291,7 @@ router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
   $depot = ju.requires('depot', $req.body);
 
   //upate the voucher's depot if it is available
-  if(depot.id) {
+  if($depot.id) {
     $_depot = $depot;
 
     $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,

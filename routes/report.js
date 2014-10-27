@@ -118,13 +118,13 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
                     });
 
                     // delete the file
-                    // fs.unlink(folder + filename, function (err) {
-                    //   if (err) {
-                    //     LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                    //   } else {
-                    //     LOG.d(TAG, 'successfully deleted /tmp/' + filename);
-                    //   }
-                    // });
+                    fs.unlink(folder + filename, function (err) {
+                      if (err) {
+                        LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                      } else {
+                        LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                      }
+                    });
 
                     ph.exit();
                   });
