@@ -4,6 +4,7 @@ var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
 var LOG       = require('../util/logger.js');
+var vocab     = require('../model/vocab.js');
 
 const TAG = 'vocab.js';
 
@@ -63,5 +64,35 @@ router.get('/country_licence_plates/:token', function($req, $res) {
 router.get('/incident_types/:token', function($req, $res) {
   fetchVocabularies($req, $res, SQL_ALL_INCIDENT_TYPES);
 });
+
+// -- -------------------------------------------------
+// -- TIMEFRAME ACTIVITY VOCABS
+// -- -------------------------------------------------
+
+router.get('/timeframe/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  vocab.findAllTimeframes($token, function($result) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/timeframe/activities/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  vocab.findAllTimeframeActivities($token, function($result) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $timeframe_id = ju.requiresInt('timeframe', $req.params);
+
+  vocab.findAllTimeframeActivityFees($timeframe_id, $token, function($result) {
+    ju.send($req, $res, $result);
+  });
+});
+
 
 module.exports = router;

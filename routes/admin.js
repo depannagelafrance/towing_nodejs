@@ -5,6 +5,7 @@ var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
 var LOG       = require('../util/logger.js');
+var vocab     = require('../model/vocab.js');
 
 const TAG = 'admin.js';
 
@@ -411,14 +412,10 @@ router.delete('/collector/:id/:token', function($req, $res) {
 // -- -------------------------------------------------
 // -- TIMEFRAME ACTIVITY MANAGEMENT
 // -- -------------------------------------------------
-const SQL_FETCH_ALL_TIMEFRAMES              = "CALL R_FETCH_ALL_TIMEFRAMES(?);";
-const SQL_FETCH_ALL_TIMEFRAME_ACTIVITIES    = "CALL R_FETCH_ALL_TIMEFRAME_ACTIVITIES(?);";
-const SQL_FETCH_ALL_TIMEFRAME_ACTIVITY_FEES = "CALL R_FETCH_ALL_TIMEFRAME_ACTIVITY_FEES(?,?);";
-
 router.get('/timeframe/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
 
-  db.many(SQL_FETCH_ALL_TIMEFRAMES, [$token], function($error, $result, $fields) {
+  vocab.findAllTimeframes($token, function($result) {
     ju.send($req, $res, $result);
   });
 });
@@ -426,7 +423,7 @@ router.get('/timeframe/:token', function($req, $res) {
 router.get('/timeframe/activities/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
 
-  db.many(SQL_FETCH_ALL_TIMEFRAME_ACTIVITIES, [$token], function($error, $result, $fields) {
+  vocab.findAllTimeframeActivities($token, function($result) {
     ju.send($req, $res, $result);
   });
 });
@@ -435,9 +432,10 @@ router.get('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
   var $timeframe_id = ju.requiresInt('timeframe', $req.params);
 
-  db.many(SQL_FETCH_ALL_TIMEFRAME_ACTIVITY_FEES, [$timeframe_id, $token], function($error, $result, $fields) {
+  vocab.findAllTimeframeActivityFees($timeframe_id, $token, function($result) {
     ju.send($req, $res, $result);
   });
 });
+
 
 module.exports = router;
