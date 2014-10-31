@@ -6,6 +6,7 @@ var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var LOG       = require('../util/logger.js');
 var dossier   = require('../model/dossier.js');
+var vocab     = require('../model/vocab.js');
 var util      = require('util');
 
 var TAG = 'dossier.js';
@@ -31,7 +32,6 @@ const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES        = "CALL R_FETCH_ALL_AVAILABLE_AC
 const SQL_FETCH_ALL_VOUCHERS_BY_FILTER          = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
 const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION     = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
 const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT      = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
-const SQL_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT  = "CALL R_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT(?,?); ";
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
@@ -181,7 +181,7 @@ router.get('/list/traffic_posts/allotment/:allotment_id/:token', function($req, 
   var $allotment_id = ju.requiresInt('allotment_id', $req.params);
   var $token        = ju.requires('token', $req.params);
 
-  db.many(SQL_FETCH_ALL_TRAFFIC_POSTS_BY_ALLOTMENT, [$allotment_id, $token], function($error, $result, $fields) {
+  vocab.findAllTrafficPostsByAllotment($allotment_id, $token, function($result){
     ju.send($req, $res, $result);
   });
 });

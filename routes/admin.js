@@ -412,6 +412,8 @@ router.delete('/collector/:id/:token', function($req, $res) {
 // -- -------------------------------------------------
 // -- TIMEFRAME ACTIVITY MANAGEMENT
 // -- -------------------------------------------------
+const SQL_UPDATE_TIMEFRAME_ACTIVITY_FEE = "CALL R_UPDATE_TIMEFRAME_ACTIVITY_FEE(?,?,?,?,?);";
+
 router.get('/timeframe/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
 
@@ -436,6 +438,34 @@ router.get('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
     ju.send($req, $res, $result);
   });
 });
+
+
+router.put('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $timeframe_id = ju.requiresInt('timeframe', $req.params);
+  var $fees = ju.requires('activity_fees', $req.body);
+
+
+  var $i = 0;
+
+  $fees.forEach(function($fee) {
+      var $ta_id = ju.requiresInt('timeframe_activity_id', $fee);
+      var $fee_excl_vat = ju.requires('fee_excl_vat', $fee);
+      var $fee_incl_vat = ju.requires('fee_incl_vat', $fee);
+
+      db.one(SQL_UPDATE_TIMEFRAME_ACTIVITY_FEE, [$timeframe_id, $ta_id, $fee_excl_vat, $fee_incl_vat, $token], function($error, $result, $fields) {
+        $i++;
+
+        if($i >= $fees.length)
+        {
+          vocab.findAllTimeframeActivityFees($timeframe_id, $token, function($result) {
+            ju.send($req, $res, $result);
+          });
+        }
+      });
+  });
+});
+
 
 
 module.exports = router;

@@ -94,5 +94,16 @@ router.get('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
   });
 });
 
+// -- -------------------------------------------------
+// -- POLICE TRAFFIC POSTS
+// -- -------------------------------------------------
+router.get('/trafficpost/allotment/:allotment/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $allotment_id = ju.requiresInt('allotment', $req.params);
+
+  vocab.findAllTrafficPostsByAllotment($allotment_id, $token, function($result) {
+    ju.send($req, $res, $result);
+  });
+});
 
 module.exports = router;

@@ -13,13 +13,13 @@ var router = express.Router();
 
 
 //-- DEFINE CONSTANST
-const SQL_PROCESS_LOGIN       = "CALL R_LOGIN(?,?);";
-const SQL_PROCESS_TOKEN_AUTH  = "CALL R_LOGIN_TOKEN(?)";
-const SQL_FETCH_USER_MODULES  = "CALL R_FETCH_USER_MODULES(?); ";
-const SQL_FETCH_USER_ROLES    = "CALL R_FETCH_USER_ROLES(?); ";
-const SQL_FETCH_COMPANY_DEPOT = "CALL R_FETCH_COMPANY_DEPOT(?);";
-const SQL_FETCH_USER_COMPANY  = "CALL R_FETCH_USER_COMPANY(?);";
-
+const SQL_PROCESS_LOGIN             = "CALL R_LOGIN(?,?);";
+const SQL_PROCESS_TOKEN_AUTH        = "CALL R_LOGIN_TOKEN(?)";
+const SQL_FETCH_USER_MODULES        = "CALL R_FETCH_USER_MODULES(?); ";
+const SQL_FETCH_USER_ROLES          = "CALL R_FETCH_USER_ROLES(?); ";
+const SQL_FETCH_COMPANY_DEPOT       = "CALL R_FETCH_COMPANY_DEPOT(?);";
+const SQL_FETCH_USER_COMPANY        = "CALL R_FETCH_USER_COMPANY(?);";
+const SQL_FETCH_COMPANY_ALLOTMENTS  = "CALL R_FETCH_COMPANY_ALLOTMENTS(?); ";
 
 // -- ONLY POSTS ARE ALLOWED
 router.get('/', function($req, $res) {
@@ -45,6 +45,11 @@ router.post('/', function($req, $res) {
       //fetch the user's company
       db.one(SQL_FETCH_USER_COMPANY, [$result.token], function($error, $company, $fields) {
         $result.company = $company;
+        $result.company.allotments = [];
+        
+        db.many(SQL_FETCH_COMPANY_ALLOTMENTS, [$result.token], function($error, $allotments, $fields) {
+          $result.company.allotments = $allotments;
+        });
       });
 
       //fetch the company's depot
