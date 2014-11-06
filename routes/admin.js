@@ -1,11 +1,15 @@
 // -- IMPORT LIBRARIES
-var _         = require('underscore');
-var express   = require('express');
-var db        = require('../util/database.js');
-var ju        = require('../util/json.js');
-var common    = require('../util/common.js');
-var LOG       = require('../util/logger.js');
-var vocab     = require('../model/vocab.js');
+var _           = require('underscore');
+var express     = require('express');
+var nodemailer  = require('nodemailer');
+
+var db          = require('../util/database.js');
+var ju          = require('../util/json.js');
+var common      = require('../util/common.js');
+var LOG         = require('../util/logger.js');
+var vocab       = require('../model/vocab.js');
+var settings    = require('../settings/settings.js');
+
 
 const TAG = 'admin.js';
 
@@ -92,6 +96,34 @@ router.post('/users/:token', function($req, $res) {
       } else {
         var $id = $result.id;
 
+        var $generated_pwd = $result.generated_password;
+
+        // create reusable transporter object using SMTP transport
+        var transporter = nodemailer.createTransport(settings.smtp.transport);
+
+        // setup e-mail data with unicode symbols
+        var mailOptions = {
+            from: settings.smtp.from, // sender address
+            to: $email, // list of receivers
+            subject: 'Towing.be - Uw wachtwoord', // Subject line
+            html: 'Hallo <b>' + $firstname + '</b>. <br /><br />'
+                + 'We hebben een account aangemaakt op https://tool.towing.be. <br /><br />'
+                + '- Gebruikersnaam: <strong>' + $login + '</strong> <br />'
+                + '- Wachtwoord: <strong>' + $generated_pwd + '</strong><br/><br />'
+                + 'Moest je nog vragen hebben, neem dan contact op met info@towing.be. <br /><br />'
+                + 'Vriendelijke groet,<br>- Towing.be Adminstratie'
+        };
+
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, function(error, info){
+            if(error){
+                LOG.e(TAG, error);
+            }else{
+                LOG.d(TAG, "E-mail verzonden naar: " + $email);
+            }
+        });
+
+
         db.one(SQL_USER_BY_ID, [$id, $token], function($error, $result, $fields) {
           $user = $result;
 
@@ -132,7 +164,7 @@ router.put('/users/:user_id/:token', function($req, $res) {
 
 
     db.one(SQL_UPDATE_USER, [$user_id, $firstname, $lastname, $email, $token], function($error, $result, $fields) {
-      if('error' in $result) {
+      if(!$result || 'error' in $result) {
         ju.send($req, $res, $result);
       } else {
         var $id = $result.id;
