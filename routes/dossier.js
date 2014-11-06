@@ -393,11 +393,11 @@ router.put('/:dossier/:token', function($req, $res) {
         fetchDossierById($req, $res, $result.id, $token);
       } else {
         $vouchers.forEach(function($voucher) {
-          $voucher_id           = $voucher.id;
-          $insurance_id         = $voucher.insurance_id;
-          $insurance_dossier_nr = $voucher.insurance_dossiernr;
-          $warranty_holder      = $voucher.insurance_warranty_held_by;
-          $collector_id         = $voucher.collector_id;
+          $voucher_id               = $voucher.id;
+          $insurance_id             = ($voucher.insurance_id == "" ? null : $voucher.insurance_id);
+          $insurance_dossier_nr     = $voucher.insurance_dossiernr;
+          $warranty_holder          = $voucher.insurance_warranty_held_by;
+          $collector_id             = ($voucher.collector_id == "" ? null : $voucher.collector_id);
           $police_signature_date    = $voucher.police_signature_dt;
           $recipient_signature_date = $voucher.recipient_signature_dt;
           $vehicule_type            = $voucher.vehicule_type;

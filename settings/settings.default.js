@@ -21,5 +21,29 @@ var fs = {
   tmp : "/tmp/"
 }
 
+var smtpTransportSettings = {
+  service: 'Gmail',
+  debug: true,
+  auth: {
+    user: 'user@gmail.com',
+    pass: 'pwd'
+  }
+}
+
+//
+// var smtpTransportSettings = {
+//   host: 'smtp.telenet.be',
+//   port: '587',
+//   debug: true
+// }
+
+
+var smtp = {
+  transport: smtpTransportSettings,
+  from: 'Towing.be <no-reply@towing.be>'
+}
+
+
 exports.mysql = mysql;
 exports.fs = fs;
+exports.smtp = smtp;
