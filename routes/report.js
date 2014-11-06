@@ -12,13 +12,15 @@ var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
 var LOG       = require('../util/logger.js');
 var settings  = require('../settings/settings.js');
-
+var vocab     = require('../model/vocab.js');
 
 var dossier   = require('../model/dossier.js');
 
 const TAG = 'report.js';
 
 const SQL_FETCH_CAUSER_SIGNATURE            = "CALL R_FETCH_CAUSER_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
+const SQL_FETCH_POLICE_SIGNATURE            = "CALL R_FETCH_TRAFFIC_POST_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
+const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
 
 // -- CONFIGURE ROUTING
 var router = express.Router();
@@ -46,111 +48,197 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
       var $template = _.template($data);
       var $vars = convertToVoucherReportParams($dossier, $voucher_id, $type, $token);
 
-      db.one(SQL_FETCH_CAUSER_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields)
-      {
-        $signature_causer = null;
+      db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher_id, $token], function($error, $result, $fields) {
+        $vars.towing_activities = $result;
 
-        if($result && 'content' in $result) {
-          $signature_causer = $result.content;
+        vocab.findAllTimeframes($token, function($data) {
+          $vars.timeframes = $data;
+
+          LOG.d(TAG, "Fetched timeframes");
+
+          vocab.findAllTimeframeActivities($token, function($data) {
+            $vars.timeframe_activities = $data;
+            LOG.d(TAG, "Fetched timeframe activities");
+            $vars.timeframe_activity_fees = [];
+
+            $vars.timeframes.forEach(function($timeframe) {
+              LOG.d(TAG, "Iterating over timeframes: " + $timeframe.id);
+
+              vocab.findAllTimeframeActivityFees($timeframe.id, $token, function($data) {
+                  $vars.timeframe_activity_fees.push($data);
+
+                  LOG.d(TAG, "Length of timeframe array: " + $vars.timeframes.length);
+                  LOG.d(TAG, "Length of timeframe fee array: " + $vars.timeframe_activity_fees.length);
+
+                  if($vars.timeframe_activity_fees.length >= $vars.timeframes.length)
+                  {
+                    db.one(SQL_FETCH_CAUSER_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields)
+                    {
+                      $signature_causer = null;
+
+                      if($result && 'content' in $result) {
+                        $signature_causer = $result.content;
+                      }
+
+                      $vars.signature_causer = $signature_causer;
+
+
+                      db.one(SQL_FETCH_POLICE_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields) {
+                        $signature_police = null;
+
+                        if($result && 'content' in $result) {
+                          $signature_police = $result.content;
+                        }
+
+                        $vars.signature_police = $signature_police;
+
+                        //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
+
+                        $compiled_template = $template($vars);
+
+                        renderPdfTemplate($voucher, $compiled_template, $req, $res);
+                      }); //end db.one(police signature)
+                    }); //end db.one(causer signature)
+                  } //end if on length check
+              });//end find all timeframe activity fees
+            }); //end foreach timeframe
+          });//end vocab find all timeframe activies
+        });//end find all timeframes
+      });
+    });
+  });
+});
+
+function renderPdfTemplate($voucher, $compiled_template, $req, $res)
+{
+    phantom.create(function (error, ph) {
+      var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
+      var folder = settings.fs.tmp;
+
+      ph.createPage(function (error, page)
+      {
+        page.settings = {
+          loadImages: true,
+          localToRemoteUrlAccessEnabled: false,
+          javascriptEnabled: false,
+          loadPlugins: false,
+          quality: 75
+         };
+        page.set('viewportSize', { width: 800, height: 600 });
+        page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
+        page.set('content', $compiled_template, function (error) {
+          if (error) {
+            console.log('Error setting content: ', error);
+          }
+        });
+
+
+        page.onResourceRequested = function (rd, req)
+        {
+          //console.log("REQUESTING: ", rd[0]["url"]);
         }
 
-        $vars.signature_causer = $signature_causer;
+        page.onResourceReceived = function (rd)
+        {
+          //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
+        }
 
+        page.onLoadFinished = function (status)
+        {
+          console.log("Finished loading: " + status);
 
-
-        //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
-
-        $compiled_template = $template($vars);
-
-        phantom.create(function (error, ph) {
-          var filename = crypto.randomBytes(64).toString('hex') + ".pdf";
-          var folder = settings.fs.tmp;
-
-          ph.createPage(function (error, page)
+          page.render(folder + filename, function (error)
           {
-            page.settings = {
-              loadImages: true,
-              localToRemoteUrlAccessEnabled: false,
-              javascriptEnabled: false,
-              loadPlugins: false,
-              quality: 75
-             };
-            page.set('viewportSize', { width: 800, height: 600 });
-            page.set('paperSize', { format: 'A4', orientation: 'portrait', border: '0.5cm' });
-            page.set('content', $compiled_template, function (error) {
-              if (error) {
-                console.log('Error setting content: ', error);
-              }
-            });
-
-            page.onResourceRequested = function (rd, req)
+            if (error)
             {
-              //console.log("REQUESTING: ", rd[0]["url"]);
+              console.log('Error rendering PDF: %s', error);
             }
-
-            page.onResourceReceived = function (rd)
+            else
             {
-              //rd.stage == "end" && console.log("LOADED: ", rd["url"]);
-            }
+              console.log("PDF GENERATED : ", status);
 
-            page.onLoadFinished = function (status)
-            {
-              console.log("Finished loading: " + status);
+              fs.readFile(folder + filename, "base64", function(a_error, data) {
+                LOG.d(TAG, "Read file: " + folder + filename);
+                LOG.d(TAG, "Error: " + JSON.stringify(a_error));
 
-              page.render(folder + filename, function (error)
-              {
-                if (error)
-                {
-                  console.log('Error rendering PDF: %s', error);
-                }
-                else
-                {
-                  console.log("PDF GENERATED : ", status);
+                ju.send($req, $res, {
+                  "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
+                  "content_type" : "application/pdf",
+                  "data" : data
+                });
 
-                  fs.readFile(folder + filename, "base64", function(a_error, data) {
-                    LOG.d(TAG, "Read file: " + folder + filename);
-                    LOG.d(TAG, "Error: " + JSON.stringify(a_error));
-
-                    ju.send($req, $res, {
-                      "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                      "content_type" : "application/pdf",
-                      "data" : data
-                    });
-
-                    // delete the file
-                    fs.unlink(folder + filename, function (err) {
-                      if (err) {
-                        LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                      } else {
-                        LOG.d(TAG, 'successfully deleted /tmp/' + filename);
-                      }
-                    });
-
-                    ph.exit();
-                  });
-                }
+                // delete the file
+                fs.unlink(folder + filename, function (err) {
+                  if (err) {
+                    LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                  } else {
+                    LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                  }
+                });
 
                 ph.exit();
               });
             }
-          }); //end ph.create
-        }); //end phantom.create
-      }); //end db.one(causer signature)
-    });
-  });
-});
+
+            ph.exit();
+          });
+        }
+      }); //end ph.create
+    }); //end phantom.create
+}
 
 
 function convertToAddressString($info) {
   var $address = '';
 
-  $address = $address + $info.street + ' ' + $info.street_number;
-  $address = $address + ($info.street_pobox ? '/' + $info.street_pobox : '');
-  $address = $address + '<br />';
-  $address = $address + $info.zip + ' ' + $info.city;
-  $address = $address + '<br />' + $info.country;
+  if($info)
+  {
+    $address += ($info.street ? $info.street : '') + ' ';
+    $address += $info.street_number ? $info.street_number : '';
 
-  return $address;
+    $address = $address.trim();
+
+    $address += ($info.street_pobox ? '/' + $info.street_pobox : '');
+
+    $address = $address + '<br />';
+
+    $address += $info.zip ? $info.zip : '';
+    $address += ' ';
+
+    $address = $address.trim();
+
+    $address += $info.city ? $info.city : '';
+
+    $address += '<br />' + ($info.country ? $info.country : '');
+  }
+
+  return $address.trim();
+}
+
+function convertToNameString($data) {
+  $name = '';
+
+  if($data)
+  {
+    if($data.company_name)
+    {
+      $name = $data.company_name;
+    }
+    else
+    {
+      $voucher.causer.company_name ? $voucher.causer.company_name : $voucher.causer.last_name + ' ' + $voucher.causer.first_name
+
+      if($data.last_name) {
+        $name += $data.last_name + ' ';
+      }
+
+      if($data.first_name) {
+        $name += $data.first_name;
+      }
+    }
+  }
+
+  return $name.trim();
 }
 
 function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
@@ -184,6 +272,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "allotment_name"      : $dossier.allotment_name,
       "voucher_number"      : $voucher.voucher_number,
       "call_number"         : $dossier.call_number,
+      "timeframe_name"      : $dossier.timeframe_name,
       "towing_service_name" : $dossier.towing_company.name,
       "towing_service_street": $dossier.towing_company.street,
       "towing_service_nr"   : $dossier.towing_company.street_number,
@@ -212,14 +301,14 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "extra_info"          : $voucher.additional_info,
       "nr_of_vouchers"      : 1,
       "towing_location_depot" :  $voucher.depot.display_name,
-      "causer_name"         : $voucher.causer.company_name ? $voucher.causer.company_name : $voucher.causer.last_name + ' ' + $voucher.causer.first_name,
+      "causer_name"         : convertToNameString($voucher.causer),
       "causer_address"      : convertToAddressString($voucher.causer),
       "causer_phone"        : $voucher.causer.phone,
       "causer_vat"          : $voucher.causer.vat,
-      "customer_name"       : $voucher.customer.company_name ? $voucher.customer.company_name : $voucher.customer.last_name + ' ' + $voucher.customer.first_name,
+      "customer_name"       : convertToNameString($voucher.customer),
       "customer_address"    : convertToAddressString($voucher.customer),
       "customer_phone"      : $voucher.customer.phone,
-      "customer_vat"        : $voucher.customer.vat,
+      "customer_vat"        : $voucher.customer.company_vat,
       "vehicule_type"       : $voucher.vehicule_type,
       "vehicule_licence_plate" : $voucher.vehicule_licenceplate,
       'cb_incident_type_panne'                  : $dossier.incident_type_code == 'PANNE' ? '&#9746;' : '&#9744;',
@@ -234,7 +323,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       'traffic_post_phone'          : $dossier.traffic_post_phone,
       'traffic_post_confirmation'   : '',
       'copy_for'                    : $copy_for,
-      'insurance_name'              : $voucher.insurance_id,
+      'insurance_name'              : $voucher.insurance_name,
       'insurance_dossier'           : $voucher.insurance_dossiernr,
     };
 
