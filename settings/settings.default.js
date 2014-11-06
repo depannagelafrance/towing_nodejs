@@ -13,6 +13,7 @@ var mysql = {
   password : "root",
   database : "depannage_lafrance",
   port : 8889,
+  connectionLimit: 25,
 // debug: true
 }
 

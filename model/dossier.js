@@ -23,7 +23,8 @@ const SQL_FETCH_TRAFFIC_POST_SIGNATURE      = "CALL R_FETCH_TRAFFIC_POST_SIGNATU
 var findById = function($dossier_id, $token, cb) {
   var $dossier = {};
 
-  db.one(SQL_FETCH_DOSSIER_BY_ID, [$dossier_id, $token], function($error, $d_result, $fields) {
+  db.one(SQL_FETCH_DOSSIER_BY_ID, [$dossier_id, $token], function($error, $d_result, $fields)
+  {
     $dossier = $d_result;
 
     //set the selected towing company
@@ -31,56 +32,65 @@ var findById = function($dossier_id, $token, cb) {
         $dossier.towing_company = $t_result;
     });
 
-    db.many(SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER, [$dossier_id, $token],function($error, $v_result, $fields) {
+    db.many(SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER, [$dossier_id, $token],function($error, $v_result, $fields)
+    {
       $vouchers = [];
 
       $v_result.forEach(function($voucher) {
         //fetch the towing payments information
-        db.one(SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $p_result, $fields) {
+        db.one(SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $p_result, $fields)
+        {
             $voucher.towing_payments = $p_result;
-        });
 
-        //towing depot
-        db.one(SQL_FETCH_TOWING_DEPOT, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.depot = $t_result;
-        });
+            //towing depot
+            db.one(SQL_FETCH_TOWING_DEPOT, [$voucher.id, $token], function($error, $t_result, $fields)
+            {
+                $voucher.depot = $t_result;
 
-        //towing customer
-        db.one(SQL_FETCH_CUSTOMER, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.customer = $t_result;
-        });
+                //towing customer
+                db.one(SQL_FETCH_CUSTOMER, [$voucher.id, $token], function($error, $t_result, $fields)
+                {
+                    $voucher.customer = $t_result;
 
-        //towing causer
-        db.one(SQL_FETCH_CAUSER, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.causer = $t_result;
-        });
+                    //towing causer
+                    db.one(SQL_FETCH_CAUSER, [$voucher.id, $token], function($error, $t_result, $fields)
+                    {
+                        $voucher.causer = $t_result;
 
-        //fetch the reference to the causer signature
-        db.one(SQL_FETCH_CAUSER_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.signature_causer = $t_result;
-        });
+                        //fetch the reference to the causer signature
+                        db.one(SQL_FETCH_CAUSER_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields)
+                        {
+                            $voucher.signature_causer = $t_result;
 
-        //fetch the reference to the collector signature
-        db.one(SQL_FETCH_COLLECTOR_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.signature_collector = $t_result;
-        });
+                            //fetch the reference to the collector signature
+                            db.one(SQL_FETCH_COLLECTOR_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields)
+                            {
+                                $voucher.signature_collector = $t_result;
 
-        //fetch the reference to the causer signature
-        db.one(SQL_FETCH_TRAFFIC_POST_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields){
-            $voucher.signature_traffic_post = $t_result;
-        });
+                                //fetch the reference to the causer signature
+                                db.one(SQL_FETCH_TRAFFIC_POST_SIGNATURE, [$voucher.id, $token], function($error, $t_result, $fields)
+                                {
+                                    $voucher.signature_traffic_post = $t_result;
 
-        //fetch the towing activities information
-        db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $a_result, $fields) {
-          $voucher.towing_activities = $a_result;
+                                    //fetch the towing activities information
+                                    db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher.id, $token], function($error, $a_result, $fields)
+                                    {
+                                      $voucher.towing_activities = $a_result;
 
-          $vouchers.push($voucher);
+                                      $vouchers.push($voucher);
 
-          if($vouchers.length == $v_result.length) {
-            $dossier.towing_vouchers = $vouchers;
+                                      if($vouchers.length == $v_result.length) {
+                                        $dossier.towing_vouchers = $vouchers;
 
-            cb($dossier);
-          }
+                                        cb($dossier);
+                                      }
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         });
       });
     });
