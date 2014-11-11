@@ -49,7 +49,7 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
       var $vars = convertToVoucherReportParams($dossier, $voucher_id, $type, $token);
 
       db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher_id, $token], function($error, $result, $fields) {
-        $vars.towing_activities = $result;
+        $vars.towing_activities       = $result;
 
         vocab.findAllTimeframes($token, function($data) {
           $vars.timeframes = $data;
@@ -273,6 +273,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "voucher_number"      : $voucher.voucher_number,
       "call_number"         : $dossier.call_number,
       "timeframe_name"      : $dossier.timeframe_name,
+      "timeframe_id"        : $dossier.timeframe_id,
       "towing_service_name" : $dossier.towing_company.name,
       "towing_service_street": $dossier.towing_company.street,
       "towing_service_nr"   : $dossier.towing_company.street_number,
@@ -291,11 +292,11 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "call_date"           : dateFormat($dossier.call_date, "dd/mm/yyyy"),
       "cb_is_holiday"       : $dossier.call_date_is_holiday == 1 ? '&#9746;' : '&#9744;',
       "call_hour"           : dateFormat($dossier.call_date, "HH:MM"),
-      "signa_arrival"       : dateFormat($voucher.signa_arrival, "HH:MM"),
+      "signa_arrival"       : convertUnixTStoTimeFormat($voucher.signa_arrival),
       "signa_licence_plate" : $voucher.signa_by_vehicle,
-      "towing_arrival"      : dateFormat($voucher.towing_arrival, "HH:MM"),
-      "towing_start"        : dateFormat($voucher.towing_start, "HH:MM"),
-      "towing_end"          : dateFormat($voucher.towing_completed, "HH:MM"),
+      "towing_arrival"      : convertUnixTStoTimeFormat($voucher.towing_arrival),
+      "towing_start"        : convertUnixTStoTimeFormat($voucher.towing_start),
+      "towing_end"          : convertUnixTStoTimeFormat($voucher.towing_completed),
       "towing_licence_plate": $voucher.towed_by_vehicle,
       "payment_method"      : "Contant",
       "extra_info"          : $voucher.additional_info,
@@ -318,7 +319,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       'cb_incident_type_verloren_voorwerp'      : $dossier.incident_type_code == 'VERLOREN_VOORWERP' ? '&#9746;' : '&#9744;',
       'cb_incident_type_botsabsorbeerder'       : $dossier.incident_type_code == 'BOTSABSORBEERDER' ? '&#9746;' : '&#9744;',
       'collected_by'                : $voucher.collector_name,
-      'collection_date'             : dateFormat($voucher.vehicule_collected, "dd/mm/yyyy"),
+      'collection_date'             : convertUnixTStoDateFormat($voucher.vehicule_collected),
       'traffic_post'                : $dossier.traffic_post_name,
       'traffic_post_phone'          : $dossier.traffic_post_phone,
       'traffic_post_confirmation'   : '',
@@ -337,5 +338,30 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
 
   return {};
 }
+
+function convertUnixTStoTimeFormat($unix_ts)
+{
+  if($unix_ts)
+  {
+    $_date = new Date($unix_ts * 1000);
+
+    return dateFormat($_date, "HH:MM");
+  }
+
+  return "";
+}
+
+function convertUnixTStoDateFormat($unix_ts)
+{
+  if($unix_ts)
+  {
+    $_date = new Date($unix_ts * 1000);
+
+    return dateFormat($_date, "dd/mm/yyyy");
+  }
+
+  return "";
+}
+
 
 module.exports = router;

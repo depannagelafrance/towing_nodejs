@@ -2,7 +2,7 @@
 <html lang=en-us>
 <head>
 	<meta charset=utf-8>
-	<title>F.A.S.T. Takelbon</title>
+
 	<style type="text/css">
     * {
       font-family: 'arial narrow'
@@ -152,7 +152,7 @@
 	<body>
     <div class="container">
       <div class="voucher_title">
-        Takelbon F.A.S.T. &lt; 3,5 Ton
+        Takelbon F.A.S.T. < 3,5 Ton
       </div>
       <div class="voucher_allotment">
           <%= allotment_name %>
@@ -218,10 +218,6 @@
                   <td><strong>Aantal versperde rijstroken:</strong> <%= nr_of_blocked_lanes %></td>
                   <td><strong>Aanduiding rijstrook:</strong> <%= lane_indicator %></td>
               </tr>
-							<tr>
-									<td><strong>Locatie/Depot afvoer:</strong></td>
-									<td><%= towing_location_depot %></td>
-							</tr>
           </table>
       </div>
 
@@ -260,94 +256,176 @@
       </div>
     </div>
 
-		<div class="clear">
-			<div class="style2">
-					<table border="0">
-							<tr>
-									<td><strong>Assitance:</strong> <%= insurance_name %></td>
-									<td><strong>Dossiernummer:</strong> <%= insurance_dossier %></td>
-							</tr>
-					</table>
+    <div class="clear">
+      <div class="style2">
+          <strong>Locatie/Depot afvoer:</strong> <%= towing_location_depot %>
+      </div>
+    </div>
+
+<div class="clear">
+	<div class="style4" style="width: 133px; font-size: 0.8em;">
+		<table width="100%">
+			<thead>
+				<tr><th>Type Takeling</th></tr>
+				<tr><th class="small">&nbsp;</th></tr>
+			</thead>
+<tbody>
+<% 	for(var $j in timeframe_activities)
+		{
+%>
+		<tr>
+			<td><%=timeframe_activities[$j].name%></td>
+		</tr>
+<%
+		}
+%>
+	<tr>
+			<td>Totaal per tarief</td>
+	</tr>
+</tbody>
+
+				</table>
 			</div>
 
-		</div>
+
+<%
+var $_voucher_total = "";
+
+for(var $i in timeframes) {
+%>
+<div class="style4" style="font-size: 0.8em; width: 189px;">
+	<table width="100%">
+		<thead>
+			<tr><th colspan="3"><%=timeframes[$i].name%></th></tr>
+			<tr>
+				<th class="small">Aantal</th>
+				<th class="small">Prijs (incl. BTW)</th>
+				<th class="small">Tot. (incl. BTW)</th>
+			</tr>
+		</thead>
+		<tbody>
+<%
+		$_total = "";
+
+		for(var $j in timeframe_activities)
+		{
+
+%>
+			<tr>
+<% 			for(var $x in timeframe_activity_fees)
+				{
+					for(var $k in timeframe_activity_fees[$x])
+					{
+						if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
+									&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+						{
+							var $_amount = "";
+							var $_cal_fee = "";
+
+							if(timeframe_id == timeframes[$i].id) {
+								$found = false;
+
+								for(var $y in towing_activities)
+								{
+									if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+									{
+										$_amount = towing_activities[$y].amount;
+										$_cal_fee = towing_activities[$y].cal_fee_incl_vat;
+										$_total = towing_activities[$y].total_bill_incl_vat;
+										$_voucher_total = $_total;
+
+										$found=true;
+									}
+								}
+							}
+
+							if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
+							{
+%>
+									<td class="disabled">&nbsp;</td>
+<%
+							}
+							else
+							{
+%>
+									<td><%= $_amount %></td>
+<%
+							}
+%>
+							<td><%= timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+						  <td><%= $_cal_fee %></td>
+<%					}
+					}
+				}
+%>
+			</tr>
+<% 	} %>
+			<tr>
+				<td class="disabled">&nbsp;</td>
+				<td class="disabled">&nbsp;</td>
+				<td><%=$_total%></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<% } %>
+</div>
+
 
 
 		<div class="clear">
-			<div class="style4" style="width: 100%; font-size: 0.8em;">
+			<div style="width: 131px; float: left; border: 1px solid #000; margin-right: 4px; font-size: 0.8em;">
+					Stallingskosten <br />
+					vanaf 4e kalenderdag
+			</div>
+			<div class="style4" style="width: 190px;">
 				<table width="100%">
-						<thead style="background-color: #e0e0e0;">
+						<thead>
 							<tr>
-									<th rowspan="2">Type Takeling</th>
-									<th colspan="5"><%=timeframe_name%>*</th>
-							</tr>
-							<tr>
-									<th class="small">Aantal</th>
-									<th class="small">EHP (Excl. BTW)</th>
-									<th class="small">EHP (Incl. BTW)</th>
-									<th class="small">Totaal (Excl. BTW)</th>
-									<th class="small">Totaal (Incl. BTW)</th>
-							</tr>
+								<th class="small">Aantal</th>
+								<th class="small">Prijs (incl. BTW)</th>
+								<th class="small">Tot. (incl. BTW)</th>
 						</thead>
 						<tbody>
-
-							<% for(var $i in towing_activities) { %>
 								<tr>
-								<td><%=towing_activities[$i].name%></td>
-								<% if(towing_activities[$i].code == 'VERLOREN_VOORWERP') { %>
-								<td class="disabled"></td>
-								<% } else { %>
-								<td><%=towing_activities[$i].amount%></td>
-								<% } %>
-
-								<td><%=towing_activities[$i].fee_incl_vat%></td>
-								<td><%=towing_activities[$i].fee_excl_vat%></td>
-								<td><%=towing_activities[$i].cal_fee_incl_vat%></td>
-								<td><%=towing_activities[$i].cal_fee_excl_vat%></td>
-								</tr>
-							<% } %>
-
-							<tr style="background-color: #e0e0e0;">
-								<td colspan="4" style="text-align:right; border: 0px; font-weight:bold;">Totaal:</td>
-								<td>dssdf</td>
-								<td>dfgdsf</td>
-							</tr>
-							<tr style="background-color: #e0e0e0;">
-								<td colspan="4" style="text-align:right; border: 0px; font-weight:bold;">Garantie assistance:</td>
-								<td>dssdf</td>
-								<td></td>
-							</tr>
-							<tr style="background-color: #e0e0e0;">
-								<td colspan="4" style="text-align:right; border: 0px; font-weight:bold;">Ten laste van klant:</td>
-								<td>sdfsds</td>
-								<td></td>
-							</tr>
-							<tr style="background-color: #e0e0e0;">
-								<td colspan="4" style="text-align:right; border: 0px; font-weight:bold;">Betaling - Contant: </td>
-								<td>sdfsds</td>
-								<td></td>
+									<td></td>
+									<td>6,05</td>
+									<td></td>
 							</tr>
 						</tbody>
-				</table>
-				<br />
-				(*) Zie algemene voorwaarden voor een verklaring van de tarieven.
+					</table>
+			</div>
+			<div class="style4" style="border: 1px solid #000;width: 382px; margin-right: 0px;">
+				<ul>
+						<li>Basistarief: werkdagen 08:00 - 17:00u</li>
+						<li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
+						<li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
+				</ul>
 			</div>
 		</div>
 
 		<div class="clear">
-			<div class="style4" style="text-transform: none; font-size: 0.6em; width: 100% ">
+			<div class="style1" style="border: 0px; background-color: #e0e0e0;font-size: 1.0em; width:325px">
+				<table style="border-collapse: collapse;border: 1px solid #000;width: 100%;">
+						<tr><td style="border: 1px solid #000;">Algemeen totaal incl. BTW</td><td style="border:2px solid #000; text-align: right"> &euro; <%=$_voucher_total%></td></tr>
+						<tr><td style="border: 1px solid #000;">Garantie Assistance </td><td style="border:2px solid #000; text-align: right"> &euro; 200,00</td></tr>
+						<tr><td style="border: 1px solid #000;">Ten laste van klant </td><td style="border:2px solid #000; text-align: right"> &euro; 121,28</td></tr>
+						<tr><td colspan="2" style="font-weight: bold; font-size: 0.8em; text-align: center; border-top: 1px solid #000; border-bottom: 1px solid #000;">Betalingswijze</td></tr>
+						<tr>
+								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">&#9746; <%=payment_method%></td>
+						</tr>
+						<tr>
+								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">
+										<span class="label">Assistance:</span> <%=insurance_name%><br />
+										<span class="label">Dossiernr:</span> <%=insurance_dossier%></td>
+						</tr>
+				</table>
+			</div>
+			<div class="style1 style1_right" style="text-transform: none; font-size: 0.6em; width: 379px; ">
 				De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
 				waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
 				en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
 			</div>
-		</div>
-
-		<div class="clear">
-			<div class="style1" style="border: 0px; width:325px;text-transform: none; font-size:1em;">
-				<strong>Eventuele opmerkingen:</strong> <br />
-				<%=extra_info%>
-			</div>
-
 			<div class="style1 style1_right" style="text-transform: none; font-size:1em; width: 383px; border: 0px; padding: 0 0 0 0;">
 				<table class="signature">
 					<thead>
@@ -447,8 +525,12 @@
 				</tbody>
 			</table>
 		</div>
-
-
+		<div class="clear">
+			<div class="style2">
+					<strong>Eventuele opmerkingen:</strong> <br />
+					<%=extra_info%>
+			</div>
+		</div>
 		<div class="clear">
 			<div class="footer">
 				<%=copy_for%>
@@ -458,7 +540,6 @@
 			</div>
 		</div>
 		<div class="page-break clear">
-				<h3>Algemene voorwaarden</h3>
 				<p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
 				<p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
 				<p>Indien de wegpolitie in de onmogelijkheid verkeert om deze takelbon ter plaatse af te tekenen vindt u op de voorzijde het oproepnummer dat CICANT en de Wegpolitie aan deze oproep hebben gegeven.</p>
@@ -473,59 +554,6 @@
 					tel. +32 (0)3 241 51 11
 				</p>
 		</div>
-		<div class="clear">
-			<h3>Toepassing tarieven</h3>
-
-			<div class="style4" style="width: 100%;">
-				<ul>
-						<li>Basistarief: werkdagen 08:00 - 17:00u</li>
-						<li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
-						<li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
-				</ul>
-				<br/><br />
-			</div>
-
-			<div class="style4" style="width: 100%; font-size: 0.8em;">
-
-			<table width="100%">
-					<thead style="background-color: #e0e0e0;">
-						<tr>
-								<th rowspan="2">Type Takeling</th>
-				<% for(var $i in timeframes) { %>
-								<th colspan="2"><%=timeframes[$i].name%></th>
-				<% } %>
-						</tr>
-						<tr>
-				<% for(var $i in timeframes) { %>
-								<th class="small">Prijs (Excl. BTW)</th>
-								<th class="small">Prijs (Incl. BTW)</th>
-				<% } %>
-						</tr>
-					</thead>
-					<tbody>
-						<% for(var $j in timeframe_activities) { %>
-							<tr>
-								<td><%=timeframe_activities[$j].name%></td>
-							 <% for(var $i in timeframes) {
-								 	for(var $x in timeframe_activity_fees) {
-										for(var $k in timeframe_activity_fees[$x]) {
-											if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
-													&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
-											{ %>
-											<td><%= timeframe_activity_fees[$x][$k].fee_excl_vat%></td>
-											<td><%= timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-									<%  }
-										}
-								 	}
-							 	} %>
-							</tr>
-						<% } %>
-					</tbody>
-			</table>
-		</div>
-
-
 	</div>
-</div>
 	</body>
 </html>

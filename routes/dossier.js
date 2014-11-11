@@ -1,6 +1,7 @@
 // -- IMPORT LIBRARIES
 require('../util/common.js');
 
+var _         = require('underscore');
 var express   = require('express');
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
@@ -20,7 +21,7 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
-const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);";
+const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?, ?, ?,?, ?, from_unixtime(?),?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
 
 const SQL_FETCH_DOSSIER_BY_ID                   = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
 const SQL_FETCH_DOSSIER_BY_NUMBER               = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
@@ -398,23 +399,23 @@ router.put('/:dossier/:token', function($req, $res) {
           $insurance_dossier_nr     = $voucher.insurance_dossiernr;
           $warranty_holder          = $voucher.insurance_warranty_held_by;
           $collector_id             = ($voucher.collector_id == "" ? null : $voucher.collector_id);
-          $police_signature_date    = $voucher.police_signature_dt;
-          $recipient_signature_date = $voucher.recipient_signature_dt;
+          $police_signature_date    = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
+          $recipient_signature_date = _.isNaN(parseFloat($voucher.recipient_signature_dt)) ? null : parseFloat($voucher.recipient_signature_dt);
           $vehicule_type            = $voucher.vehicule_type;
           $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
-          $vehicule_country     = $voucher.vehicule_country;
-          $vehicule_collected   = $voucher.vehicule_collected;
-          $towed_by             = $voucher.towed_by;
-          $towed_by_vehicule    = $voucher.towed_by_vehicle;
-          $towing_called        = $voucher.towing_called;
-          $towing_arrival       = $voucher.towing_arrival;
-          $towing_start         = $voucher.towing_start;
-          $towing_completed     = $voucher.towing_completed;
-          $signa_by             = $voucher.signa_by;
-          $signa_by_vehicule    = $voucher.signa_by_vehicle;
-          $signa_arrival        = $voucher.signa_arrival;
-          $cic                  = $voucher.cic;
-          $additional_info      = $voucher.additional_info;
+          $vehicule_country         = $voucher.vehicule_country;
+          $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
+          $towed_by                 = $voucher.towed_by;
+          $towed_by_vehicule        = $voucher.towed_by_vehicle;
+          $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
+          $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
+          $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
+          $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
+          $signa_by                 = $voucher.signa_by;
+          $signa_by_vehicule        = $voucher.signa_by_vehicle;
+          $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
+          $cic                      = _.isNaN(parseFloat($voucher.cic)) ? null : parseFloat($voucher.cic);
+          $additional_info          = $voucher.additional_info;
 
           //upate the voucher's depot if it is available
           if($voucher.depot && $voucher.depot.id) {
