@@ -44,6 +44,7 @@ const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?);
 const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTIVITY(?,?,?,?);";
+const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?,?,?,?,?,?);";
 
 const SQL_ADD_COLLECTOR_SIGNATURE   = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_CAUSER_SIGNATURE      = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
@@ -464,6 +465,16 @@ router.put('/:dossier/:token', function($req, $res) {
               db.one(SQL_UPDATE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity.activity_id, $activity.amount, $token], function($error, $result, $fields) {
                 //fire and forget
               });
+            });
+          }
+
+          if($voucher.towing_payments) {
+            var $vtp = $voucher.towing_payments;
+
+            db.one(SQL_UPDATE_TOWING_VOUCHER_PAYMENTS, [$dossier_id, $voucher_id, $vtp.amount_guaranteed_by_insurance,
+                                                        $vtp.paid_in_cash, $vtp.paid_by_bank_deposit, $vtp.paid_by_debit_card, 
+                                                        $vtp.paid_by_credit_card, $token], function($error, $result, $fields) {
+              //fire and forget
             });
           }
 
