@@ -285,6 +285,17 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
   });
 });
 
+router.get('/depot/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+
+  db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
 router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
   $voucher_id       = ju.requiresInt('voucher', $req.params);
@@ -307,6 +318,16 @@ router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
       }
     });
   }
+});
+
+router.get('/causer/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+  db.one(SQL_FETCH_CAUSER, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
 });
 
 router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
@@ -334,7 +355,16 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
       }
     });
   }
+});
 
+router.get('/customer/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+  db.one(SQL_FETCH_CUSTOMER, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  })
 });
 
 router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
@@ -472,7 +502,7 @@ router.put('/:dossier/:token', function($req, $res) {
             var $vtp = $voucher.towing_payments;
 
             db.one(SQL_UPDATE_TOWING_VOUCHER_PAYMENTS, [$dossier_id, $voucher_id, $vtp.amount_guaranteed_by_insurance,
-                                                        $vtp.paid_in_cash, $vtp.paid_by_bank_deposit, $vtp.paid_by_debit_card, 
+                                                        $vtp.paid_in_cash, $vtp.paid_by_bank_deposit, $vtp.paid_by_debit_card,
                                                         $vtp.paid_by_credit_card, $token], function($error, $result, $fields) {
               //fire and forget
             });

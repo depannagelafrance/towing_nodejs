@@ -298,7 +298,6 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "towing_start"        : convertUnixTStoTimeFormat($voucher.towing_start),
       "towing_end"          : convertUnixTStoTimeFormat($voucher.towing_completed),
       "towing_licence_plate": $voucher.towed_by_vehicle,
-      "payment_method"      : "Contant",
       "extra_info"          : $voucher.additional_info,
       "nr_of_vouchers"      : 1,
       "towing_location_depot" :  $voucher.depot.display_name,
@@ -326,6 +325,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       'copy_for'                    : $copy_for,
       'insurance_name'              : $voucher.insurance_name,
       'insurance_dossier'           : $voucher.insurance_dossiernr,
+      'towing_payments'             : $voucher.towing_payments
     };
 
     return $params;
