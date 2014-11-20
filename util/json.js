@@ -16,8 +16,16 @@ function RequiredIntMissing($key) {
   this.message = 'Required field is not an number: ' + $key;
 }
 
+function RequiredValueNotInEnum($key, $enums) {
+  Error.call(this);
+  this.key = $key;
+  this.statusCode = 400;
+  this.message = 'Required field is not in enum: ' + $key + ' - ' + $enums;
+}
+
 util.inherits(RequiredKeyMissing, Error);
 util.inherits(RequiredIntMissing, Error);
+util.inherits(RequiredValueNotInEnum, Error);
 
 var requires = function($key, $jsonData) {
     if(_.isArray($key)) {
@@ -44,7 +52,24 @@ var requires = function($key, $jsonData) {
     throw new RequiredKeyMissing($key);
 }
 
-var value = function($key, $jsonData) {
+var requiresEnum = function($key, $jsonData, $enums)
+{
+    $val = requires($key, $jsonData);
+    $_enums = $enums;
+
+    if(!_.isArray($enums))
+    {
+      $_enums = [$enums];
+    }
+
+    if(!_.contains($_enums, $val)) {
+      throw new RequiredValueNotInEnum($val, $_enums.join());
+    }
+
+    return $val;
+}
+
+var valueOf = function($key, $jsonData) {
   if($jsonData[$key]) {
     return $jsonData[$key];
   }
@@ -111,6 +136,7 @@ var send = function($req, $res, $result) {
 
 exports.requires = requires;
 exports.requiresInt = requiresInt;
-exports.valueOf = value;
+exports.requiresEnum = requiresEnum;
+exports.valueOf = valueOf;
 exports.intValueOf = intValue;
 exports.send = send;

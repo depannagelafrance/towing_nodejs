@@ -21,6 +21,7 @@
     "underscore": "^1.7.0",
     "node-phantom-simple": "^1.2.0",
     "dateformat": "^1.0.8",
-    "express.io": "^1.1.13"
+    "express.io": "^1.1.13",
+    "apnagent": "^1.1.3"
   }
 }

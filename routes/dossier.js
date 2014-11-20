@@ -21,14 +21,15 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
-const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?, ?, ?,?, ?, from_unixtime(?),?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
+const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
 
-const SQL_FETCH_DOSSIER_BY_ID                   = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
-const SQL_FETCH_DOSSIER_BY_NUMBER               = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
-const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER      = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
-const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER     = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
-const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER      = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
-const SQL_FETCH_ALL_DOSSIERS_BY_FILTER          = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
+const SQL_FETCH_DOSSIER_BY_ID                         = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
+const SQL_FETCH_DOSSIER_BY_NUMBER                     = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
+const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER            = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
+const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER           = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
+const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER            = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
+const SQL_FETCH_ALL_DOSSIERS_BY_FILTER                = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
+const SQL_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER = "CALL R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER(?,?);"
 const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES        = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
 const SQL_FETCH_ALL_VOUCHERS_BY_FILTER          = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
 const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION     = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
@@ -57,6 +58,8 @@ const SQL_FETCH_ALL_EMAIL_RECIPIENTS       = "CALL R_FETCH_ALL_DOSSIER_COMM_RECI
 const SQL_ADD_DOSSIER_COMMUNICATION        = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
 const SQL_ADD_DOSSIER_COMM_RECIPIENT       = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
 
+const SQL_FETCH_USER_BY_ID                 = "CALL R_FETCH_USER_BY_ID(?,?);";
+
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
 const STATUS_COMPLETED          = "COMPLETED";
@@ -80,6 +83,16 @@ router.get('/:token', function($req, $res) {
 
 router.get('/list/new/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_NEW);
+});
+
+//overview of dossiers/vouchers assigned to current user
+router.get('/list/me/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  //fetch the towing activities information
+  db.many(SQL_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER, [STATUS_NEW, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+  });
 });
 
 router.get('/list/completed/:token', function($req, $res) {
@@ -442,11 +455,14 @@ router.put('/:dossier/:token', function($req, $res) {
           $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
           $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
           $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
+          $signa_id                 = $voucher.signa_id;
           $signa_by                 = $voucher.signa_by;
           $signa_by_vehicule        = $voucher.signa_by_vehicle;
           $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
           $cic                      = _.isNaN(parseFloat($voucher.cic)) ? null : parseFloat($voucher.cic);
           $additional_info          = $voucher.additional_info;
+
+          $actions                  = $voucher.actions;
 
           //upate the voucher's depot if it is available
           if($voucher.depot && $voucher.depot.id) {
@@ -511,11 +527,27 @@ router.put('/:dossier/:token', function($req, $res) {
           $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
                      $warranty_holder, $collector_id, $vehicule_type,
                      $vehicule_licence_plate, $vehicule_country,
-                     $signa_by, $signa_by_vehicule, $signa_arrival,
+                     $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
                      $towed_by, $towed_by_vehicule,
                      $towing_called, $towing_arrival, $towing_start,
                      $towing_completed, $police_signature_date, $recipient_signature_date,
                      $vehicule_collected, $cic, $additional_info, $token];
+
+
+          if($actions && ($signa_id && $signa_id.trim() != ''))
+          {
+            if($actions.signa_send_notification && $actions.signa_send_notification == 1)
+            {
+              LOG.d(TAG, " =============================================== ");
+              LOG.d(TAG, "  > Sending a notification")
+              LOG.d(TAG, " =============================================== ");
+
+              db.one(SQL_FETCH_USER_BY_ID, [$signa_id, $token], function($error, $result, $fields) {
+                  //TODO: send push message
+              });
+
+            }
+          }
 
           db.one(SQL_UPDATE_TOWING_VOUCHER, $params, function($error, $result, $fields){
             if(++$i == $vouchers.length) {
