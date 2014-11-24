@@ -448,8 +448,8 @@ for(var $i in timeframes) {
 														<span class="label">Datum:</span> <%=collection_date%><br />
 												</td>
 												<td>
-													<% if(signature_causer) { %>
-														<img src="data:image/png;base64,<%=signature_causer %>" class="signature_collector" />
+													<% if(collected_by_signature) { %>
+														<img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
 													<% } else { %>
 														Geen handtekening
 													<% } %>
@@ -485,8 +485,8 @@ for(var $i in timeframes) {
 
 									<br />
 								Handtekening
-								<% if(signature_causer) { %>
-									<img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+								<% if(signature_signa) { %>
+									<img src="data:image/png;base64,<%=signature_signa %>" class="signature" />
 								<% } else { %>
 									Geen handtekening
 								<% } %>

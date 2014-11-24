@@ -6,6 +6,7 @@ var express   = require('express');
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var LOG       = require('../util/logger.js');
+var agent     = require('../util/push.js');
 var dossier   = require('../model/dossier.js');
 var vocab     = require('../model/vocab.js');
 var util      = require('util');
@@ -543,7 +544,14 @@ router.put('/:dossier/:token', function($req, $res) {
               LOG.d(TAG, " =============================================== ");
 
               db.one(SQL_FETCH_USER_BY_ID, [$signa_id, $token], function($error, $result, $fields) {
-                  //TODO: send push message
+                if($result)
+                {
+                  agent.createMessage()
+                        .device('<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>')
+                        .alert('Nieuwe takelbon beschikbaar!')
+                        .set('ACTION', 'NEW_TOWING_VOUCHER_ASSIGNED')
+                        .send();
+                }
               });
 
             }
@@ -646,6 +654,22 @@ router.post('/communication/:type/:token', function($req, $res) {
     default:
       throw new common.InvalidRequest();
   }
+});
+
+router.post('/signature/collector/:dossier/:voucher/:token', function($req,$res) {
+  var $voucher_id = ju.requiresInt('voucher', $req.params);
+  var $dossier_id = ju.requiresInt('dossier', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  agent.createMessage()
+        .device('<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>')
+        .alert('Aanvraag voor handtekening ophaler')
+        .set('ACTION', 'COLLECTOR_SIGNATURE')
+        .set('voucher_id', $voucher_id)
+        .set('dossier_id', $dossier_id)
+        .send();
+
+  ju.send($req, $res, {'result': 'ok'});
 });
 
 

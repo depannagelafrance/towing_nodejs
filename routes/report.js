@@ -20,6 +20,8 @@ const TAG = 'report.js';
 
 const SQL_FETCH_CAUSER_SIGNATURE            = "CALL R_FETCH_CAUSER_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
 const SQL_FETCH_POLICE_SIGNATURE            = "CALL R_FETCH_TRAFFIC_POST_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
+const SQL_FETCH_SIGNA_SIGNATURE             = "CALL R_FETCH_USER_SIGNATURE(?,?);";
+const SQL_FETCH_COLLECTOR_SIGNATURE         = "CALL R_FETCH_COLLECTOR_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
 const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
 
 // -- CONFIGURE ROUTING
@@ -48,6 +50,14 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
       var $template = _.template($data);
       var $vars = convertToVoucherReportParams($dossier, $voucher_id, $type, $token);
 
+      //filter correct towing vouchers
+      for($i = 0; $i < $dossier.towing_vouchers.length && !$voucher; $i++)
+        $voucher = ($dossier.towing_vouchers[$i].id == $voucher_id ? $dossier.towing_vouchers[$i] : null);
+
+      if(!$voucher)
+        $voucher = $dossier.towing_vouchers[0];
+
+      //fetch all data using callbacks
       db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher_id, $token], function($error, $result, $fields) {
         $vars.towing_activities       = $result;
 
@@ -83,21 +93,41 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
                       $vars.signature_causer = $signature_causer;
 
 
-                      db.one(SQL_FETCH_POLICE_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields) {
-                        $signature_police = null;
+                      db.one(SQL_FETCH_COLLECTOR_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields) {
+                        $collected_by_signature = null;
 
                         if($result && 'content' in $result) {
-                          $signature_police = $result.content;
+                          $collected_by_signature = $result.content;
                         }
 
-                        $vars.signature_police = $signature_police;
+                        $vars.collected_by_signature = $collected_by_signature;
 
-                        //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
+                        db.one(SQL_FETCH_POLICE_SIGNATURE, [$voucher_id, $token], function($error, $result, $fields) {
+                          $signature_police = null;
 
-                        $compiled_template = $template($vars);
+                          if($result && 'content' in $result) {
+                            $signature_police = $result.content;
+                          }
 
-                        renderPdfTemplate($voucher, $compiled_template, $req, $res);
-                      }); //end db.one(police signature)
+                          $vars.signature_police = $signature_police;
+
+                          db.one(SQL_FETCH_SIGNA_SIGNATURE, [$voucher.signa_id, $token], function($error, $result, $fields) {
+                            $signature = null;
+
+                            if($result && 'content' in $result) {
+                              $signature = $result.content;
+                            }
+
+                            $vars.signature_signa = $signature;
+
+                            //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
+
+                            $compiled_template = $template($vars);
+
+                            renderPdfTemplate($voucher, $compiled_template, $req, $res);
+                          }); //db.one(fetch signa signature)
+                        }); //end db.one(police signature)
+                      }); //end db.one(collector signature)
                     }); //end db.one(causer signature)
                   } //end if on length check
               });//end find all timeframe activity fees
