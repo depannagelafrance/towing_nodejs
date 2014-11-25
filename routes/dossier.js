@@ -668,7 +668,7 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
   switch($type) {
     case 'collector': $message = 'Aanvraag voor handtekening ophaler'; break;
     case 'causer': $message = 'Aanvraag voor handtekening hinderverwerkker'; break;
-    case 'police': $message = 'Aanvraag voor handtekening politie', break;
+    case 'police': $message = 'Aanvraag voor handtekening politie'; break;
   }
 
   agent.createMessage()
