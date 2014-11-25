@@ -3,13 +3,14 @@ require('../util/common.js');
 
 var _         = require('underscore');
 var express   = require('express');
+var util      = require('util');
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var LOG       = require('../util/logger.js');
 var agent     = require('../util/push.js');
 var dossier   = require('../model/dossier.js');
 var vocab     = require('../model/vocab.js');
-var util      = require('util');
+var settings  = require('../settings/settings.js');
 
 var TAG = 'dossier.js';
 
@@ -656,17 +657,27 @@ router.post('/communication/:type/:token', function($req, $res) {
   }
 });
 
-router.post('/signature/collector/:dossier/:voucher/:token', function($req,$res) {
+router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
   var $voucher_id = ju.requiresInt('voucher', $req.params);
   var $dossier_id = ju.requiresInt('dossier', $req.params);
   var $token      = ju.requires('token', $req.params);
+  var $type       = ju.requiresEnum('type', ['collector', 'causer', 'police']);
+
+  var $message = "";
+
+  switch($type) {
+    case 'collector': $message = 'Aanvraag voor handtekening ophaler'; break;
+    case 'causer': $message = 'Aanvraag voor handtekening hinderverwerkker'; break;
+    case 'police': $message = 'Aanvraag voor handtekening politie', break;
+  }
 
   agent.createMessage()
-        .device('<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>')
-        .alert('Aanvraag voor handtekening ophaler')
+        .device(settings.apns.default_device)
+        .alert($message)
         .set('ACTION', 'COLLECTOR_SIGNATURE')
         .set('voucher_id', $voucher_id)
         .set('dossier_id', $dossier_id)
+        .set('type', $type)
         .send();
 
   ju.send($req, $res, {'result': 'ok'});
