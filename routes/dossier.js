@@ -661,7 +661,7 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
   var $voucher_id = ju.requiresInt('voucher', $req.params);
   var $dossier_id = ju.requiresInt('dossier', $req.params);
   var $token      = ju.requires('token', $req.params);
-  var $type       = ju.requiresEnum('type', ['collector', 'causer', 'police']);
+  var $type       = ju.requiresEnum('type', $req.params, ['collector', 'causer', 'police']);
 
   var $message = "";
 
