@@ -3,12 +3,12 @@
  * @see
  */
 
-/*
+
 // uncomment section to enable debug output
 process.env.DEBUG = process.env.DEBUG
   ? process.env.DEBUG + ',apnagent:*'
   : 'apnagent:*';
-*/
+
 
 /*!
  * Locate your certificate
