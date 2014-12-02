@@ -47,6 +47,7 @@ const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?);
 const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTIVITY(?,?,?,?);";
+const SQL_REMOVE_TOWING_VOUCHER_ACTIVITY    = "CALL R_REMOVE_TOWING_VOUCHER_ACTIVITY(?,?,?);";
 const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?,?,?,?,?,?);";
 
 const SQL_ADD_COLLECTOR_SIGNATURE   = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
@@ -246,6 +247,7 @@ router.post('/:token', function($req, $res) {
   });
 });
 
+// -- CREATE VOUCHER
 router.post('/voucher/:dossier_id/:token', function($req, $res) {
   $dossier_id = ju.requiresInt('dossier_id', $req.params);
   $token  = ju.requires('token', $req.params);
@@ -259,6 +261,7 @@ router.post('/voucher/:dossier_id/:token', function($req, $res) {
   });
 });
 
+// -- CREATE VOUCHER ATTACHMENT
 router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $res) {
   $voucher_id = ju.requiresInt('voucher_id', $req.params);
   $token      = ju.requires('token', $req.params);
@@ -299,6 +302,23 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
       ju.send($req, $res, $result);
   });
 });
+
+// -----------------------------------------------------------------------------
+// REMOVE AN ACTIVITY FROM A VOUCHER
+//  * voucher_id (required), the voucher id
+//  * activity_id (required), the id of the activity to remove
+//  * token (required), the token of the current session
+// -----------------------------------------------------------------------------
+router.delete('/voucher/:voucher_id/activity/:activity_id/:token', function($req, $res) {
+  var $token        = ju.requires('token', $req.params);
+  var $activity_id  = ju.requiresInt('activity_id', $req.params);
+  var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
+
+  db.one(SQL_REMOVE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
 
 router.get('/depot/:dossier/:voucher/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
