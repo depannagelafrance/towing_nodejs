@@ -499,5 +499,74 @@ router.put('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
 });
 
 
+// -- -------------------------------------------------
+// -- COMPANY MANAGEMENT
+// -- -------------------------------------------------
+const SQL_FETCH_COMPANY         = "CALL R_FETCH_USER_COMPANY(?);";
+const SQL_FETCH_COMPANY_DEPOT   = "CALL R_FETCH_COMPANY_DEPOT(?);";
+const SQL_UPDATE_COMPANY        = "CALL R_UPDATE_USER_COMPANY(?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_COMPANY_DEPOT  = "CALL R_UPDATE_COMPANY_DEPOT(?,?,?,?,?,?,?);";
+
+router.get('/company/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.one(SQL_FETCH_COMPANY, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.put('/company/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  var $company = ju.requires('company', $req.body);
+
+  var params = [
+    $company.name,
+    $company.code,
+    $company.street,
+    $company.street_number,
+    $company.street_pobox,
+    $company.zip,
+    $company.city,
+    $company.phone,
+    $company.fax,
+    $company.email,
+    $company.website,
+    $company.vat,
+    $token
+  ];
+
+  db.one(SQL_UPDATE_COMPANY, params, function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/company/depot/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.one(SQL_FETCH_COMPANY_DEPOT, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.put('/company/depot/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  var $depot = ju.requires('depot', $req.body);
+
+  var params = [
+    $depot.name,
+    $depot.street,
+    $depot.street_number,
+    $depot.street_pobox,
+    $depot.zip,
+    $depot.city,
+    $token
+  ];
+
+  db.one(SQL_UPDATE_COMPANY_DEPOT, params, function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
 
 module.exports = router;
