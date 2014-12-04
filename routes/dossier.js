@@ -23,7 +23,7 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
-const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
+const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
 
 const SQL_FETCH_DOSSIER_BY_ID                         = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
 const SQL_FETCH_DOSSIER_BY_NUMBER                     = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
@@ -472,6 +472,7 @@ router.put('/:dossier/:token', function($req, $res) {
           $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
           $vehicule_country         = $voucher.vehicule_country;
           $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
+          $towing_id                = $voucher.towing_id;
           $towed_by                 = $voucher.towed_by;
           $towed_by_vehicule        = $voucher.towed_by_vehicle;
           $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
@@ -552,7 +553,7 @@ router.put('/:dossier/:token', function($req, $res) {
                      $warranty_holder, $collector_id, $vehicule_type,
                      $vehicule_licence_plate, $vehicule_country,
                      $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
-                     $towed_by, $towed_by_vehicule,
+                     $towing_id, $towed_by, $towed_by_vehicule,
                      $towing_called, $towing_arrival, $towing_start,
                      $towing_completed, $police_signature_date, $recipient_signature_date,
                      $vehicule_collected, $cic, $additional_info, $token];
