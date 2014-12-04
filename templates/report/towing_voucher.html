@@ -272,11 +272,14 @@
 <tbody>
 <% 	for(var $j in timeframe_activities)
 		{
-%>
-		<tr>
-			<td><%=timeframe_activities[$j].name%></td>
-		</tr>
-<%
+			if(timeframe_activities[$j].code != 'STALLING')
+			{
+				%>
+				<tr>
+					<td><%=timeframe_activities[$j].name%></td>
+				</tr>
+				<%
+			}
 		}
 %>
 	<tr>
@@ -290,6 +293,9 @@
 
 <%
 var $_voucher_total = "";
+var $_depot_days = "";
+var $_depot_fee = "";
+var $_depot_total_fee = "";
 
 for(var $i in timeframes) {
 %>
@@ -309,15 +315,68 @@ for(var $i in timeframes) {
 
 		for(var $j in timeframe_activities)
 		{
+			if(timeframe_activities[$j].code != 'STALLING')
+			{
+				%>
+				<tr>
+<% 				for(var $x in timeframe_activity_fees)
+					{
+						for(var $k in timeframe_activity_fees[$x])
+						{
+							if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
+							&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+							{
+								var $_amount = "";
+								var $_cal_fee = "";
 
-%>
-			<tr>
-<% 			for(var $x in timeframe_activity_fees)
+								if(timeframe_id == timeframes[$i].id)
+								{
+									$found = false;
+
+									for(var $y in towing_activities)
+									{
+										if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+										{
+											$_amount = towing_activities[$y].amount;
+											$_cal_fee = towing_activities[$y].cal_fee_incl_vat;
+											$_total = towing_activities[$y].total_bill_incl_vat;
+											$_voucher_total = $_total;
+
+											$found=true;
+										}
+									}
+								}
+
+								if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
+								{
+									%>
+									<td class="disabled">&nbsp;</td>
+									<%
+								}
+								else
+								{
+									%>
+									<td><%= $_amount %></td>
+									<%
+								}
+								%>
+								<td><%= timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+								<td><%= $_cal_fee %></td>
+								<%					}
+							}
+						} // end for var $x in timeframe_activity_fees
+						%>
+			</tr>
+<%
+			}
+			else
+			{
+				for(var $x in timeframe_activity_fees)
 				{
 					for(var $k in timeframe_activity_fees[$x])
 					{
 						if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
-									&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+						&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
 						{
 							var $_amount = "";
 							var $_cal_fee = "";
@@ -330,37 +389,20 @@ for(var $i in timeframes) {
 								{
 									if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
 									{
-										$_amount = towing_activities[$y].amount;
-										$_cal_fee = towing_activities[$y].cal_fee_incl_vat;
-										$_total = towing_activities[$y].total_bill_incl_vat;
-										$_voucher_total = $_total;
+										$_depot_days = towing_activities[$y].amount;
+										$_depot_fee  = timeframe_activity_fees[$x][$k].fee_incl_vat;
+										$_depot_total_fee = towing_activities[$y].cal_fee_incl_vat;
 
 										$found=true;
-									}
-								}
-							}
-
-							if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
-							{
+									} //end if (!$found)
+								} // end for(var $y ...)
+							} //end if (timeframe_id = ...)
+						} //end if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id ...
+					} //end for(var $k in timeframe_activity_fees[$x]) ...
+				} // end for var $x in timeframe_activity_fees
+			} // end if(timeframe_activities[$j].code != 'STALLING')
+		} // end for(var $j in timeframe_activities)
 %>
-									<td class="disabled">&nbsp;</td>
-<%
-							}
-							else
-							{
-%>
-									<td><%= $_amount %></td>
-<%
-							}
-%>
-							<td><%= timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-						  <td><%= $_cal_fee %></td>
-<%					}
-					}
-				}
-%>
-			</tr>
-<% 	} %>
 			<tr>
 				<td class="disabled">&nbsp;</td>
 				<td class="disabled">&nbsp;</td>
@@ -389,9 +431,9 @@ for(var $i in timeframes) {
 						</thead>
 						<tbody>
 								<tr>
-									<td></td>
-									<td>6,05</td>
-									<td></td>
+									<td><%=$_depot_days %></td>
+									<td><%=$_depot_fee %></td>
+									<td><%=$_depot_total_fee %></td>
 							</tr>
 						</tbody>
 					</table>

@@ -225,7 +225,7 @@ router.put('/users/unlock/:user_id/:token', function($req, $res) {
 // -- -------------------------------------------------
 // -- CALENDAR MANAGEMENT
 // -- -------------------------------------------------
-const SQL_CREATE_CALENDAR_ITEM = "CALL R_ADD_CALENDAR_ITEM(?,?,?);";
+const SQL_CREATE_CALENDAR_ITEM = "CALL R_ADD_CALENDAR_ITEM(?,from_unixtime(?),?);";
 const SQL_UPDATE_CALENDAR_ITEM = "CALL R_UPDATE_CALENDAR_ITEM(?,?,?,?);";
 const SQL_DELETE_CALENDAR_ITEM = "CALL R_DELETE_CALENDAR_ITEM(?,?);";
 const SQL_ALL_CALENDAR_ITEMS   = "CALL R_FETCH_ALL_CALENDAR_ITEMS(?,?);";
