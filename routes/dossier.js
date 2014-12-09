@@ -20,10 +20,13 @@ var router = express.Router();
 
 //-- DEFINE CONSTANST
 const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
-const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
+
+const SQL_PURGE_DOSSIER_TRAFFIC_LANES       = "CALL R_PURGE_DOSSIER_TRAFFIC_LANES(?,?);";
+const SQL_CREATE_DOSSIER_TRAFFIC_LANES      = "CALL R_CREATE_DOSSIER_TRAFFIC_LANES(?,?,?);";
 
 const SQL_FETCH_DOSSIER_BY_ID                         = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
 const SQL_FETCH_DOSSIER_BY_NUMBER                     = "CALL R_FETCH_DOSSIER_BY_NUMBER(?, ?);";
@@ -32,10 +35,11 @@ const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER           = "CALL R_FETCH_TOWING_ACT
 const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER            = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
 const SQL_FETCH_ALL_DOSSIERS_BY_FILTER                = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
 const SQL_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER = "CALL R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER(?,?);"
-const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES        = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
-const SQL_FETCH_ALL_VOUCHERS_BY_FILTER          = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
-const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION     = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
-const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT      = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
+const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES              = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
+const SQL_FETCH_ALL_VOUCHERS_BY_FILTER                = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
+const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION           = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
+const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT            = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
+const SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES             = "CALL R_FETCH_ALL_DOSSIER_TRAFFIC_LANES(?,?);";
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
@@ -200,6 +204,15 @@ router.get('/list/traffic_posts/allotment/:allotment_id/:token', function($req, 
   var $token        = ju.requires('token', $req.params);
 
   vocab.findAllTrafficPostsByAllotment($allotment_id, $token, function($result){
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/list/traffic_lanes/:dossier_id/:token', function($req, $res) {
+  var $dossier_id = ju.requiresInt('dossier_id', $req.params);
+  var $token = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES, [$dossier_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
 });
@@ -429,6 +442,8 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
   }
 });
 
+
+
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
@@ -443,18 +458,29 @@ router.put('/:dossier/:token', function($req, $res) {
   $allotment_id     = ju.requiresInt('allotment_id', $dossier);
   $direction_id     = ju.requiresInt(['direction_id', 'allotment_direction_id'], $dossier);
   $indicator_id     = ju.requiresInt(['indicator_id', 'allotment_direction_indicator_id'], $dossier);
-  $traffic_lane_id  = $dossier.traffic_lane_id;
+  $traffic_lanes    = $dossier.traffic_lanes;
   $traffic_post_id  = $dossier.police_traffic_post_id;
 
   $vouchers         = ju.requires('towing_vouchers', $dossier);
 
 
-  $params = [$dossier_id, $call_number, $company_id, $incident_type_id, $allotment_id, $direction_id, $indicator_id, $traffic_lane_id, $traffic_post_id, $token];
+  $params = [$dossier_id, $call_number, $company_id, $incident_type_id, $allotment_id, $direction_id, $indicator_id, $traffic_post_id, $token];
 
   db.one(SQL_UPDATE_DOSSIER, $params, function($error, $result, $fields) {
     if($result && 'error' in $result) {
       ju.send($req, $res, $result);
     } else {
+      db.one(SQL_PURGE_DOSSIER_TRAFFIC_LANES, [$dossier_id, $token], function($error, $result, fields) {
+        if($traffic_lanes)
+        {
+          $traffic_lanes.forEach(function($traffic_lane_id) {
+            db.one(SQL_CREATE_DOSSIER_TRAFFIC_LANES, [$dossier_id, $traffic_lane_id, $token], function($error, $result, $fields) {
+              //fire and forget
+            });
+          });
+        }
+      });
+
       $i = 0;
 
       if(!$vouchers || $vouchers.length == 0) {

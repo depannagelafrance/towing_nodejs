@@ -1,5 +1,6 @@
 var db        = require('../util/database.js');
 var LOG       = require('../util/logger.js');
+var common    = require('../util/common.js');
 
 var TAG = 'model/dossier.js';
 
@@ -27,6 +28,10 @@ var findById = function($dossier_id, $token, cb) {
   db.one(SQL_FETCH_DOSSIER_BY_ID, [$dossier_id, $token], function($error, $d_result, $fields)
   {
     $dossier = $d_result;
+
+    if(!$dossier) {
+      throw new common.InvalidRequest();
+    }
 
     //set the selected towing company
     db.one(SQL_FETCH_TOWING_COMPANY, [$dossier_id, $token], function($error, $t_result, $fields){
