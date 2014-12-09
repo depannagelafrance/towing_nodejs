@@ -306,12 +306,12 @@ router.delete('/calendar/:id/:token', function($req, $res) {
 // -- -------------------------------------------------
 const SQL_ALL_INSURANCES    = "CALL R_FETCH_ALL_INSURANCES(?);";
 const SQL_INSURANCE_BY_ID   = "CALL R_FETCH_INSURANCE_BY_ID(?,?);";
-const SQL_CREATE_INSURANCE  = "CALL R_ADD_INSURANCE(?,?);";
-const SQL_UPDATE_INSURANCE  = "CALL R_UPDATE_INSURANCE(?,?,?);";
+const SQL_CREATE_INSURANCE  = "CALL R_ADD_INSURANCE(?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_INSURANCE  = "CALL R_UPDATE_INSURANCE(?,?,?,?,?,?,?,?,?);";
 const SQL_DELETE_INSURANCE  = "CALL R_DELETE_INSURANCE(?,?);";
 
 router.get('/insurance/:token', function($req, $res) {
-  var $token = $req.params.token;
+  var $token = ju.requires('token', $req.params);
 
   db.many(SQL_ALL_INSURANCES, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -319,8 +319,8 @@ router.get('/insurance/:token', function($req, $res) {
 });
 
 router.get('/insurance/:id/:token', function($req, $res) {
-  var $id = $req.params.id;
-  var $token = $req.params.token;
+  var $id = ju.requiresInt('id', $req.params);
+  var $token = ju.requires('token', $req.params);
 
   db.one(SQL_INSURANCE_BY_ID, [$id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -328,36 +328,34 @@ router.get('/insurance/:id/:token', function($req, $res) {
 });
 
 router.post('/insurance/:token', function($req, $res) {
-  var $token = $req.params.token;
+  var $token = ju.requires('token', $req.params);
 
-  var $name = ju.requires('name', $req.body);
+  var $name   = ju.requires('name', $req.body);
+  var $vat    = ju.valueOf('vat', $req.body);
+  var $street = ju.valueOf('street', $req.body);
+  var $number = ju.valueOf('street_number', $req.body);
+  var $pobox  = ju.valueOf('street_pobox', $req.body);
+  var $zip    = ju.valueOf('zip', $req.body);
+  var $city   = ju.valueOf('city', $req.body);
 
-  db.one(SQL_CREATE_INSURANCE, [$name, $token], function($error, $result, $fields) {
-    if('error' in $result) {
-      ju.send($req, $res, $result);
-    } else {
-      var $id = $result.id;
-
-      db.one(SQL_INSURANCE_BY_ID, [$id, $token], function($error, $result, $fields) {
-        ju.send($req, $res, $result);
-      });
-    }
+  db.one(SQL_CREATE_INSURANCE, [$name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result); //returns the newly created information as result
   });
 });
 
 router.put('/insurance/:id/:token', function($req, $res) {
-  var $id = ju.requiresInt('id', $req.params);
-  var $name = ju.requires('name', $req.body);
-  var $token = ju.requires('token', $req.params);
+  var $id     = ju.requiresInt('id', $req.params);
+  var $name   = ju.requires('name', $req.body);
+  var $vat    = ju.valueOf('vat', $req.body);
+  var $street = ju.valueOf('street', $req.body);
+  var $number = ju.valueOf('street_number', $req.body);
+  var $pobox  = ju.valueOf('street_pobox', $req.body);
+  var $zip    = ju.valueOf('zip', $req.body);
+  var $city   = ju.valueOf('city', $req.body);
+  var $token  = ju.requires('token', $req.params);
 
-  db.one(SQL_UPDATE_INSURANCE, [$id, $name, $token], function($error, $result, $fields) {
-    if('error' in $result) {
-      ju.send($req, $res, $result);
-    } else {
-      db.one(SQL_INSURANCE_BY_ID, [$id, $token], function($error, $result, $fields) {
-        ju.send($req, $res, $result);
-      });
-    }
+  db.one(SQL_UPDATE_INSURANCE, [$id, $name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result); //returns the updated information as a result
   });
 });
 
