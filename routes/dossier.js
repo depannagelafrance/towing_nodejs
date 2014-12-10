@@ -473,10 +473,21 @@ router.put('/:dossier/:token', function($req, $res) {
       db.one(SQL_PURGE_DOSSIER_TRAFFIC_LANES, [$dossier_id, $token], function($error, $result, fields) {
         if($traffic_lanes)
         {
-          $traffic_lanes.forEach(function($traffic_lane_id) {
-            db.one(SQL_CREATE_DOSSIER_TRAFFIC_LANES, [$dossier_id, $traffic_lane_id, $token], function($error, $result, $fields) {
-              //fire and forget
-            });
+          $traffic_lanes.forEach(function($traffic_lane) {
+            var $traffic_lane_id = null;
+            if(_.isObject($traffic_lane)) {
+              if($traffic_lane.selected)
+                $traffic_lane_id = $traffic_lane.id;
+            } else {
+              $traffic_lane_id = $traffic_lane;
+            }
+
+            if($traffic_lane_id)
+            {
+              db.one(SQL_CREATE_DOSSIER_TRAFFIC_LANES, [$dossier_id, $traffic_lane_id, $token], function($error, $result, $fields) {
+                //fire and forget
+              });              
+            }
           });
         }
       });

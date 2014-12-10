@@ -7,6 +7,7 @@ var TAG = 'model/dossier.js';
 const SQL_FETCH_DOSSIER_BY_ID               = "CALL R_FETCH_DOSSIER_BY_ID(?,?)";
 const SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER  = "CALL R_FETCH_TOWING_VOUCHERS_BY_DOSSIER(?,?)";
 const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER  = "CALL R_FETCH_TOWING_PAYMENTS_BY_VOUCHER(?, ?, ?); ";
+const SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES   = "CALL R_FETCH_ALL_DOSSIER_TRAFFIC_LANES(?,?);";
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
 
@@ -38,6 +39,9 @@ var findById = function($dossier_id, $token, cb) {
         $dossier.towing_company = $t_result;
     });
 
+    db.many(SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES, [$dossier_id, $token], function($error, $result, $fields) {
+      $dossier.traffic_lanes = $result;
+    });
 
     db.many(SQL_FETCH_TOWING_VOUCHERS_BY_DOSSIER, [$dossier_id, $token],function($error, $v_result, $fields)
     {
