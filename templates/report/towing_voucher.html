@@ -406,7 +406,7 @@ for(var $i in timeframes) {
 			<tr>
 				<td class="disabled">&nbsp;</td>
 				<td class="disabled">&nbsp;</td>
-				<td><%=$_total%></td>
+				<td><%=($_total == '' ? '' : parseFloat($_total).toFixed(2))%></td>
 			</tr>
 		</tbody>
 	</table>
@@ -450,9 +450,9 @@ for(var $i in timeframes) {
 		<div class="clear">
 			<div class="style1" style="border: 0px; background-color: #e0e0e0;font-size: 1.0em; width:325px">
 				<table style="border-collapse: collapse;border: 1px solid #000;width: 100%;">
-						<tr><td style="border: 1px solid #000;">Algemeen totaal incl. BTW</td><td style="border:2px solid #000; text-align: right"> &euro; <%=$_voucher_total%></td></tr>
-						<tr><td style="border: 1px solid #000;">Garantie Assistance </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_guaranteed_by_insurance%></td></tr>
-						<tr><td style="border: 1px solid #000;">Ten laste van klant </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_customer%></td></tr>
+						<tr><td style="border: 1px solid #000;">Algemeen totaal incl. BTW</td><td style="border:2px solid #000; text-align: right"> &euro; <%=$_voucher_total.toFixed(2)%></td></tr>
+						<tr><td style="border: 1px solid #000;">Garantie Assistance </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_guaranteed_by_insurance.toFixed(2)%></td></tr>
+						<tr><td style="border: 1px solid #000;">Ten laste van klant </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_customer.toFixed(2)%></td></tr>
 						<tr><td colspan="2" style="font-weight: bold; font-size: 0.8em; text-align: center; border-top: 1px solid #000; border-bottom: 1px solid #000;">Betalingswijze</td></tr>
 						<tr>
 								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">
