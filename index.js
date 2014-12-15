@@ -60,6 +60,8 @@ app.use(function($err, $req, $res, next) {
 
     LOG.e(TAG, $err);
 
+    console.log($req.route);
+
     $res.status($err.statusCode || 500);
 
     $errormsg = JSON.stringify({

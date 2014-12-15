@@ -78,7 +78,7 @@ var valueOf = function($key, $jsonData) {
 }
 
 var intValue = function($key, $jsonData) {
-  $value = value($key, $jsonData);
+  $value = valueOf($key, $jsonData);
 
   if($value) {
     if(_.isNaN(parseInt($value))) {
