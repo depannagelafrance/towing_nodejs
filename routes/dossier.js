@@ -486,7 +486,7 @@ router.put('/:dossier/:token', function($req, $res) {
             {
               db.one(SQL_CREATE_DOSSIER_TRAFFIC_LANES, [$dossier_id, $traffic_lane_id, $token], function($error, $result, $fields) {
                 //fire and forget
-              });              
+              });
             }
           });
         }
@@ -509,14 +509,14 @@ router.put('/:dossier/:token', function($req, $res) {
           $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
           $vehicule_country         = $voucher.vehicule_country;
           $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
-          $towing_id                = $voucher.towing_id;
+          $towing_id                = $voucher.towing_id ? $voucher.towing_id : null;
           $towed_by                 = $voucher.towed_by;
           $towed_by_vehicule        = $voucher.towed_by_vehicle;
           $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
           $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
           $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
           $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
-          $signa_id                 = $voucher.signa_id;
+          $signa_id                 = $voucher.signa_id ? $voucher.signa_id : null;
           $signa_by                 = $voucher.signa_by;
           $signa_by_vehicule        = $voucher.signa_by_vehicle;
           $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
