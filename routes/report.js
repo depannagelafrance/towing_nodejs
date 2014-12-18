@@ -23,6 +23,7 @@ const SQL_FETCH_POLICE_SIGNATURE            = "CALL R_FETCH_TRAFFIC_POST_SIGNATU
 const SQL_FETCH_SIGNA_SIGNATURE             = "CALL R_FETCH_USER_SIGNATURE(?,?);";
 const SQL_FETCH_COLLECTOR_SIGNATURE         = "CALL R_FETCH_COLLECTOR_SIGNATURE_BLOB_BY_VOUCHER(?,?);";
 const SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER = "CALL R_FETCH_TOWING_ACTIVITIES_BY_VOUCHER(?, ?, ?);";
+const SQL_FETCH_INSURANCE_BY_ID             = "CALL R_FETCH_INSURANCE_BY_ID(?,?);";
 
 // -- CONFIGURE ROUTING
 var router = express.Router();
@@ -111,6 +112,7 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
 
                           $vars.signature_police = $signature_police;
 
+
                           db.one(SQL_FETCH_SIGNA_SIGNATURE, [$voucher.signa_id, $token], function($error, $result, $fields) {
                             $signature = null;
 
@@ -120,11 +122,25 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
 
                             $vars.signature_signa = $signature;
 
-                            //LOG.d(TAG, "Setting variables for template: " + JSON.stringify($vars));
 
-                            $compiled_template = $template($vars);
+                            if($voucher.insurance_id)
+                            {
+                                db.one(SQL_FETCH_INSURANCE_BY_ID, [$voucher.insurance_id, $token], function($error, $result, $fields) {
+                                  $vars.insurance = $result;
+                                  $vars.insurance.display_address = convertToAddressString($result);
 
-                            renderPdfTemplate($voucher, $compiled_template, $req, $res);
+                                  $compiled_template = $template($vars);
+
+                                  renderPdfTemplate($voucher, $compiled_template, $req, $res);
+
+                                });//end db.one(SQL_FETCH_INSURANCE_BY_ID)
+                            }
+                            else
+                            {
+                              $compiled_template = $template($vars);
+
+                              renderPdfTemplate($voucher, $compiled_template, $req, $res);
+                            } //end if ($voucher.insurance_id)
                           }); //db.one(fetch signa signature)
                         }); //end db.one(police signature)
                       }); //end db.one(collector signature)
@@ -355,7 +371,8 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       'copy_for'                    : $copy_for,
       'insurance_name'              : $voucher.insurance_name,
       'insurance_dossier'           : $voucher.insurance_dossiernr,
-      'towing_payments'             : $voucher.towing_payments
+      'towing_payments'             : $voucher.towing_payments,
+      'is_covered_by_insurance'     : $voucher.insurance_id ? true : false
     };
 
     return $params;

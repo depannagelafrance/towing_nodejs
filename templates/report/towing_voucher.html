@@ -197,10 +197,24 @@
 							<thead>
 									<tr><th colspan="2">Hinderverwekker</th></tr>
 							</thead>
-              <tr><td colspan="2"><%=customer_name%></td></tr>
-              <tr><td colspan="2"><%=customer_address%></td></tr>
-              <tr><td><strong>Tel.:</strong><%=customer_phone%></td>
-								  <td><strong>BTW Nr.:</strong> <%=customer_vat%></td></tr>
+<% if(is_covered_by_insurance) { %>
+	<tr><td colspan="2"><%=insurance_name%></td></tr>
+	<tr><td colspan="2"><%=insurance.display_address%></td></tr>
+	<tr>
+		<td>
+			<span class="label">BTW Nr.:</label> <%=insurance.vat%>
+		</td>
+		<td>
+			<span class="label">Dossiernr:</span> <%=insurance_dossier%>
+		</td>
+	</tr>
+<% } else { %>
+	<tr><td colspan="2"><%=customer_name%></td></tr>
+	<tr><td colspan="2"><%=customer_address%></td></tr>
+	<tr><td><strong>Tel.:</strong><%=customer_phone%></td>
+			<td><strong>BTW Nr.:</strong> <%=customer_vat%></td>
+	</tr>
+<% } %>
               <tr><td><strong>NR.PL.:</strong> <%=vehicule_licence_plate%></td>
 									<td><strong>MERK/TYPE:</strong><%=vehicule_type%></td></tr>
           </table>
@@ -431,9 +445,9 @@ for(var $i in timeframes) {
 						</thead>
 						<tbody>
 								<tr>
-									<td><%=$_depot_days %></td>
-									<td><%=$_depot_fee %></td>
-									<td><%=$_depot_total_fee %></td>
+									<td><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
+									<td><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
+									<td><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
 							</tr>
 						</tbody>
 					</table>
@@ -463,9 +477,16 @@ for(var $i in timeframes) {
 								</td>
 						</tr>
 						<tr>
-								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">
-										<span class="label">Assistance:</span> <%=insurance_name%><br />
-										<span class="label">Dossiernr:</span> <%=insurance_dossier%></td>
+								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: right;">
+									<% if(is_covered_by_insurance) { %>
+												<span class="label">Klant:</span> <%=customer_name%> <br />
+												<span class="label">Adres:</span> <%=customer_address%> <br />
+												<span class="label">Telnr.:</span> <%=customer_phone%> <br />
+												<span class="label">BTW Nr.:</span> <%=customer_vat%>
+									<% } else { %>
+											&nbsp;
+									<% } %>
+								</td>
 						</tr>
 				</table>
 			</div>
