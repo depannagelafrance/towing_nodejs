@@ -102,16 +102,16 @@ router.get('/list/me/:token', function($req, $res) {
   });
 });
 
-router.get('/list/completed/:token', function($req, $res) {
-  listDossiers($req, $res, STATUS_COMPLETED);
-});
-
 router.get('/list/check/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_TO_CHECK);
 });
 
 router.get('/list/invoice/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_READY_FOR_INVOICE);
+});
+
+router.get('/list/done/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_COMPLETED);
 });
 
 router.get('/list/vouchers/new/:token', function($req, $res) {
