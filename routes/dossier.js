@@ -463,11 +463,13 @@ router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) 
   $activities       = ju.requires('activities', $req.body);
 
 
-  if($activities) {
+  if($activities && $activities.length > 0) {
     $i = 0;
     $activities.forEach(function($activity) {
       db.one(SQL_UPDATE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity.activity_id, $activity.amount, $token], function($error, $result, $fields) {
-        if($i++ >= $activities.length)
+        $i++;
+
+        if($i >= $activities.length)
         {
           //fetch the towing activities information
           db.many(SQL_FETCH_ALL_VOUCHER_ACTIVITIES, [$dossier_id, $voucher_id, $token], function($error, $result, $fields) {
