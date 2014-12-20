@@ -36,6 +36,7 @@ const SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER            = "CALL R_FETCH_TOWING_PAY
 const SQL_FETCH_ALL_DOSSIERS_BY_FILTER                = "CALL R_FETCH_ALL_DOSSIERS_BY_FILTER(?,?);";
 const SQL_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER = "CALL R_FETCH_ALL_DOSSIERS_ASSIGNED_TO_ME_BY_FILTER(?,?);"
 const SQL_FETCH_ALL_AVAILABLE_ACTIVITIES              = "CALL R_FETCH_ALL_AVAILABLE_ACTIVITIES(?, ?, ?);";
+const SQL_FETCH_ALL_VOUCHER_ACTIVITIES                = "CALL R_FETCH_ALL_TOWING_ACTIVITIES(?, ?, ?);";
 const SQL_FETCH_ALL_VOUCHERS_BY_FILTER                = "CALL R_FETCH_ALL_VOUCHERS_BY_FILTER(?, ?); ";
 const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION           = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
 const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT            = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
@@ -138,6 +139,17 @@ router.get('/list/available_activities/:dossier/:voucher/:token', function($req,
   //fetch the towing activities information
   db.many(SQL_FETCH_ALL_AVAILABLE_ACTIVITIES, [$dossier_id, $voucher, $token], function($error, $result, $fields) {
       ju.send($req, $res, $result);
+  });
+});
+
+router.get('/list/activities/:dossier/:voucher/:token', function($req, $res) {
+  var $dossier_id = ju.requiresInt('dossier', $req.params);
+  var $voucher    = ju.requiresInt('voucher', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  //fetch the towing activities information
+  db.many(SQL_FETCH_ALL_VOUCHER_ACTIVITIES, [$dossier_id, $voucher, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
   });
 });
 
