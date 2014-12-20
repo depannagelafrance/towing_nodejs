@@ -7,6 +7,7 @@ var db          = require('../util/database.js');
 var ju          = require('../util/json.js');
 var common      = require('../util/common.js');
 var LOG         = require('../util/logger.js');
+var vies        = require('../util/vies.js');
 var vocab       = require('../model/vocab.js');
 var settings    = require('../settings/settings.js');
 
@@ -330,16 +331,34 @@ router.get('/insurance/:id/:token', function($req, $res) {
 router.post('/insurance/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
 
-  var $name   = ju.requires('name', $req.body);
-  var $vat    = ju.valueOf('vat', $req.body);
+  var $name   = ju.valueOf('name', $req.body);
+  var $vat    = ju.requires('vat', $req.body);
   var $street = ju.valueOf('street', $req.body);
   var $number = ju.valueOf('street_number', $req.body);
   var $pobox  = ju.valueOf('street_pobox', $req.body);
   var $zip    = ju.valueOf('zip', $req.body);
   var $city   = ju.valueOf('city', $req.body);
 
-  db.one(SQL_CREATE_INSURANCE, [$name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
-    ju.send($req, $res, $result); //returns the newly created information as result
+  vies.checkVat($vat, function($result, $error)
+  {
+    if(!$error)
+    {
+      if(!$name || $name == '') {
+        $name = $result.name;
+      }
+
+      if(!$street || $street == '') {
+        $street = $result.address;
+      }
+
+      db.one(SQL_CREATE_INSURANCE, [$name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result); //returns the newly created information as result
+      });
+    }
+    else
+    {
+      ju.send($req, $res, $error);
+    }
   });
 });
 
@@ -354,9 +373,20 @@ router.put('/insurance/:id/:token', function($req, $res) {
   var $city   = ju.valueOf('city', $req.body);
   var $token  = ju.requires('token', $req.params);
 
-  db.one(SQL_UPDATE_INSURANCE, [$id, $name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
-    ju.send($req, $res, $result); //returns the updated information as a result
+  vies.checkVat($vat, function($result, $error)
+  {
+    if(!$error)
+    {
+      db.one(SQL_UPDATE_INSURANCE, [$id, $name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result); //returns the updated information as a result
+      });
+    }
+    else
+    {
+      ju.send($req, $res, $error);
+    }
   });
+
 });
 
 router.delete('/insurance/:id/:token', function($req, $res) {
@@ -518,25 +548,38 @@ router.put('/company/:token', function($req, $res) {
 
   var $company = ju.requires('company', $req.body);
 
-  var params = [
-    $company.name,
-    $company.code,
-    $company.street,
-    $company.street_number,
-    $company.street_pobox,
-    $company.zip,
-    $company.city,
-    $company.phone,
-    $company.fax,
-    $company.email,
-    $company.website,
-    $company.vat,
-    $token
-  ];
+  vies.checkVat($company.vat, function($result, $error)
+  {
+    if(!$error)
+    {
+      var params = [
+        $company.name,
+        $company.code,
+        $company.street,
+        $company.street_number,
+        $company.street_pobox,
+        $company.zip,
+        $company.city,
+        $company.phone,
+        $company.fax,
+        $company.email,
+        $company.website,
+        $company.vat,
+        $token
+      ];
 
-  db.one(SQL_UPDATE_COMPANY, params, function($error, $result, $fields) {
-    ju.send($req, $res, $result);
+      db.one(SQL_UPDATE_COMPANY, params, function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
+    }
+    else
+    {
+      ju.send($req, $res, $error);
+    }
   });
+
+
+
 });
 
 router.get('/company/depot/:token', function($req, $res) {

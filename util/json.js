@@ -108,14 +108,17 @@ var send = function($req, $res, $result) {
   $res.setHeader('Content-Type', 'application/json');
 
   if($result && $result !== "undefined" && !_.isUndefined($result)) {
-    if(_.has($result, 'error') || ($result[0] !== "undefined" && !_.isUndefined($result[0]) && _.has($result[0], 'error'))) {
+    if(_.has($result, 'error') || _.has($result, 'statusCode')
+        || ($result[0] !== "undefined" && !_.isUndefined($result[0]) && _.has($result[0], 'error'))) {
       $res.status($result.statusCode || 500);
 
       $errormsg = JSON.stringify({
           statusCode: $result.statusCode || 500,
-          message: $result.error || 'Internal server error',
+          message: $result.error || $result.message || 'Internal server error',
           error: {}
       });
+
+      console.log($errormsg);
 
       $res.end($errormsg);
     } else {
