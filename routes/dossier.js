@@ -340,7 +340,11 @@ router.delete('/voucher/:voucher_id/activity/:activity_id/:token', function($req
   var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
 
   db.one(SQL_REMOVE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity_id, $token], function($error, $result, $fields) {
-    ju.send($req, $res, $result);
+    //fetch the towing activities information
+    db.many(SQL_FETCH_ALL_VOUCHER_ACTIVITIES, [null, $voucher_id, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+    });
+  }
   });
 });
 
