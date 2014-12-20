@@ -454,6 +454,34 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
   }
 });
 
+router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) {
+  $dossier_id       = ju.requiresInt('dossier', $req.params);
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+
+  $token            = ju.requires('token', $req.params);
+
+  $activities       = ju.requires('activities', $req.body);
+
+
+  if($activities) {
+    $i = 0;
+    $activities.forEach(function($activity) {
+      db.one(SQL_UPDATE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity.activity_id, $activity.amount, $token], function($error, $result, $fields) {
+        if($i++ >= $activities.length)
+        {
+          //fetch the towing activities information
+          db.many(SQL_FETCH_ALL_VOUCHER_ACTIVITIES, [$dossier_id, $voucher_id, $token], function($error, $result, $fields) {
+            ju.send($req, $res, $result);
+          });
+        }
+      });
+    });
+  }
+  else
+  {
+    $res.end('');
+  }
+});
 
 
 // -- UPDATE DOSSIER RELATED INFORMATION
