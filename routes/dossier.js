@@ -344,7 +344,6 @@ router.delete('/voucher/:voucher_id/activity/:activity_id/:token', function($req
     db.many(SQL_FETCH_ALL_VOUCHER_ACTIVITIES, [null, $voucher_id, $token], function($error, $result, $fields) {
       ju.send($req, $res, $result);
     });
-  }
   });
 });
 
