@@ -47,8 +47,14 @@ var smtp = {
   from: 'Towing.be <no-reply@towing.be>'
 }
 
+var vies = {
+  wsdl    : 'http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl',
+  offline : false,
+}
+
 
 exports.mysql = mysql;
 exports.fs = fs;
 exports.smtp = smtp;
 exports.apns = apns;
+exports.vies = vies;
