@@ -110,6 +110,7 @@ var send = function($req, $res, $result) {
   if($result && $result !== "undefined" && !_.isUndefined($result)) {
     if(_.has($result, 'error') || _.has($result, 'statusCode')
         || ($result[0] !== "undefined" && !_.isUndefined($result[0]) && _.has($result[0], 'error'))) {
+
       $res.status($result.statusCode || 500);
 
       $errormsg = JSON.stringify({

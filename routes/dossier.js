@@ -11,6 +11,7 @@ var agent     = require('../util/push.js');
 var dossier   = require('../model/dossier.js');
 var vocab     = require('../model/vocab.js');
 var settings  = require('../settings/settings.js');
+var vies      = require('../util/vies.js');
 
 var TAG = 'dossier.js';
 
@@ -400,25 +401,50 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
 
   $_causer = ju.requires('causer', $req.body);
 
-  if($_causer && $_causer.id) {
+  if($_causer && $_causer.id)
+  {
     $_customer = $_causer;
 
-    $params = [$_customer.id, $voucher_id,
-               $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
-               $_customer.street, $_customer.street_number, $_customer.street_pobox,
-               $_customer.zip, $_customer.city, $_customer.country,
-               $_customer.phone, $_customer.email,
-               $token];
-
-    db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
-      if($result && 'id' in $result) {
-        ju.send($req, $res, $_causer);
-      } else {
-        ju.send($req, $res, $result);
-      }
-    });
+    if($_customer.company_vat)
+    {
+      vies.checkVat($vat, function($result, $error) {
+        if(!$error)
+        {
+          ju.send($req, $res, $error);
+        }
+        else
+        {
+          updateCauser($_customer, $req, $res);
+        }
+      });
+    }
+    else
+    {
+      updateCauser($_customer, $req, $res);
+    }
   }
 });
+
+function updateCauser($_customer, $req, $res)
+{
+  $params = [$_customer.id, $voucher_id,
+              $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+              $_customer.street, $_customer.street_number, $_customer.street_pobox,
+              $_customer.zip, $_customer.city, $_customer.country,
+              $_customer.phone, $_customer.email,
+              $token];
+
+  db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
+    if($result && 'id' in $result)
+    {
+      ju.send($req, $res, $_causer);
+    }
+    else
+    {
+      ju.send($req, $res, $result);
+    }
+  });
+}
 
 router.get('/customer/:dossier/:voucher/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
@@ -438,24 +464,43 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
   $_customer = ju.requires('customer', $req.body);
 
   if($_customer && $_customer.id) {
-
-    $params = [$_customer.id, $voucher_id,
-               $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
-               $_customer.street, $_customer.street_number, $_customer.street_pobox,
-               $_customer.zip, $_customer.city, $_customer.country,
-               $_customer.phone, $_customer.email,
-               $_customer.invoice_ref,
-               $token];
-
-    db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
-      if($result && 'id' in $result) {
-        ju.send($req, $res, $_customer);
-      } else {
-        ju.send($req, $res, $result);
-      }
-    });
+    if($_customer.company_vat)
+    {
+      vies.checkVat($vat, function($result, $error) {
+        if(!$error)
+        {
+          ju.send($req, $res, $error);
+        }
+        else
+        {
+          updateCustomer($_customer, $req, $res);
+        }
+      });
+    }
+    else
+    {
+      updateCustomer($_customer, $req, $res);
+    }
   }
 });
+
+function updateCustomer($_customer, $req, $res) {
+  $params = [$_customer.id, $voucher_id,
+              $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+              $_customer.street, $_customer.street_number, $_customer.street_pobox,
+              $_customer.zip, $_customer.city, $_customer.country,
+              $_customer.phone, $_customer.email,
+              $_customer.invoice_ref,
+              $token];
+
+  db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
+    if($result && 'id' in $result) {
+      ju.send($req, $res, $_customer);
+    } else {
+      ju.send($req, $res, $result);
+    }
+  });
+}
 
 router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) {
   $dossier_id       = ju.requiresInt('dossier', $req.params);
@@ -582,6 +627,7 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          //TODO: insert VAT check
           if($voucher.causer && $voucher.causer.id) {
             $_customer = $voucher.causer;
 
@@ -597,6 +643,7 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          //TODO: insert VAT check!
           if($voucher.customer && $voucher.customer.id) {
             $_customer = $voucher.customer;
 
