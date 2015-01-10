@@ -56,10 +56,12 @@ const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTI
 const SQL_REMOVE_TOWING_VOUCHER_ACTIVITY    = "CALL R_REMOVE_TOWING_VOUCHER_ACTIVITY(?,?,?);";
 const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?,?,?,?,?,?);";
 
-const SQL_ADD_COLLECTOR_SIGNATURE   = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_CAUSER_SIGNATURE      = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_POLICE_SIGNATURE      = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_INSURANCE_DOCUMENT    = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
+const SQL_ADD_COLLECTOR_SIGNATURE       = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_CAUSER_SIGNATURE          = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_POLICE_SIGNATURE          = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_INSURANCE_DOCUMENT        = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
+const SQL_ADD_ANY_DOCUMENT              = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
+const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
 
 const SQL_FETCH_ALL_INTERNAL_COMMUNICATION = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
 const SQL_FETCH_ALL_EMAIL_COMMUNICATION    = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS(?,?,?); ";
@@ -308,6 +310,10 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
       $sql = SQL_ADD_INSURANCE_DOCUMENT;
       $filename = ju.requires('file_name', $req.body);
       break;
+    case 'any':
+      $sql = SQL_ADD_ANY_DOCUMENT;
+      $filename = ju.requires('file_name', $req.body);
+      break;
     default:
       throw new common.InvalidRequest();
   }
@@ -319,13 +325,22 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
 
   $params = [$voucher_id, $content_type, $file_size, $content, $token];
 
-  if($file_name && $file_name != "" && $category == 'insurance_document') {
+  if($file_name && $file_name != "" && ($category == 'insurance_document' || $category == 'any')) {
     $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $token];
   }
 
   //insert object
   db.one($sql, $params, function($error, $result, $fields) {
       ju.send($req, $res, $result);
+  });
+});
+
+router.get('/voucher/attachment/:voucher_id/:token', function($req, $res) {
+  $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  $token      = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_VOUCHER_ATTACHMENTS, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
   });
 });
 

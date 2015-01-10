@@ -534,6 +534,7 @@ const SQL_FETCH_COMPANY         = "CALL R_FETCH_USER_COMPANY(?);";
 const SQL_FETCH_COMPANY_DEPOT   = "CALL R_FETCH_COMPANY_DEPOT(?);";
 const SQL_UPDATE_COMPANY        = "CALL R_UPDATE_USER_COMPANY(?,?,?,?,?,?,?,?,?,?,?,?,?);";
 const SQL_UPDATE_COMPANY_DEPOT  = "CALL R_UPDATE_COMPANY_DEPOT(?,?,?,?,?,?,?);";
+const SQL_UPDATE_COMPANY_TAB_ID = "CALL R_UPDATE_COMPANY_MOBILE_DEVICE(?,?);";
 
 router.get('/company/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
@@ -577,9 +578,20 @@ router.put('/company/:token', function($req, $res) {
       ju.send($req, $res, $error);
     }
   });
+});
 
+router.put('/company/mobile/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $regid = ju.requires('registration_id', $req.body);
 
+  var params = [
+    $regid,
+    $token
+  ];
 
+  db.one(SQL_UPDATE_COMPANY_TAB_ID, params, function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
 });
 
 router.get('/company/depot/:token', function($req, $res) {

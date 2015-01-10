@@ -37,7 +37,7 @@ var search    = require('./routes/search.js');
 var vocab     = require('./routes/vocab.js');
 var doc       = require('./routes/document.js');
 var profile   = require('./routes/profile.js');
-
+var util      = require('./routes/util.js');
 
 app.use('/',          index);
 app.use('/vocab',     vocab);
@@ -48,6 +48,7 @@ app.use('/report',    report);
 app.use('/search',    search);
 app.use('/document',  doc);
 app.use('/me',        profile);
+app.use('/util',      util);
 
 
 
