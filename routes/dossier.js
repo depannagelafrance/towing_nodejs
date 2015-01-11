@@ -308,11 +308,11 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
       $sql = SQL_ADD_CAUSER_SIGNATURE; break;
     case 'insurance_document':
       $sql = SQL_ADD_INSURANCE_DOCUMENT;
-      $filename = ju.requires('file_name', $req.body);
+      $file_name = ju.requires('file_name', $req.body);
       break;
     case 'any':
       $sql = SQL_ADD_ANY_DOCUMENT;
-      $filename = ju.requires('file_name', $req.body);
+      $file_name = ju.requires('file_name', $req.body);
       break;
     default:
       throw new common.InvalidRequest();
