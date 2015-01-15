@@ -34,12 +34,12 @@ var apns = {
     default_device: '<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>'
 }
 
-//
-// var smtpTransportSettings = {
-//   host: 'smtp.telenet.be',
-//   port: '587',
-//   debug: true
-// }
+
+/*var smtpTransportSettings = {
+  host: '10.3.66.133',
+  port: '25', //587
+  debug: true
+}*/
 
 
 var smtp = {

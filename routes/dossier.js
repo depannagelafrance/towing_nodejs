@@ -422,7 +422,7 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
 
     if($_customer.company_vat)
     {
-      vies.checkVat($vat, function($result, $error) {
+      vies.checkVat($_customer.company_vat, function($result, $error) {
         if(!$error)
         {
           ju.send($req, $res, $error);
@@ -481,7 +481,7 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
   if($_customer && $_customer.id) {
     if($_customer.company_vat)
     {
-      vies.checkVat($vat, function($result, $error) {
+      vies.checkVat($_customer.company_vat, function($result, $error) {
         if(!$error)
         {
           ju.send($req, $res, $error);
@@ -712,10 +712,10 @@ router.put('/:dossier/:token', function($req, $res) {
               LOG.d(TAG, " =============================================== ");
 
               db.one(SQL_FETCH_USER_BY_ID, [$signa_id, $token], function($error, $result, $fields) {
-                if($result)
+                if($result && $result.mobile_device_id && $result.mobile_device_id != '')
                 {
                   agent.createMessage()
-                        .device('<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>')
+                        .device($result.mobile_device_id)
                         .alert('Nieuwe takelbon beschikbaar!')
                         .set('ACTION', 'NEW_TOWING_VOUCHER_ASSIGNED')
                         .send();
