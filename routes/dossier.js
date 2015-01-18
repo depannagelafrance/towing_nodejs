@@ -423,7 +423,7 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
     if($_customer.company_vat)
     {
       vies.checkVat($_customer.company_vat, function($result, $error) {
-        if(!$error)
+        if($error)
         {
           ju.send($req, $res, $error);
         }
@@ -482,7 +482,7 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
     if($_customer.company_vat)
     {
       vies.checkVat($_customer.company_vat, function($result, $error) {
-        if(!$error)
+        if($error)
         {
           ju.send($req, $res, $error);
         }
@@ -838,14 +838,16 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
     case 'police': $message = 'Aanvraag voor handtekening politie'; break;
   }
 
-  agent.createMessage()
-        .device(settings.apns.default_device)
-        .alert($message)
-        .set('ACTION', 'COLLECTOR_SIGNATURE')
-        .set('voucher_id', $voucher_id)
-        .set('dossier_id', $dossier_id)
-        .set('type', $type)
-        .send();
+  company.findCurrentCompany($token, function($result) {
+    agent.createMessage()
+      .device($result.mobile_device_id)
+      .alert($message)
+      .set('ACTION', 'COLLECTOR_SIGNATURE')
+      .set('voucher_id', $voucher_id)
+      .set('dossier_id', $dossier_id)
+      .set('type', $type)
+      .send();    
+  });
 
   ju.send($req, $res, {'result': 'ok'});
 });

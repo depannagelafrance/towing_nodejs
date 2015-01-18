@@ -9,6 +9,7 @@ var common      = require('../util/common.js');
 var LOG         = require('../util/logger.js');
 var vies        = require('../util/vies.js');
 var vocab       = require('../model/vocab.js');
+var company     = require('../model/company.js');
 var settings    = require('../settings/settings.js');
 
 
@@ -530,7 +531,6 @@ router.put('/timeframe/activity/:timeframe/fees/:token', function($req, $res) {
 // -- -------------------------------------------------
 // -- COMPANY MANAGEMENT
 // -- -------------------------------------------------
-const SQL_FETCH_COMPANY         = "CALL R_FETCH_USER_COMPANY(?);";
 const SQL_FETCH_COMPANY_DEPOT   = "CALL R_FETCH_COMPANY_DEPOT(?);";
 const SQL_UPDATE_COMPANY        = "CALL R_UPDATE_USER_COMPANY(?,?,?,?,?,?,?,?,?,?,?,?,?);";
 const SQL_UPDATE_COMPANY_DEPOT  = "CALL R_UPDATE_COMPANY_DEPOT(?,?,?,?,?,?,?);";
@@ -539,7 +539,7 @@ const SQL_UPDATE_COMPANY_TAB_ID = "CALL R_UPDATE_COMPANY_MOBILE_DEVICE(?,?);";
 router.get('/company/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
 
-  db.one(SQL_FETCH_COMPANY, [$token], function($error, $result, $fields) {
+  company.findCurrentCompany($token, function($result) {
     ju.send($req, $res, $result);
   });
 });
