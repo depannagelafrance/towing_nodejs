@@ -4,14 +4,19 @@ require('../util/common.js');
 var _         = require('underscore');
 var express   = require('express');
 var util      = require('util');
+
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
 var LOG       = require('../util/logger.js');
 var agent     = require('../util/push.js');
+var vies      = require('../util/vies.js');
+
 var dossier   = require('../model/dossier.js');
 var vocab     = require('../model/vocab.js');
+var company   = require('../model/company.js');
+
 var settings  = require('../settings/settings.js');
-var vies      = require('../util/vies.js');
+
 
 var TAG = 'dossier.js';
 
@@ -846,7 +851,7 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
       .set('voucher_id', $voucher_id)
       .set('dossier_id', $dossier_id)
       .set('type', $type)
-      .send();    
+      .send();
   });
 
   ju.send($req, $res, {'result': 'ok'});
