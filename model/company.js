@@ -11,3 +11,5 @@ var findCurrentCompany = function($token, cb) {
     cb($result);
   });
 }
+
+exports.findCurrentCompany = findCurrentCompany;
