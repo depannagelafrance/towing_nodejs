@@ -33,6 +33,11 @@ agent
   .set('passphrase', 'T0w1nG')
   .enable('sandbox');
 
+agent
+  .set('expires', '1d')
+  .set('reconnect delay', '1s')
+  .set('cache ttl', '30m');
+
 /*!
  * Error Mitigation
  */
