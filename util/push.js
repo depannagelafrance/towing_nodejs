@@ -31,6 +31,8 @@ var apnagent = require('apnagent')
 agent
   .set('pfx file', pfx)
   .set('passphrase', 'T0w1nG')
+  .set('cert file', join(__dirname, '../_certs/towingtool-dev.p12'))
+  .set('key file', join(__dirname, '../_certs/towingtool-dev.pem'))  
   .enable('sandbox');
 
 console.log('Reading Push certificate from ' + pfx);
