@@ -33,6 +33,8 @@ agent
   .set('passphrase', 'T0w1nG')
   .enable('sandbox');
 
+
+console.log('Reading Push certificate from ' + pfx);
 /*!
  * Error Mitigation
  */
