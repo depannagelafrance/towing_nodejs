@@ -848,7 +848,7 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
     LOG.d(TAG, "Sending to: " + $result.mobile_device_id);
 
     agent.createMessage()
-      .device($result.mobile_device_id)
+      .device('<a20674d2 a0823347 a3fab1b0 c0537511 98a66816 a62a53aa aec11889 f0fda6de>')
       .alert($message)
       .set('ACTION', 'COLLECTOR_SIGNATURE')
       .set('voucher_id', $voucher_id)

@@ -69,7 +69,6 @@ agent.on('message:error', function (err, msg) {
 
     // unlikely, but could occur if trying to send over a dead socket
     default:
-      agent.close();
       console.log('[message:error] other error: %s', err.message);
       break;
   }
