@@ -844,6 +844,8 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
   }
 
   company.findCurrentCompany($token, function($result) {
+    LOG.d(TAG, "Sending signature request <" + $type + "> to <" + JSON.stringify($result) + ">");
+
     agent.createMessage()
       .device($result.mobile_device_id)
       .alert($message)
