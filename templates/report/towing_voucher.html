@@ -309,6 +309,12 @@ var $_depot_days = "";
 var $_depot_fee = "";
 var $_depot_total_fee = "";
 
+var $vat_tag = 'incl.';
+
+if(company_vat_foreign_country == 1) {
+	$vat_tag = 'excl.';
+}
+
 for(var $i in timeframes) {
 %>
 <div class="style4" style="font-size: 0.8em; width: 189px;">
@@ -317,8 +323,8 @@ for(var $i in timeframes) {
 			<tr><th colspan="3"><%=timeframes[$i].name%></th></tr>
 			<tr>
 				<th class="small">Aantal</th>
-				<th class="small">Prijs (incl. BTW)</th>
-				<th class="small">Tot. (incl. BTW)</th>
+				<th class="small">Prijs (<%=$vat_tag%> BTW)</th>
+				<th class="small">Tot. (<%=$vat_tag%> BTW)</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -349,9 +355,10 @@ for(var $i in timeframes) {
 									{
 										if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
 										{
-											$_amount = towing_activities[$y].amount;
-											$_cal_fee = towing_activities[$y].cal_fee_incl_vat;
-											$_total = towing_activities[$y].total_bill_incl_vat;
+											$_amount  = towing_activities[$y].amount;
+											$_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
+											$_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
+
 											$_voucher_total = $_total;
 
 											$found=true;
@@ -372,7 +379,7 @@ for(var $i in timeframes) {
 									<%
 								}
 								%>
-								<td><%= timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+								<td><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
 								<td><%= $_cal_fee %></td>
 								<%					}
 							}
@@ -402,8 +409,8 @@ for(var $i in timeframes) {
 									if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
 									{
 										$_depot_days = towing_activities[$y].amount;
-										$_depot_fee  = timeframe_activity_fees[$x][$k].fee_incl_vat;
-										$_depot_total_fee = towing_activities[$y].cal_fee_incl_vat;
+										$_depot_fee  			= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+										$_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
 
 										$found=true;
 									} //end if (!$found)
@@ -438,8 +445,8 @@ for(var $i in timeframes) {
 						<thead>
 							<tr>
 								<th class="small">Aantal</th>
-								<th class="small">Prijs (incl. BTW)</th>
-								<th class="small">Tot. (incl. BTW)</th>
+								<th class="small">Prijs (<%=$vat_tag%> BTW)</th>
+								<th class="small">Tot. (<%=$vat_tag%> BTW)</th>
 						</thead>
 						<tbody>
 								<tr>
@@ -462,7 +469,7 @@ for(var $i in timeframes) {
 		<div class="clear">
 			<div class="style1" style="border: 0px; background-color: #e0e0e0;font-size: 1.0em; width:325px">
 				<table style="border-collapse: collapse;border: 1px solid #000;width: 100%;">
-						<tr><td style="border: 1px solid #000;">Algemeen totaal incl. BTW</td><td style="border:2px solid #000; text-align: right"> &euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td></tr>
+						<tr><td style="border: 1px solid #000;">Algemeen totaal <%=$vat_tag%> BTW</td><td style="border:2px solid #000; text-align: right"> &euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td></tr>
 						<tr><td style="border: 1px solid #000;">Garantie Assistance </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td></tr>
 						<tr><td style="border: 1px solid #000;">Ten laste van klant </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td></tr>
 						<tr><td colspan="2" style="font-weight: bold; font-size: 0.8em; text-align: center; border-top: 1px solid #000; border-bottom: 1px solid #000;">Betalingswijze</td></tr>

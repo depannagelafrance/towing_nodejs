@@ -26,7 +26,7 @@ var checkVat = function($vat, cb)
       LOG.d(TAG, "VIEW service online");
       $countryCode = $vat.substring(0,2);
       $vatNumber = $vat.substring(2);
-      $vatNumber = $vatNumber.replace(/[^0-9]+/g, '');
+      $vatNumber = $vatNumber.replace(/[^0-9A-Z]+/g, '');
 
       LOG.d(TAG, "--> Country: " + $countryCode);
       LOG.d(TAG, "--> vatNumber: " + $vatNumber);
