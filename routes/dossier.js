@@ -698,6 +698,8 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          $cic = $cic == '' ? null : $cic;
+
           $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
                      $warranty_holder, $collector_id, $vehicule_type,
                      $vehicule_licence_plate, $vehicule_country,
