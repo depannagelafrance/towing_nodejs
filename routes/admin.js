@@ -20,8 +20,8 @@ var router = express.Router();
 
 
 //-- DEFINE CONSTANTS
-const SQL_CREATE_USER         = "CALL R_CREATE_USER(?, ?, ?, ?, ?, ?, ?);";
-const SQL_UPDATE_USER         = "CALL R_UPDATE_USER(?, ?, ?, ?, ?, ?, ?);";
+const SQL_CREATE_USER         = "CALL R_CREATE_USER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
+const SQL_UPDATE_USER         = "CALL R_UPDATE_USER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
 const SQL_USER_BY_ID          = "CALL R_FETCH_USER_BY_ID(?,?);";
 const SQL_ALL_USERS           = "CALL R_FETCH_ALL_USERS(?);";
 const SQL_UNLOCK_USER         = "CALL R_UNLOCK_USER(?, ?);";
@@ -80,13 +80,16 @@ router.get('/users/:user_id/:token', function($req, $res) {
 router.post('/users/:token', function($req, $res) {
   var $token = $req.params.token;
 
-  var $login      = ju.requires('login', $req.body);
-  var $firstname  = ju.requires('firstname', $req.body);
-  var $lastname   = ju.requires('lastname', $req.body);
-  var $email      = ju.requires('email', $req.body);
-  var $roles      = ju.requires('user_roles', $req.body);
-  var $is_signa   = ju.intValueOf('is_signa', $req.body) == 1;
-  var $is_towing  = ju.intValueOf('is_towing', $req.body) == 1;
+  var $login          = ju.requires('login', $req.body);
+  var $firstname      = ju.requires('firstname', $req.body);
+  var $lastname       = ju.requires('lastname', $req.body);
+  var $email          = ju.requires('email', $req.body);
+  var $roles          = ju.requires('user_roles', $req.body);
+  var $is_signa       = ju.intValueOf('is_signa', $req.body) == 1;
+  var $is_towing      = ju.intValueOf('is_towing', $req.body) == 1;
+  var $vehicule       = ju.valueOf('vehicule', $req.body);
+  var $licence_plate  = ju.valueOf('licence_plate', $req.body);
+
 
   if(_.isArray($roles)) {
     if(!$roles || $roles.length <= 0) {
@@ -94,7 +97,7 @@ router.post('/users/:token', function($req, $res) {
     }
 
 
-    db.one(SQL_CREATE_USER, [$login, $firstname, $lastname, $email, $is_signa, $is_towing, $token], function($error, $result, $fields) {
+    db.one(SQL_CREATE_USER, [$login, $firstname, $lastname, $email, $is_signa, $is_towing, $vehicule, $licence_plate, $token], function($error, $result, $fields) {
       if('error' in $result) {
         ju.send($req, $res, $result);
       } else {
@@ -154,14 +157,16 @@ router.post('/users/:token', function($req, $res) {
 router.put('/users/:user_id/:token', function($req, $res) {
   var $token = $req.params.token;
 
-  var $user_id    = ju.requires('user_id', $req.params)
-  var $login      = ju.requires('login', $req.body);
-  var $firstname  = ju.requires('firstname', $req.body);
-  var $lastname   = ju.requires('lastname', $req.body);
-  var $email      = ju.requires('email', $req.body);
-  var $roles      = ju.requires('user_roles', $req.body);
-  var $is_towing  = (ju.intValueOf('is_towing', $req.body) == 1);
-  var $is_signa   = (ju.intValueOf('is_signa', $req.body) == 1);
+  var $user_id        = ju.requires('user_id', $req.params)
+  var $login          = ju.requires('login', $req.body);
+  var $firstname      = ju.requires('firstname', $req.body);
+  var $lastname       = ju.requires('lastname', $req.body);
+  var $email          = ju.requires('email', $req.body);
+  var $roles          = ju.requires('user_roles', $req.body);
+  var $is_towing      = (ju.intValueOf('is_towing', $req.body) == 1);
+  var $is_signa       = (ju.intValueOf('is_signa', $req.body) == 1);
+  var $vehicule       = ju.valueOf('vehicule', $req.body);
+  var $licence_plate  = ju.valueOf('licence_plate', $req.body);
 
   if(_.isArray($roles)) {
     if(!$roles || $roles.length <= 0) {
@@ -169,7 +174,7 @@ router.put('/users/:user_id/:token', function($req, $res) {
     }
 
 
-    db.one(SQL_UPDATE_USER, [$user_id, $firstname, $lastname, $email, $is_signa, $is_towing, $token], function($error, $result, $fields) {
+    db.one(SQL_UPDATE_USER, [$user_id, $firstname, $lastname, $email, $is_signa, $is_towing, $vehicule, $licence_plate, $token], function($error, $result, $fields) {
       if(!$result || 'error' in $result) {
         ju.send($req, $res, $result);
       } else {
