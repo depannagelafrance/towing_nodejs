@@ -23,6 +23,8 @@ const SQL_FETCH_TRAFFIC_POST_SIGNATURE      = "CALL R_FETCH_TRAFFIC_POST_SIGNATU
 
 const SQL_FETCH_COMM_AND_ATT_SUMMARY        = "CALL R_FETCH_COMM_AND_ATT_SUMMARY(?,?,?);";
 
+const SQL_FETCH_ALLOTMENT_AGENCY            = "CALL R_FETCH_ALLOTMENT_AGENCY_BY_ALLOTMENT(?,?); ";
+
 var findById = function($dossier_id, $token, cb) {
   var $dossier = {};
 
@@ -33,6 +35,10 @@ var findById = function($dossier_id, $token, cb) {
     if(!$dossier) {
       throw new common.InvalidRequest();
     }
+
+    db.one(SQL_FETCH_ALLOTMENT_AGENCY, [$dossier.allotment_id, $token], function($error, $a_result, $fields) {
+      $dossier.allotment_agency = $a_result;
+    });
 
     //set the selected towing company
     db.one(SQL_FETCH_TOWING_COMPANY, [$dossier_id, $token], function($error, $t_result, $fields){
