@@ -1,9 +1,10 @@
 // -- IMPORT LIBRARIES
 require('../util/common.js');
 
-var _         = require('underscore');
-var express   = require('express');
-var util      = require('util');
+var _           = require('underscore');
+var express     = require('express');
+var util        = require('util');
+var nodemailer  = require('nodemailer');
 
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
@@ -49,7 +50,7 @@ const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT            = "CALL R_FETCH_ALL_COMPAN
 const SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES             = "CALL R_FETCH_ALL_DOSSIER_TRAFFIC_LANES(?,?);";
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
-const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?); ";
+const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?,?); ";
 
 const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
 const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -81,6 +82,7 @@ const STATUS_IN_PROGRESS        = "IN PROGRESS";
 const STATUS_COMPLETED          = "COMPLETED";
 const STATUS_TO_CHECK           = "TO CHECK";
 const STATUS_READY_FOR_INVOICE  = "READY FOR INVOICE";
+const STATUS_NOT_COLLECTED      = "NOT COLLECTED";
 
 
 var listDossiers = function($req, $res, $status) {
@@ -121,6 +123,10 @@ router.get('/list/invoice/:token', function($req, $res) {
 
 router.get('/list/done/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_COMPLETED);
+});
+
+router.get('/list/not_collected/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_NOT_COLLECTED);
 });
 
 router.get('/list/vouchers/new/:token', function($req, $res) {
@@ -392,7 +398,7 @@ router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
     $_depot = $depot;
 
     $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
-               $_depot.street_pobox, $_depot.zip, $_depot.city, $token];
+               $_depot.street_pobox, $_depot.zip, $_depot.city, $_depot.default_depot, $token];
 
     db.one(SQL_UPDATE_TOWING_DEPOT, $params, function($error, $result, $fields){
       if($result && 'id' in $result) {
@@ -640,7 +646,7 @@ router.put('/:dossier/:token', function($req, $res) {
             $_depot = $voucher.depot;
 
             $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
-                       $_depot.street_pobox, $_depot.zip, $_depot.city, $token];
+                       $_depot.street_pobox, $_depot.zip, $_depot.city, $_depot.default_depot, $token];
 
             db.one(SQL_UPDATE_TOWING_DEPOT, $params, function($error, $result, $fields){
               //fire and forget!
@@ -813,6 +819,27 @@ router.post('/communication/:type/:token', function($req, $res) {
                 });
               });
           }
+
+          // create reusable transporter object using SMTP transport
+          var transporter = nodemailer.createTransport(settings.smtp.transport);
+
+          // setup e-mail data with unicode symbols
+          var mailOptions = {
+            from: settings.smtp.from, // sender address
+            to: $recipients, // list of receivers
+            subject: 'Towing.be - ' + $subject, // Subject line
+            html: _.escape($message)
+          };
+
+          // send mail with defined transport object
+          transporter.sendMail(mailOptions, function(error, info){
+            if(error){
+              LOG.e(TAG, error);
+            }else{
+              LOG.d(TAG, "E-mail verzonden naar: " + JSON.stringify($recipients));
+            }
+          });
+
 
           ju.send($req, $res, $result);
       });
