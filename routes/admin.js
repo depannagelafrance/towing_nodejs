@@ -631,4 +631,74 @@ router.put('/company/depot/:token', function($req, $res) {
   });
 });
 
+
+
+
+
+
+
+// -- -------------------------------------------------
+// -- VEHICLE MANAGEMENT
+// -- -------------------------------------------------
+
+const SQL_ALL_VEHICLES    = "CALL R_FETCH_ALL_VEHICLES(?);";
+const SQL_VEHICLE_BY_ID   = "CALL R_FETCH_VEHICLE_BY_ID(?,?);";
+const SQL_CREATE_VEHICLE  = "CALL R_CREATE_VEHICLE(?,?,?,?);";
+const SQL_UPDATE_VEHICLE  = "CALL R_UPDATE_VEHICLE(?,?,?,?,?);";
+const SQL_DELETE_VEHICLE  = "CALL R_DELETE_VEHICLE(?,?);";
+
+router.get('/vehicle/:token', function($req, $res) {
+  var $token = $req.params.token;
+
+  db.many(SQL_ALL_VEHICLES, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/vehicle/:id/:token', function($req, $res) {
+  var $id = $req.params.id;
+  var $token = $req.params.token;
+
+  db.one(SQL_VEHICLE_BY_ID, [$id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.post('/vehicle/:token', function($req, $res) {
+  var $token = $req.params.token;
+
+  var $name           = ju.requires('name', $req.body);
+  var $licence_plate  = ju.requires('licence_plate', $req.body);
+  var $type           = ju.requires('type', $req.body);
+
+  db.one(SQL_CREATE_VEHICLE, [$name, $licence_plate, $type, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.put('/vehicle/:id/:token', function($req, $res) {
+  var $id             = ju.requiresInt('id', $req.params);
+  var $token          = ju.requires('token', $req.params);
+
+  var $name           = ju.requires('name', $req.body);
+  var $licence_plate  = ju.requires('licence_plate', $req.body);
+  var $type           = ju.requires('type', $req.body);
+
+
+  db.one(SQL_UPDATE_VEHICLE, [$id, $name, $licence_plate, $type, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+  });
+});
+
+router.delete('/vehicle/:id/:token', function($req, $res) {
+  var $id    = ju.requiresInt('id', $req.params);
+  var $token = $req.params.token;
+
+  db.one(SQL_DELETE_VEHICLE, [$id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+
+
 module.exports = router;
