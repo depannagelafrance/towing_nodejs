@@ -331,7 +331,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "towing_service_email": $dossier.towing_company.email,
       "towing_service_site" : $dossier.towing_company.website,
       "location"            : "",
-      "nr_of_blocked_lanes" : "",
+      "nr_of_blocked_lanes" : $dossier.nr_of_block_lanes,
       "direction"           : $dossier.direction_name,
       "indicator"           : $dossier.indicator_name,
       "lane_indicator"      : $dossier.traffic_lane_name,
