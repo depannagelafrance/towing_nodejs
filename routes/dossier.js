@@ -30,7 +30,7 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
-const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
+const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
 
 const SQL_PURGE_DOSSIER_TRAFFIC_LANES       = "CALL R_PURGE_DOSSIER_TRAFFIC_LANES(?,?);";
 const SQL_CREATE_DOSSIER_TRAFFIC_LANES      = "CALL R_CREATE_DOSSIER_TRAFFIC_LANES(?,?,?);";
@@ -628,6 +628,7 @@ router.put('/:dossier/:token', function($req, $res) {
           $vehicule_keys_present    = $voucher.vehicule_keys_present;
           $vehicule_country         = $voucher.vehicule_country;
           $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
+          $vehicule_impact_remarks  = $voucher.vehicule_impact_remarks;
           $towing_id                = $voucher.towing_id ? $voucher.towing_id : null;
           $towed_by                 = $voucher.towed_by;
           $towed_by_vehicule        = $voucher.towed_by_vehicle;
@@ -712,6 +713,7 @@ router.put('/:dossier/:token', function($req, $res) {
           $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
                      $warranty_holder, $collector_id,
                      $vehicule, $vehicule_type, $vehicule_color, $vehicule_keys_present, $vehicule_licence_plate, $vehicule_country,
+                     $vehicule_impact_remarks,
                      $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
                      $towing_id, $towed_by, $towed_by_vehicule,
                      $towing_called, $towing_arrival, $towing_start,
