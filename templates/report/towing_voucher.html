@@ -1,633 +1,584 @@
 <!doctype html>
 <html lang=en-us>
 <head>
-	<meta charset=utf-8>
+    <meta charset=utf-8>
 
-	<style type="text/css">
-    * {
-      font-family: 'arial narrow'
-    }
-    div.container {
-      clear: both;
-      position: relative;
-      width: 720px;
-			padding-top: 25px;
-    }
-    div.voucher_title {
-      clear: both;
-      float: left;
-      font-size: 1.5em;
-      text-transform: uppercase;
-    }
-    div.voucher_allotment {
-      float: right;
-      font-size: 1.5em;
-    }
-    div.style1 {
-      float: left;
-      text-transform: uppercase;
-      border: 1px solid #000;
-      padding-left: 1px;
-      padding-top: 1px;
-      padding-right: 1px;
-      padding-bottom: 1px;
-      width: 351px;
-      margin-top: 3px;
-      font-size: 0.8em
-    }
-		div.style1 table {
-			border-collapse: collapse;
-		}
-    div.style1_right {
-      float: left;
-      margin-left: 5px;
-    }
-    div.style2 {
-      clear: both;
-      border: 1px solid #000;
+    <style type="text/css">
 
-      padding-left: 3px;
-      padding-top: 3px;
-      padding-right: 3px;
-      padding-bottom: 3px;
-      margin-top: 3px;
-      font-size: 0.8em
-    }
-    div.style3 {
-      float: left;
-      border: 1px solid #000;
-      width: 168px;
-			height: 80px;
-      padding-left: 3px;
-      padding-top: 3px;
-      padding-right: 3px;
-      padding-bottom: 3px;
-      margin-top: 5px;
-      font-size: 0.8em
-    }
-    div.clear {
-      clear: both;
-      padding: 2px 2px 2px 2px;
-    }
-		div.style4 {
-			float: left;
-			margin-right: 4px;
-		}
-		div.style4 table {
-				border-collapse: collapse;
-				border: 1px solid #000;
-		}
+        html {
+            box-sizing: border-box;
+        }
 
-		div.style4 table th {
-			text-transform: uppercase;
-			text-align: center;
-			border: 1px solid #000;
-		}
-		div.style4 table th.small {
-				font-size: 0.6em;
-				font-weight: normal;
-		}
-		div.style4 table td {
-				font-size: 0.8em;
-				text-align: center;
-				border: 1px solid #000;
-		}
-		div.style4 table td.disabled {
-			background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAX/GZH4/4FsRpgAmAOSBBFwDkgAAIKuBATRTAAZAAAAAElFTkSuQmCC) repeat;
-		}
-		div.style4 ul {
-			margin-top: 0px;
-			padding-top: 0px;
-			padding-bottom: 0px;
-			margin-bottom: 0px;
-		}
-		div.style4 li {
-			font-size: 0.6em;
-		}
-		table.signature {
-			width: 100%;
-			border: 1px solid #000;
-			border-collapse: collapse;
-		}
-		table.signature th {
-				text-transform: uppercase;
-				font-size: 0.8em;
-				border: 1px solid #000;
-		}
-		table.signature td {
-			font-size: 0.8em;
-		}
-		div.financial_footer {
-				clear: both;
-				font-size: 0.6em;
-				padding-top: 15px;
-				text-align: center;
-		}
-		div.footer {
-				float: right;
-				font-size: 0.8em;
-				font-style: italic;
-				width: 200px;
-				text-align: right;
-		}
-		div.page-break {
-		  display: block;
-		  page-break-before: always; /* force a page break */
-		}
-		.label {
-			font-weight: bold;
-		}
-		img.signature {
-    	width: 150px;
-    	height: auto;
-		}
-		img.signature_collector {
-			width: 100px;
-			height: auto;
-		}
-  </style>
+        *, *:before, *:after {
+            box-sizing: inherit;
+            font-family: 'arial narrow';
+        }
 
-	<body>
-    <div class="container">
-      <div class="voucher_title">
-        Takelbon F.A.S.T. < 3,5 Ton
-      </div>
-      <div class="voucher_allotment">
-          <%= allotment_name %>
-      </div>
+        .cf:before,
+        .cf:after {
+            content: " "; /* 1 */
+            display: table; /* 2 */
+        }
 
-	    <div class="clear">
-	      <div class="style1" style="clear: both;">
-	          <strong>Takelbon nr.:</strong> <%= voucher_number %>
-	      </div>
-	      <div class="style1 style1_right">
-	          <strong>Oproep nr.:</strong> <%= call_number %>
-	      </div>
-	    </div>
+        .cf:after {
+            clear: both;
+        }
 
-    <div class="clear">
-      <div class="style1" style="clear: both; height: 100px; border: 0px; padding: 0 0 0 0; width: 355px;">
-					<table border=0 width="100%" class="signature" style="height: 100px">
-						<thead>
-								<tr><th colspan="2">Dienstverlener</th></tr>
-						</thead>
-            <tr>
-              <td colspan="2"><strong><%= towing_service_name %></strong></td>
-            </tr>
-            <tr>
-              <td colspan="2"><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td>
-            </tr>
-            <tr>
-              <td><strong>Tel.:</strong> <%= towing_service_phone %></td>
-              <td><strong>BTW Nr.:</strong> <%= towing_service_vat %></td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                  <%= towing_service_email %> <br />
-                  <%= towing_service_site %>
-              </td>
-            </tr>
-          </table>
-      </div>
+        .one_col > *{
+            width: 100%;
+            float: left;
+            border: 2px solid red;
+        }
 
-      <div class="style1 style1_right" style="height: 100px; border: 0px; padding: 0 0 0 0; width: 355px;">
-						<table border=0 width="100%" class="signature" style="height: 100px">
-							<thead>
-									<tr><th colspan="2">Hinderverwekker</th></tr>
-							</thead>
-<% if(is_covered_by_insurance) { %>
-	<tr><td colspan="2"><%=insurance_name%></td></tr>
-	<tr><td colspan="2"><%=insurance.display_address%></td></tr>
-	<tr>
-		<td>
-			<span class="label">BTW Nr.:</label> <%=insurance.vat%>
-		</td>
-		<td>
-			<span class="label">Dossiernr:</span> <%=insurance_dossier%>
-		</td>
-	</tr>
-<% } else { %>
-	<tr><td colspan="2"><%=customer_name%></td></tr>
-	<tr><td colspan="2"><%=customer_address%></td></tr>
-	<tr><td><strong>Tel.:</strong><%=customer_phone%></td>
-			<td><strong>BTW Nr.:</strong> <%=customer_vat%></td>
-	</tr>
-<% } %>
-              <tr><td><strong>NR.PL.:</strong> <%=vehicule_licence_plate%></td>
-									<td><strong>MERK/TYPE:</strong><%=vehicule_type%></td></tr>
-          </table>
-      </div>
+        .two_col > *{
+            width: 50%;
+            float: left;
+            border: 2px solid red;
+        }
+
+        .tree_col > *{
+            width: 33.33%;
+            float: left;
+            border: 2px solid red;
+        }
+
+        .four_col > *{
+            width: 25%;
+            float: left;
+            border: 2px solid red;
+        }
+
+        div.container {
+            clear: both;
+            position: relative;
+            width: 720px;
+            padding-top: 25px;
+        }
+
+        div.voucher_title {
+            clear: both;
+            float: left;
+            font-size: 1.5em;
+            text-transform: uppercase;
+        }
+        div.voucher_allotment {
+            float: right;
+            font-size: 1.5em;
+        }
+
+    </style>
+
+<body>
+<div class="container">
+    <!-- 2 Cols -->
+    <div class="cf two_col">
+        <div class="voucher_title">
+            Takelbon F.A.S.T. < 3,5 Ton
+        </div>
+        <div class="voucher_allotment">
+            <%= allotment_name %>
+        </div>
+    </div>
+
+    <!-- 2 Cols -->
+    <div class="cf two_col">
+        <div>
+            <strong>Takelbon nr.:</strong> <%= voucher_number %>
+        </div>
+        <div>
+            <strong>Oproep nr.:</strong> <%= call_number %>
+        </div>
+    </div>
+
+    <!-- 2 Cols -->
+    <div class="cf two_col">
+        <div>
+            <table border=0 width="100%" class="signature">
+                <thead>
+                <tr><th colspan="2">Dienstverlener</th></tr>
+                </thead>
+                <tr>
+                    <td colspan="2"><strong><%= towing_service_name %></strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td>
+                </tr>
+                <tr>
+                    <td><strong>Tel.:</strong> <%= towing_service_phone %></td>
+                    <td><strong>BTW Nr.:</strong> <%= towing_service_vat %></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <%= towing_service_email %> <br />
+                        <%= towing_service_site %>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table>
+                <thead>
+                <tr><th colspan="2">Hinderverwekker</th></tr>
+                </thead>
+                <% if(is_covered_by_insurance) { %>
+                <tr><td colspan="2"><%=insurance_name%></td></tr>
+                <tr><td colspan="2"><%=insurance.display_address%></td></tr>
+                <tr>
+                    <td>
+			            <label>BTW Nr.:</label> <%=insurance.vat%>
+                    </td>
+                    <td>
+                        <label>Dossiernr:</label> <%=insurance_dossier%>
+                    </td>
+                </tr>
+                <% } else { %>
+                <tr><td colspan="2"><%=customer_name%></td></tr>
+                <tr><td colspan="2"><%=customer_address%></td></tr>
+                <tr><td><strong>Tel.:</strong><%=customer_phone%></td>
+                    <td><strong>BTW Nr.:</strong> <%=customer_vat%></td>
+                </tr>
+                <% } %>
+                <tr><td><strong>NR.PL.:</strong> <%=vehicule_licence_plate%></td>
+                    <td><strong>MERK/TYPE:</strong><%=vehicule_type%></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 1 Col -->
+    <div class="cf one_col">
+        <div>
+            <table>
+                <tr>
+                    <td><strong>Gemeente:</strong> <%= location %></td>
+                    <td><%= direction %> thv <%= indicator %></td>
+                </tr>
+                <tr>
+                    <td><strong>Aantal versperde rijstroken:</strong> <%= nr_of_blocked_lanes %></td>
+                    <td><strong>Aanduiding rijstrook:</strong> <%= lane_indicator %></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- 4 Cols -->
+    <div class="cf four_col">
+        <div>
+            <table>
+                <tr><td class="label">Datum:</td><td><%= call_date %></td></tr>
+                <tr><td class="label">Uur:</td><td><%= call_hour %></td></tr>
+                <tr><td colspan="2"><%=cb_is_holiday%> Feestdag</td></tr>
+            </table>
+        </div>
+        <div>
+            <table>
+                <tr><td class="label">Aankomst Signal:</td><td><%= signa_arrival %></td></tr>
+                <tr><td class="label">Aankomst takel:</td><td><%= towing_arrival %></td></tr>
+                <tr><td class="label">Start takel:</td><td><%= towing_start %></td></tr>
+                <tr><td class="label">Stop takel:</td><td><%= towing_end %></td></tr>
+            </table>
+        </div>
+        <div>
+            <table>
+                <tr><td class="label">Signal.:</td><td><%=signa_licence_plate%></td></tr>
+                <tr><td class="label">Takel:</td><td><%=towing_licence_plate%></td></tr>
+                <tr><td class="label">Aant. Takelbons:</td><td><%= nr_of_vouchers %></td></tr>
+            </table>
+        </div>
+        <div>
+            <table>
+                <tr><td><%=cb_incident_type_panne%> PANNE</td>
+                    <td><%=cb_incident_type_ongeval%> ONGEVAL</td></tr>
+                <tr><td colspan="2"><%=cb_incident_type_achtergelaten_voertuig%> ACHTERGEL.VTG</td></tr>
+                <tr><td colspan="2"><%=cb_incident_type_verloren_voorwerp%> LADING VERLIES</td>
+            </table>
+        </div>
+    </div>
+
+    <!-- 1 Cols -->
+    <div class="cf one_col">
+        <div>
+            <strong>Locatie/Depot afvoer:</strong> <%= towing_location_depot %>
+        </div>
+    </div>
+
+    <!-- 2Cols -->
+    <div class="cf two_col">
+        <!-- 2Cols -->
+        <div class="cf two_col">
+            <div>
+                Col Z
+            </div>
+            <div>
+                Col 3
+            </div>
+        </div>
+        <!-- 2Cols -->
+        <div class="cf two_col">
+            <div>
+                Col Z
+            </div>
+            <div>
+                Col 3
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <table>
+                <thead>
+                <tr><th>Type Takeling</th></tr>
+                <tr><th class="small">&nbsp;</th></tr>
+                </thead>
+                <tbody>
+                <% 	for(var $j in timeframe_activities)
+                {
+                if(timeframe_activities[$j].code != 'STALLING')
+                {
+                %>
+                <tr>
+                    <td><%=timeframe_activities[$j].name%></td>
+                </tr>
+                <%
+                }
+                }
+                %>
+                <tr>
+                    <td>Totaal per tarief</td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+
+        <%
+        var $_voucher_total = "";
+        var $_depot_days = "";
+        var $_depot_fee = "";
+        var $_depot_total_fee = "";
+
+        var $vat_tag = 'incl.';
+
+        if(company_vat_foreign_country == 1) {
+        $vat_tag = 'excl.';
+        }
+
+        for(var $i in timeframes) {
+        %>
+        <div>
+            <table>
+                <thead>
+                <tr><th colspan="3"><%=timeframes[$i].name%></th></tr>
+                <tr>
+                    <th class="small">Aantal</th>
+                    <th class="small">Prijs (<%=$vat_tag%> BTW)</th>
+                    <th class="small">Tot. (<%=$vat_tag%> BTW)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                $_total = "";
+
+                for(var $j in timeframe_activities)
+                {
+                if(timeframe_activities[$j].code != 'STALLING')
+                {
+                %>
+                <tr>
+                    <% 				for(var $x in timeframe_activity_fees)
+                    {
+                    for(var $k in timeframe_activity_fees[$x])
+                    {
+                    if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
+                    && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+                    {
+                    var $_amount = "";
+                    var $_cal_fee = "";
+
+                    if(timeframe_id == timeframes[$i].id)
+                    {
+                    $found = false;
+
+                    for(var $y in towing_activities)
+                    {
+                    if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+                    {
+                    $_amount  = towing_activities[$y].amount;
+                    $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
+                    $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
+
+                    $_voucher_total = $_total;
+
+                    $found=true;
+                    }
+                    }
+                    }
+
+                    if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
+                    {
+                    %>
+                    <td class="disabled">&nbsp;</td>
+                    <%
+                    }
+                    else
+                    {
+                    %>
+                    <td><%= $_amount %></td>
+                    <%
+                    }
+                    %>
+                    <td><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                    <td><%= $_cal_fee %></td>
+                    <%					}
+                    }
+                    } // end for var $x in timeframe_activity_fees
+                    %>
+                </tr>
+                <%
+                }
+                else
+                {
+                for(var $x in timeframe_activity_fees)
+                {
+                for(var $k in timeframe_activity_fees[$x])
+                {
+                if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
+                && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+                {
+                var $_amount = "";
+                var $_cal_fee = "";
+
+                if(timeframe_id == timeframes[$i].id)
+                {
+                $found = false;
+
+                for(var $y in towing_activities)
+                {
+                if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+                {
+                $_depot_days = towing_activities[$y].amount;
+                $_depot_fee  			= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
+
+                $found=true;
+                } //end if (!$found)
+                } // end for(var $y ...)
+                } //end if (timeframe_id = ...)
+                } //end if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id ...
+                } //end for(var $k in timeframe_activity_fees[$x]) ...
+                } // end for var $x in timeframe_activity_fees
+                } // end if(timeframe_activities[$j].code != 'STALLING')
+                } // end for(var $j in timeframe_activities)
+                %>
+                <tr>
+                    <td class="disabled">&nbsp;</td>
+                    <td class="disabled">&nbsp;</td>
+                    <td><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+    </div>
+
+
+
+    <div>
+        <div>
+            Stallingskosten <br />
+            vanaf 4e kalenderdag
+        </div>
+        <div>
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th class="small">Aantal</th>
+                    <th class="small">Prijs (<%=$vat_tag%> BTW)</th>
+                    <th class="small">Tot. (<%=$vat_tag%> BTW)</th>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
+                    <td><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
+                    <td><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <ul>
+                <li>Basistarief: werkdagen 08:00 - 17:00u</li>
+                <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
+                <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
+            </ul>
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <table>
+                <tr><td>Algemeen totaal <%=$vat_tag%> BTW</td><td> &euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td></tr>
+                <tr><td>Garantie Assistance </td><td> &euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td></tr>
+                <tr><td>Ten laste van klant </td><td> &euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td></tr>
+                <tr><td>Betalingswijze</td></tr>
+                <tr>
+                    <td>
+                        <% if(towing_payments.paid_in_cash) { %>&#9746; Contant <% } %>
+                        <% if(towing_payments.paid_by_bank_deposit) { %>&#9746; Overschrijving <% } %>
+                        <% if(towing_payments.paid_by_debit_card) { %>&#9746; Bancontact <% } %>
+                        <% if(towing_payments.paid_by_credit_card) { %>&#9746; Kredietkaart <% } %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <% if(is_covered_by_insurance) { %>
+                        <span class="label">Klant:</span> <%=customer_name%> <br />
+                        <span class="label">Adres:</span> <%=customer_address%> <br />
+                        <span class="label">Telnr.:</span> <%=customer_phone%> <br />
+                        <span class="label">BTW Nr.:</span> <%=customer_vat%>
+                        <% } else { %>
+                        &nbsp;
+                        <% } %>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
+            waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
+            en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
+        </div>
+        <div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Opgehaald door</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <table border="0">
+                            <tr>
+                                <td>
+                                    <span class="label">Naam/Firma:</span> <%=collected_by%> <br />
+                                    <span class="label">Datum:</span> <%=collection_date%><br />
+                                </td>
+                                <td>
+                                    <% if(collected_by_signature) { %>
+                                    <img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
+                                    <% } else { %>
+                                    Geen handtekening
+                                    <% } %>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="clear">
-      <div class="style2">
-          <table border="0">
-              <tr>
-                  <td><strong>Gemeente:</strong> <%= location %></td>
-                  <td><%= direction %> thv <%= indicator %></td>
-              </tr>
-              <tr>
-                  <td><strong>Aantal versperde rijstroken:</strong> <%= nr_of_blocked_lanes %></td>
-                  <td><strong>Aanduiding rijstrook:</strong> <%= lane_indicator %></td>
-              </tr>
-          </table>
-      </div>
+        <table class="signature">
+            <thead>
+            <tr>
+                <th>Voor akkoord (Dienstverlener)</th>
+                <th>Voor bevestiging (Politie)</th>
+                <th>Voor kennisname (Hinderverwekker)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    (Gegevens uitvoerder/onderaannemer)
 
+                    <table>
+                        <tr><td class="label">Naam:</td><td><%=towing_service_name%></td></tr>
+                        <tr><td class="label" valign="top">Adres:</td><td><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td></tr>
+                        <tr><td class="label">Tel.:</td><td><%=towing_service_phone%></td></tr>
+                    </table>
+
+                    <br />
+                    Handtekening
+                    <% if(signature_signa) { %>
+                    <img src="data:image/png;base64,<%=signature_signa %>" class="signature" />
+                    <% } else { %>
+                    Geen handtekening
+                    <% } %>
+                </td>
+                <td>
+                    (Gegevens Politiepost)
+
+                    <table>
+                        <tr><td class="label">Verkeerspost:</td><td><%=traffic_post%></td></tr>
+                        <tr><td class="label">Tel.:</td><td><%=traffic_post_phone%> (tijdens kantoor uren)</td></tr>
+                        <tr><td class="label">Tijdstip bevestiging:</td><td><%=traffic_post_confirmation%></td></tr>
+                    </table>
+
+                    <br />
+                    Handtekening
+                    <% if(signature_police) { %>
+                    <img src="data:image/png;base64,<%=signature_police %>" class="signature" />
+                    <% } else { %>
+                    Geen handtekening
+                    <% } %>
+
+                </td>
+                <td valign="top">
+                    (Gegevens Hinderverwekker)
+
+                    <table>
+                        <tr><td class="label">Naam:</td><td><%=causer_name%></td></tr>
+                        <tr><td class="label" valign="top">Adres:</td><td><%=causer_address%></td></tr>
+                        <tr><td class="label">Tel.:</td><td><%=causer_phone%></td></tr>
+                    </table>
+
+                    <br />
+                    Handtekening
+                    <% if(signature_causer) { %>
+                    <img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+                    <% } else { %>
+                    Geen handtekening
+                    <% } %>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-
-    <div class="clear">
-      <div class="style3" style="margin-right: 3px">
-          <table border="0">
-              <tr><td class="label">Datum:</td><td><%= call_date %></td></tr>
-              <tr><td class="label">Uur:</td><td><%= call_hour %></td></tr>
-              <tr><td colspan="2"><%=cb_is_holiday%> Feestdag</td></tr>
-          </table>
-      </div>
-      <div class="style3" style="margin-right: 3px;">
-          <table border="0">
-              <tr><td class="label">Aankomst Signal:</td><td><%= signa_arrival %></td></tr>
-							<tr><td class="label">Aankomst takel:</td><td><%= towing_arrival %></td></tr>
-              <tr><td class="label">Start takel:</td><td><%= towing_start %></td></tr>
-              <tr><td class="label">Stop takel:</td><td><%= towing_end %></td></tr>
-          </table>
-      </div>
-      <div class="style3" style="margin-right: 5px;">
-          <table border="0">
-							<tr><td class="label">Signal.:</td><td><%=signa_licence_plate%></td></tr>
-							<tr><td class="label">Takel:</td><td><%=towing_licence_plate%></td></tr>
-              <tr><td class="label">Aant. Takelbons:</td><td><%= nr_of_vouchers %></td></tr>
-          </table>
-      </div>
-      <div class="style3">
-          <table border="0">
-              <tr><td><%=cb_incident_type_panne%> PANNE</td>
-									<td><%=cb_incident_type_ongeval%> ONGEVAL</td></tr>
-              <tr><td colspan="2"><%=cb_incident_type_achtergelaten_voertuig%> ACHTERGEL.VTG</td></tr>
-              <tr><td colspan="2"><%=cb_incident_type_verloren_voorwerp%> LADING VERLIES</td>
-          </table>
-      </div>
+    <div>
+        <div>
+            <strong>Eventuele opmerkingen:</strong> <br />
+            <%=extra_info%>
+        </div>
     </div>
-
-    <div class="clear">
-      <div class="style2">
-          <strong>Locatie/Depot afvoer:</strong> <%= towing_location_depot %>
-      </div>
+    <div>
+        <div>
+            <%=copy_for%>
+        </div>
+        <div>
+            <%=towing_service_name%> - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
+        </div>
     </div>
-
-<div class="clear">
-	<div class="style4" style="width: 133px; font-size: 0.8em;">
-		<table width="100%">
-			<thead>
-				<tr><th>Type Takeling</th></tr>
-				<tr><th class="small">&nbsp;</th></tr>
-			</thead>
-<tbody>
-<% 	for(var $j in timeframe_activities)
-		{
-			if(timeframe_activities[$j].code != 'STALLING')
-			{
-				%>
-				<tr>
-					<td><%=timeframe_activities[$j].name%></td>
-				</tr>
-				<%
-			}
-		}
-%>
-	<tr>
-			<td>Totaal per tarief</td>
-	</tr>
-</tbody>
-
-				</table>
-			</div>
-
-
-<%
-var $_voucher_total = "";
-var $_depot_days = "";
-var $_depot_fee = "";
-var $_depot_total_fee = "";
-
-var $vat_tag = 'incl.';
-
-if(company_vat_foreign_country == 1) {
-	$vat_tag = 'excl.';
-}
-
-for(var $i in timeframes) {
-%>
-<div class="style4" style="font-size: 0.8em; width: 189px;">
-	<table width="100%">
-		<thead>
-			<tr><th colspan="3"><%=timeframes[$i].name%></th></tr>
-			<tr>
-				<th class="small">Aantal</th>
-				<th class="small">Prijs (<%=$vat_tag%> BTW)</th>
-				<th class="small">Tot. (<%=$vat_tag%> BTW)</th>
-			</tr>
-		</thead>
-		<tbody>
-<%
-		$_total = "";
-
-		for(var $j in timeframe_activities)
-		{
-			if(timeframe_activities[$j].code != 'STALLING')
-			{
-				%>
-				<tr>
-<% 				for(var $x in timeframe_activity_fees)
-					{
-						for(var $k in timeframe_activity_fees[$x])
-						{
-							if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
-							&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
-							{
-								var $_amount = "";
-								var $_cal_fee = "";
-
-								if(timeframe_id == timeframes[$i].id)
-								{
-									$found = false;
-
-									for(var $y in towing_activities)
-									{
-										if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
-										{
-											$_amount  = towing_activities[$y].amount;
-											$_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
-											$_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
-
-											$_voucher_total = $_total;
-
-											$found=true;
-										}
-									}
-								}
-
-								if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
-								{
-									%>
-									<td class="disabled">&nbsp;</td>
-									<%
-								}
-								else
-								{
-									%>
-									<td><%= $_amount %></td>
-									<%
-								}
-								%>
-								<td><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-								<td><%= $_cal_fee %></td>
-								<%					}
-							}
-						} // end for var $x in timeframe_activity_fees
-						%>
-			</tr>
-<%
-			}
-			else
-			{
-				for(var $x in timeframe_activity_fees)
-				{
-					for(var $k in timeframe_activity_fees[$x])
-					{
-						if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
-						&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
-						{
-							var $_amount = "";
-							var $_cal_fee = "";
-
-							if(timeframe_id == timeframes[$i].id)
-							{
-								$found = false;
-
-								for(var $y in towing_activities)
-								{
-									if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
-									{
-										$_depot_days = towing_activities[$y].amount;
-										$_depot_fee  			= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
-										$_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
-
-										$found=true;
-									} //end if (!$found)
-								} // end for(var $y ...)
-							} //end if (timeframe_id = ...)
-						} //end if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id ...
-					} //end for(var $k in timeframe_activity_fees[$x]) ...
-				} // end for var $x in timeframe_activity_fees
-			} // end if(timeframe_activities[$j].code != 'STALLING')
-		} // end for(var $j in timeframe_activities)
-%>
-			<tr>
-				<td class="disabled">&nbsp;</td>
-				<td class="disabled">&nbsp;</td>
-				<td><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
-			</tr>
-		</tbody>
-	</table>
+    <div>
+        <p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
+        <p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
+        <p>Indien de wegpolitie in de onmogelijkheid verkeert om deze takelbon ter plaatse af te tekenen vindt u op de voorzijde het oproepnummer dat CICANT en de Wegpolitie aan deze oproep hebben gegeven.</p>
+        <p>Verkeersposten:<br />
+            A = Verkeerspost Antwerpen, d'Herbouvillekaai 9, 2020 Antwerpen<br />
+            B = Verkeerspost Brecht, Bethovenstraat 65, 2960 Brecht <br />
+            G = Verkeerspost Grobbendonk, Herentalsesteenweg 42, 2280 Grobbendonk <br />
+            T = Verkeerspost Turnhout, Steenweg op Gierle 336, 2300 Turnhout <br />
+        </p>
+        <p>Agentschap Wegen en Verkeer:<br/>
+            Wegen en Verkeer Antwerpen district 121, d'Herbouvillekaai 11, 2020 Antwerpen<br />
+            tel. +32 (0)3 241 51 11
+        </p>
+    </div>
 </div>
-<% } %>
-</div>
-
-
-
-		<div class="clear">
-			<div style="width: 131px; float: left; border: 1px solid #000; margin-right: 4px; font-size: 0.8em;">
-					Stallingskosten <br />
-					vanaf 4e kalenderdag
-			</div>
-			<div class="style4" style="width: 190px;">
-				<table width="100%">
-						<thead>
-							<tr>
-								<th class="small">Aantal</th>
-								<th class="small">Prijs (<%=$vat_tag%> BTW)</th>
-								<th class="small">Tot. (<%=$vat_tag%> BTW)</th>
-						</thead>
-						<tbody>
-								<tr>
-									<td><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
-									<td><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
-									<td><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
-							</tr>
-						</tbody>
-					</table>
-			</div>
-			<div class="style4" style="border: 1px solid #000;width: 382px; margin-right: 0px;">
-				<ul>
-						<li>Basistarief: werkdagen 08:00 - 17:00u</li>
-						<li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
-						<li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
-				</ul>
-			</div>
-		</div>
-
-		<div class="clear">
-			<div class="style1" style="border: 0px; background-color: #e0e0e0;font-size: 1.0em; width:325px">
-				<table style="border-collapse: collapse;border: 1px solid #000;width: 100%;">
-						<tr><td style="border: 1px solid #000;">Algemeen totaal <%=$vat_tag%> BTW</td><td style="border:2px solid #000; text-align: right"> &euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td></tr>
-						<tr><td style="border: 1px solid #000;">Garantie Assistance </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td></tr>
-						<tr><td style="border: 1px solid #000;">Ten laste van klant </td><td style="border:2px solid #000; text-align: right"> &euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td></tr>
-						<tr><td colspan="2" style="font-weight: bold; font-size: 0.8em; text-align: center; border-top: 1px solid #000; border-bottom: 1px solid #000;">Betalingswijze</td></tr>
-						<tr>
-								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: center;">
-									<% if(towing_payments.paid_in_cash) { %>&#9746; Contant <% } %>
-									<% if(towing_payments.paid_by_bank_deposit) { %>&#9746; Overschrijving <% } %>
-									<% if(towing_payments.paid_by_debit_card) { %>&#9746; Bancontact <% } %>
-									<% if(towing_payments.paid_by_credit_card) { %>&#9746; Kredietkaart <% } %>
-								</td>
-						</tr>
-						<tr>
-								<td colspan="2" style="font-size: 0.8em; border-bottom: 1px solid #000; text-align: right;">
-									<% if(is_covered_by_insurance) { %>
-												<span class="label">Klant:</span> <%=customer_name%> <br />
-												<span class="label">Adres:</span> <%=customer_address%> <br />
-												<span class="label">Telnr.:</span> <%=customer_phone%> <br />
-												<span class="label">BTW Nr.:</span> <%=customer_vat%>
-									<% } else { %>
-											&nbsp;
-									<% } %>
-								</td>
-						</tr>
-				</table>
-			</div>
-			<div class="style1 style1_right" style="text-transform: none; font-size: 0.6em; width: 379px; ">
-				De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
-				waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
-				en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
-			</div>
-			<div class="style1 style1_right" style="text-transform: none; font-size:1em; width: 383px; border: 0px; padding: 0 0 0 0;">
-				<table class="signature">
-					<thead>
-						<tr>
-							<th>Opgehaald door</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-								<td>
-										<table border="0">
-											<tr>
-												<td>
-														<span class="label">Naam/Firma:</span> <%=collected_by%> <br />
-														<span class="label">Datum:</span> <%=collection_date%><br />
-												</td>
-												<td>
-													<% if(collected_by_signature) { %>
-														<img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
-													<% } else { %>
-														Geen handtekening
-													<% } %>
-												</td>
-											</tr>
-										</table>
-								</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-		<div class="clear">
-			<table class="signature">
-				<thead>
-					<tr>
-						<th>Voor akkoord (Dienstverlener)</th>
-						<th>Voor bevestiging (Politie)</th>
-						<th>Voor kennisname (Hinderverwekker)</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-							<td valign="top" style="border: 1px solid #000; width: 33%">
-									(Gegevens uitvoerder/onderaannemer)
-
-									<table>
-											<tr><td class="label">Naam:</td><td><%=towing_service_name%></td></tr>
-											<tr><td class="label" valign="top">Adres:</td><td><%= towing_service_street %> <%= towing_service_nr %> <br /> <%= towing_service_zip %> <%= towing_service_city %></td></tr>
-											<tr><td class="label">Tel.:</td><td><%=towing_service_phone%></td></tr>
-									</table>
-
-									<br />
-								Handtekening
-								<% if(signature_signa) { %>
-									<img src="data:image/png;base64,<%=signature_signa %>" class="signature" />
-								<% } else { %>
-									Geen handtekening
-								<% } %>
-							</td>
-							<td valign="top" style="border: 1px solid #000; width: 33%">
-									(Gegevens Politiepost)
-
-									<table>
-											<tr><td class="label">Verkeerspost:</td><td><%=traffic_post%></td></tr>
-											<tr><td class="label">Tel.:</td><td><%=traffic_post_phone%> (tijdens kantoor uren)</td></tr>
-											<tr><td class="label">Tijdstip bevestiging:</td><td><%=traffic_post_confirmation%></td></tr>
-									</table>
-
-									<br />
-									Handtekening
-									<% if(signature_police) { %>
-										<img src="data:image/png;base64,<%=signature_police %>" class="signature" />
-									<% } else { %>
-										Geen handtekening
-									<% } %>
-
-							</td>
-							<td valign="top">
-									(Gegevens Hinderverwekker)
-
-									<table>
-											<tr><td class="label">Naam:</td><td><%=causer_name%></td></tr>
-											<tr><td class="label" valign="top">Adres:</td><td><%=causer_address%></td></tr>
-											<tr><td class="label">Tel.:</td><td><%=causer_phone%></td></tr>
-									</table>
-
-									<br />
-									Handtekening
-									<% if(signature_causer) { %>
-										<img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
-									<% } else { %>
-										Geen handtekening
-									<% } %>
-							</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-		<div class="clear">
-			<div class="style2">
-					<strong>Eventuele opmerkingen:</strong> <br />
-					<%=extra_info%>
-			</div>
-		</div>
-		<div class="clear">
-			<div class="footer">
-				<%=copy_for%>
-			</div>
-			<div class="financial_footer">
-					<%=towing_service_name%> - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
-			</div>
-		</div>
-		<div class="page-break clear">
-				<p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
-				<p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
-				<p>Indien de wegpolitie in de onmogelijkheid verkeert om deze takelbon ter plaatse af te tekenen vindt u op de voorzijde het oproepnummer dat CICANT en de Wegpolitie aan deze oproep hebben gegeven.</p>
-				<p>Verkeersposten:<br />
-						A = Verkeerspost Antwerpen, d'Herbouvillekaai 9, 2020 Antwerpen<br />
-						B = Verkeerspost Brecht, Bethovenstraat 65, 2960 Brecht <br />
-						G = Verkeerspost Grobbendonk, Herentalsesteenweg 42, 2280 Grobbendonk <br />
-						T = Verkeerspost Turnhout, Steenweg op Gierle 336, 2300 Turnhout <br />
-				</p>
-				<p>Agentschap Wegen en Verkeer:<br/>
-					Wegen en Verkeer Antwerpen district 121, d'Herbouvillekaai 11, 2020 Antwerpen<br />
-					tel. +32 (0)3 241 51 11
-				</p>
-		</div>
-	</div>
-	</body>
+</body>
 </html>

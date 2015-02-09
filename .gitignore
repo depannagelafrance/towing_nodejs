@@ -31,3 +31,5 @@ node_modules
 templates/.DS_Store
 
 settings/settings.js
+
+.idea
