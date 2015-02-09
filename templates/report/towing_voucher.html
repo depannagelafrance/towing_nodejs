@@ -30,6 +30,18 @@
             border: 2px solid red;
         }
 
+        .one_x_col .small{
+            width: 25%;
+            float: left;
+            border: 2px solid green;
+        }
+
+        .one_x_col .big{
+            width: 75%;
+            float: left;
+            border: 2px solid green;
+        }
+
         .two_col > *{
             width: 50%;
             float: left;
@@ -40,6 +52,14 @@
             width: 33.33%;
             float: left;
             border: 2px solid red;
+        }
+        .tree_x_col .small{
+            width: 25%;
+            float: left;
+        }
+        .tree_x_col .big{
+            width: 50%;
+            float:left;
         }
 
         .four_col > *{
@@ -204,91 +224,121 @@
     </div>
 
     <!-- 2Cols -->
-    <div class="cf two_col">
+    <div class="cf one_x_col">
         <!-- 2Cols -->
-        <div class="cf two_col">
-            <div>
-                Col Z
-            </div>
-            <div>
-                Col 3
-            </div>
+        <div class="cf small">
+                <!-- INNER COL1 -->
+                <table>
+                    <thead><tr><th>Type Takeling</th></tr><tr><th class="small">&nbsp;</th></tr></thead>
+                    <tbody>
+                    <% 	for(var $j in timeframe_activities) {
+                    if(timeframe_activities[$j].code != 'STALLING'){
+                    %>
+                    <tr>
+                        <td><%=timeframe_activities[$j].name%></td>
+                    </tr>
+                    <%
+                    }
+                    }
+                    %>
+                    <tr>
+                        <td>Totaal per tarief</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+                <!-- END INNER COL1 -->
         </div>
-        <!-- 2Cols -->
-        <div class="cf two_col">
+        <div class="cf big">
+            <!-- INNER COL2 -->
+            <%
+            var $_voucher_total = "";
+            var $_depot_days = "";
+            var $_depot_fee = "";
+            var $_depot_total_fee = "";
+
+            var $vat_tag = 'incl.';
+
+            if(company_vat_foreign_country == 1) {
+            $vat_tag = 'excl.';
+            }
+
+            for(var $i in timeframes) {
+            %>
             <div>
-                Col Z
-            </div>
-            <div>
-                Col 3
-            </div>
-        </div>
-    </div>
+                <table>
+                    <thead>
+                    <tr><th colspan="3"><%=timeframes[$i].name%></th></tr>
+                    <tr>
+                        <th class="small">Aantal</th>
+                        <th class="small">Prijs (<%=$vat_tag%> BTW)</th>
+                        <th class="small">Tot. (<%=$vat_tag%> BTW)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                    $_total = "";
 
-    <div>
-        <div>
-            <table>
-                <thead>
-                <tr><th>Type Takeling</th></tr>
-                <tr><th class="small">&nbsp;</th></tr>
-                </thead>
-                <tbody>
-                <% 	for(var $j in timeframe_activities)
-                {
-                if(timeframe_activities[$j].code != 'STALLING')
-                {
-                %>
-                <tr>
-                    <td><%=timeframe_activities[$j].name%></td>
-                </tr>
-                <%
-                }
-                }
-                %>
-                <tr>
-                    <td>Totaal per tarief</td>
-                </tr>
-                </tbody>
+                    for(var $j in timeframe_activities)
+                    {
+                    if(timeframe_activities[$j].code != 'STALLING')
+                    {
+                    %>
+                    <tr>
+                        <% 				for(var $x in timeframe_activity_fees)
+                        {
+                        for(var $k in timeframe_activity_fees[$x])
+                        {
+                        if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
+                        && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+                        {
+                        var $_amount = "";
+                        var $_cal_fee = "";
 
-            </table>
-        </div>
+                        if(timeframe_id == timeframes[$i].id)
+                        {
+                        $found = false;
 
+                        for(var $y in towing_activities)
+                        {
+                        if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+                        {
+                        $_amount  = towing_activities[$y].amount;
+                        $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
+                        $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
 
-        <%
-        var $_voucher_total = "";
-        var $_depot_days = "";
-        var $_depot_fee = "";
-        var $_depot_total_fee = "";
+                        $_voucher_total = $_total;
 
-        var $vat_tag = 'incl.';
+                        $found=true;
+                        }
+                        }
+                        }
 
-        if(company_vat_foreign_country == 1) {
-        $vat_tag = 'excl.';
-        }
-
-        for(var $i in timeframes) {
-        %>
-        <div>
-            <table>
-                <thead>
-                <tr><th colspan="3"><%=timeframes[$i].name%></th></tr>
-                <tr>
-                    <th class="small">Aantal</th>
-                    <th class="small">Prijs (<%=$vat_tag%> BTW)</th>
-                    <th class="small">Tot. (<%=$vat_tag%> BTW)</th>
-                </tr>
-                </thead>
-                <tbody>
-                <%
-                $_total = "";
-
-                for(var $j in timeframe_activities)
-                {
-                if(timeframe_activities[$j].code != 'STALLING')
-                {
-                %>
-                <tr>
-                    <% 				for(var $x in timeframe_activity_fees)
+                        if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
+                        {
+                        %>
+                        <td class="disabled">&nbsp;</td>
+                        <%
+                        }
+                        else
+                        {
+                        %>
+                        <td><%= $_amount %></td>
+                        <%
+                        }
+                        %>
+                        <td><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                        <td><%= $_cal_fee %></td>
+                        <%					}
+                        }
+                        } // end for var $x in timeframe_activity_fees
+                        %>
+                    </tr>
+                    <%
+                    }
+                    else
+                    {
+                    for(var $x in timeframe_activity_fees)
                     {
                     for(var $k in timeframe_activity_fees[$x])
                     {
@@ -306,92 +356,41 @@
                     {
                     if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
                     {
-                    $_amount  = towing_activities[$y].amount;
-                    $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
-                    $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
-
-                    $_voucher_total = $_total;
+                    $_depot_days = towing_activities[$y].amount;
+                    $_depot_fee  			= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                    $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
 
                     $found=true;
-                    }
-                    }
-                    }
-
-                    if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
-                    {
-                    %>
-                    <td class="disabled">&nbsp;</td>
-                    <%
-                    }
-                    else
-                    {
-                    %>
-                    <td><%= $_amount %></td>
-                    <%
-                    }
-                    %>
-                    <td><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-                    <td><%= $_cal_fee %></td>
-                    <%					}
-                    }
+                    } //end if (!$found)
+                    } // end for(var $y ...)
+                    } //end if (timeframe_id = ...)
+                    } //end if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id ...
+                    } //end for(var $k in timeframe_activity_fees[$x]) ...
                     } // end for var $x in timeframe_activity_fees
+                    } // end if(timeframe_activities[$j].code != 'STALLING')
+                    } // end for(var $j in timeframe_activities)
                     %>
-                </tr>
-                <%
-                }
-                else
-                {
-                for(var $x in timeframe_activity_fees)
-                {
-                for(var $k in timeframe_activity_fees[$x])
-                {
-                if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
-                && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
-                {
-                var $_amount = "";
-                var $_cal_fee = "";
-
-                if(timeframe_id == timeframes[$i].id)
-                {
-                $found = false;
-
-                for(var $y in towing_activities)
-                {
-                if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
-                {
-                $_depot_days = towing_activities[$y].amount;
-                $_depot_fee  			= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
-                $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
-
-                $found=true;
-                } //end if (!$found)
-                } // end for(var $y ...)
-                } //end if (timeframe_id = ...)
-                } //end if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id ...
-                } //end for(var $k in timeframe_activity_fees[$x]) ...
-                } // end for var $x in timeframe_activity_fees
-                } // end if(timeframe_activities[$j].code != 'STALLING')
-                } // end for(var $j in timeframe_activities)
-                %>
-                <tr>
-                    <td class="disabled">&nbsp;</td>
-                    <td class="disabled">&nbsp;</td>
-                    <td><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
-                </tr>
-                </tbody>
-            </table>
+                    <tr>
+                        <td class="disabled">&nbsp;</td>
+                        <td class="disabled">&nbsp;</td>
+                        <td><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <% } %>
         </div>
-        <% } %>
     </div>
 
 
-
-    <div>
-        <div>
-            Stallingskosten <br />
-            vanaf 4e kalenderdag
+    <div class="tree_x_col cf">
+        <div class="small">
+            <div>
+                Stallingskosten <br />
+                vanaf 4e kalenderdag
+            </div>
         </div>
-        <div>
+        <div class="small">
             <table width="100%">
                 <thead>
                 <tr>
@@ -408,7 +407,7 @@
                 </tbody>
             </table>
         </div>
-        <div>
+        <div class="big">
             <ul>
                 <li>Basistarief: werkdagen 08:00 - 17:00u</li>
                 <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
@@ -417,7 +416,8 @@
         </div>
     </div>
 
-    <div>
+
+    <div class="two_col cf">
         <div>
             <table>
                 <tr><td>Algemeen totaal <%=$vat_tag%> BTW</td><td> &euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td></tr>
@@ -447,11 +447,11 @@
             </table>
         </div>
         <div>
-            De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
-            waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
-            en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
-        </div>
-        <div>
+            <div>
+                De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
+                waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
+                en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
+            </div>
             <table>
                 <thead>
                 <tr>
@@ -550,12 +550,14 @@
             </tbody>
         </table>
     </div>
-    <div>
+
+    <div class="one_col cf">
         <div>
             <strong>Eventuele opmerkingen:</strong> <br />
             <%=extra_info%>
         </div>
     </div>
+    
     <div>
         <div>
             <%=copy_for%>
@@ -564,6 +566,7 @@
             <%=towing_service_name%> - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
         </div>
     </div>
+
     <div>
         <p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
         <p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
