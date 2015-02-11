@@ -119,4 +119,16 @@ router.get('/drivers/:type/:token', function($req, $res) {
   });
 });
 
+// -- -------------------------------------------------
+// -- VEHICLES
+// -- -------------------------------------------------
+router.get('/vehicles/:type/:token', function($req, $res) {
+  var $token  = ju.requires('token', $req.params);
+  var $type   = ju.requiresEnum('type', $req.params, ['signa', 'towing']);
+
+  vocab.findAllVehiclesByType($type, $token, function($result) {
+    ju.send($req, $res, $result);
+  });
+});
+
 module.exports = router;

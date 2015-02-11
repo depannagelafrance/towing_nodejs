@@ -30,7 +30,40 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
-const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,from_unixtime(?),?,?,?,from_unixtime(?), from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?), from_unixtime(?), from_unixtime(?),from_unixtime(?),?,?);";
+
+const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
+                                                  + "?," //p_dossier_id
+                                                  + "?," //p_voucher_id
+                                                  + "?," //p_insurance_id
+                                                  + "?," //p_insurance_dossier_nr
+                                                  + "?," //p_warranty_holder
+                                                  + "?," //p_collector_id
+                                                  + "?," //p_vehicule
+                                                  + "?," //p_vehicule_type
+                                                  + "?," //p_vehicule_color
+                                                  + "?," //p_keys_present
+                                                  + "?," //p_vehicule_licence_plate
+                                                  + "?," //p_vehicule_country
+                                                  + "?," //p_vehicule_impact_remarks
+                                                  + "?," //p_signa_id
+                                                  + "?," //p_signa_by
+                                                  + "?," //p_signa_by_vehicule
+                                                  + "from_unixtime(?)," //p_signa_arrival
+                                                  + "?," //p_towing_id
+                                                  + "?," //p_towed_by
+                                                  + "?," //p_towing_vehicle_id
+                                                  + "?," //p_towed_by_vehicule
+                                                  + "from_unixtime(?)," //p_towing_called
+                                                  + "from_unixtime(?)," //p_towing_arrival
+                                                  + "from_unixtime(?)," //p_towing_start
+                                                  + "from_unixtime(?)," //p_towing_end
+                                                  + "from_unixtime(?)," //p_police_signature
+                                                  + "from_unixtime(?)," //p_recipient_signature
+                                                  + "from_unixtime(?)," //p_vehicule_collected
+                                                  + "from_unixtime(?)," //p_cic
+                                                  + "?," //p_additional_info
+                                                  + "?"  //p_token
+                                                  + ");";
 
 const SQL_PURGE_DOSSIER_TRAFFIC_LANES       = "CALL R_PURGE_DOSSIER_TRAFFIC_LANES(?,?);";
 const SQL_CREATE_DOSSIER_TRAFFIC_LANES      = "CALL R_CREATE_DOSSIER_TRAFFIC_LANES(?,?,?);";
@@ -631,6 +664,7 @@ router.put('/:dossier/:token', function($req, $res) {
           $vehicule_impact_remarks  = $voucher.vehicule_impact_remarks;
           $towing_id                = $voucher.towing_id ? $voucher.towing_id : null;
           $towed_by                 = $voucher.towed_by;
+          $towing_vehicle_id        = $voucher.towing_vehicle_id;
           $towed_by_vehicule        = $voucher.towed_by_vehicle;
           $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
           $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
@@ -715,7 +749,7 @@ router.put('/:dossier/:token', function($req, $res) {
                      $vehicule, $vehicule_type, $vehicule_color, $vehicule_keys_present, $vehicule_licence_plate, $vehicule_country,
                      $vehicule_impact_remarks,
                      $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
-                     $towing_id, $towed_by, $towed_by_vehicule,
+                     $towing_id, $towed_by, $towing_vehicle_id, $towed_by_vehicule,
                      $towing_called, $towing_arrival, $towing_start,
                      $towing_completed, $police_signature_date, $recipient_signature_date,
                      $vehicule_collected, $cic, $additional_info, $token];
