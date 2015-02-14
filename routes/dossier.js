@@ -86,7 +86,7 @@ const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); 
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?,?); ";
 
 const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
-const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
 const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?); ";
 const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -110,12 +110,14 @@ const SQL_ADD_DOSSIER_COMM_RECIPIENT       = "CALL R_CREATE_DOSSIER_COMM_RECIPIE
 
 const SQL_FETCH_USER_BY_ID                 = "CALL R_FETCH_USER_BY_ID(?,?);";
 
+const STATUS_ALL                = "ALL";
 const STATUS_NEW                = "NEW";
 const STATUS_IN_PROGRESS        = "IN PROGRESS";
 const STATUS_COMPLETED          = "COMPLETED";
 const STATUS_TO_CHECK           = "TO CHECK";
 const STATUS_READY_FOR_INVOICE  = "READY FOR INVOICE";
 const STATUS_NOT_COLLECTED      = "NOT COLLECTED";
+const STATUS_AGENCY             = "AGENCY";
 
 
 var listDossiers = function($req, $res, $status) {
@@ -129,7 +131,7 @@ var listDossiers = function($req, $res, $status) {
 
 //-- FETCH THE DOSSIERS
 router.get('/:token', function($req, $res) {
-  listDossiers($req, $res, STATUS_NEW);
+  listDossiers($req, $res, STATUS_ALL);
 });
 
 router.get('/list/new/:token', function($req, $res) {
@@ -160,6 +162,10 @@ router.get('/list/done/:token', function($req, $res) {
 
 router.get('/list/not_collected/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_NOT_COLLECTED);
+});
+
+router.get('/list/agency/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_AGENCY);
 });
 
 router.get('/list/vouchers/new/:token', function($req, $res) {
@@ -545,6 +551,7 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
 
 function updateCustomer($_customer, $req, $res) {
   $params = [$_customer.id, $voucher_id,
+              $_customer.type,
               $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
               $_customer.street, $_customer.street_number, $_customer.street_pobox,
               $_customer.zip, $_customer.city, $_customer.country,
@@ -712,6 +719,7 @@ router.put('/:dossier/:token', function($req, $res) {
             $_customer = $voucher.customer;
 
             $params = [$_customer.id, $voucher_id,
+                       $_customer.type,
                        $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
                        $_customer.street, $_customer.street_number, $_customer.street_pobox,
                        $_customer.zip, $_customer.city, $_customer.country,
