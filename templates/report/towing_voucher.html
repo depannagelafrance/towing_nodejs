@@ -24,40 +24,61 @@
             clear: both;
         }
 
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table th {
+            border-collapse: collapse;
+            text-transform: uppercase;
+            text-align: center;
+            border: 1px solid #000;
+        }
+
+        table td {
+            font-size: 0.8em;
+            text-align: center;
+            border: 1px solid #000;
+        }
+
+        table td.disabled {
+            background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAX/GZH4/4FsRpgAmAOSBBFwDkgAAIKuBATRTAAZAAAAAElFTkSuQmCC) repeat;
+        }
+
         .one_col > *{
             width: 100%;
             float: left;
-            border: 2px solid red;
         }
 
         .one_x_col .small{
             width: 25%;
             float: left;
-            border: 2px solid green;
         }
 
         .one_x_col .big{
             width: 75%;
             float: left;
-            border: 2px solid green;
         }
 
         .two_col > *{
             width: 50%;
             float: left;
-            border: 2px solid red;
         }
 
         .tree_col > *{
             width: 33.33%;
             float: left;
-            border: 2px solid red;
         }
         .tree_x_col .small{
             width: 25%;
             float: left;
         }
         .tree_x_col .big{
+            width: 75%;
+            float: left;
+        }
+        .tree_x_col .big *{
             width: 50%;
             float:left;
         }
@@ -65,7 +86,6 @@
         .four_col > *{
             width: 25%;
             float: left;
-            border: 2px solid red;
         }
 
         div.container {
@@ -84,6 +104,13 @@
         div.voucher_allotment {
             float: right;
             font-size: 1.5em;
+        }
+
+        .signature {
+            width: 100%;
+        }
+        .signature_row {
+            width: 33.33%;
         }
 
     </style>
@@ -229,7 +256,14 @@
         <div class="cf small">
                 <!-- INNER COL1 -->
                 <table>
-                    <thead><tr><th>Type Takeling</th></tr><tr><th class="small">&nbsp;</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Type Takeling</th>
+                        </tr>
+                        <tr>
+                            <th class="small">&nbsp;</th>
+                        </tr>
+                    </thead>
                     <tbody>
                     <% 	for(var $j in timeframe_activities) {
                     if(timeframe_activities[$j].code != 'STALLING'){
@@ -390,29 +424,31 @@
                 vanaf 4e kalenderdag
             </div>
         </div>
-        <div class="small">
-            <table width="100%">
-                <thead>
-                <tr>
-                    <th class="small">Aantal</th>
-                    <th class="small">Prijs (<%=$vat_tag%> BTW)</th>
-                    <th class="small">Tot. (<%=$vat_tag%> BTW)</th>
-                </thead>
-                <tbody>
-                <tr>
-                    <td><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
-                    <td><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
-                    <td><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
         <div class="big">
-            <ul>
-                <li>Basistarief: werkdagen 08:00 - 17:00u</li>
-                <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
-                <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
-            </ul>
+            <div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="small">Aantal</th>
+                        <th class="small">Prijs (<%=$vat_tag%> BTW)</th>
+                        <th class="small">Tot. (<%=$vat_tag%> BTW)</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
+                        <td><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
+                        <td><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="big">
+                <ul>
+                    <li>Basistarief: werkdagen 08:00 - 17:00u</li>
+                    <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
+                    <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -482,9 +518,8 @@
             </table>
         </div>
     </div>
-
-    <div class="clear">
-        <table class="signature">
+    <div class="signature">
+        <table>
             <thead>
             <tr>
                 <th>Voor akkoord (Dienstverlener)</th>
@@ -493,7 +528,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
+            <tr class="signature_row">
                 <td>
                     (Gegevens uitvoerder/onderaannemer)
 
