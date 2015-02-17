@@ -655,10 +655,10 @@ router.put('/:dossier/:token', function($req, $res) {
       } else {
         $vouchers.forEach(function($voucher) {
           $voucher_id               = $voucher.id;
-          $insurance_id             = ($voucher.insurance_id == "" ? null : $voucher.insurance_id);
+          $insurance_id             = _.isNaN(parseFloat($voucher.insurance_id)) ? null : $voucher.insurance_id;
           $insurance_dossier_nr     = $voucher.insurance_dossiernr;
           $warranty_holder          = $voucher.insurance_warranty_held_by;
-          $collector_id             = ($voucher.collector_id == "" ? null : $voucher.collector_id);
+          $collector_id             = _.isNaN(parseFloat($voucher.collector_id)) ? null : $voucher.collector_id;
           $police_signature_date    = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
           $recipient_signature_date = _.isNaN(parseFloat($voucher.recipient_signature_dt)) ? null : parseFloat($voucher.recipient_signature_dt);
           $vehicule                 = $voucher.vehicule;
@@ -669,15 +669,15 @@ router.put('/:dossier/:token', function($req, $res) {
           $vehicule_country         = $voucher.vehicule_country;
           $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
           $vehicule_impact_remarks  = $voucher.vehicule_impact_remarks;
-          $towing_id                = $voucher.towing_id ? $voucher.towing_id : null;
+          $towing_id                = _.isNaN(parseFloat($voucher.towing_id)) ? null : $voucher.towing_id;
           $towed_by                 = $voucher.towed_by;
-          $towing_vehicle_id        = $voucher.towing_vehicle_id;
+          $towing_vehicle_id        = _.isNaN(parseFloat($voucher.towing_vehicle_id)) ? null : parseFloat($voucher.towing_vehicle_id);
           $towed_by_vehicule        = $voucher.towed_by_vehicle;
           $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
           $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
           $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
           $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
-          $signa_id                 = $voucher.signa_id ? $voucher.signa_id : null;
+          $signa_id                 = _.isNaN(parseFloat($voucher.signa_id)) ? null : parseFloat($voucher.signa_id);
           $signa_by                 = $voucher.signa_by;
           $signa_by_vehicule        = $voucher.signa_by_vehicle;
           $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
