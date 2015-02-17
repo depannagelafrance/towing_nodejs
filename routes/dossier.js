@@ -763,7 +763,7 @@ router.put('/:dossier/:token', function($req, $res) {
                      $vehicule_collected, $cic, $additional_info, $token];
 
 
-          if($actions && ($signa_id && $signa_id.trim() != ''))
+          if($actions && $signa_id != null)
           {
             if($actions.signa_send_notification && $actions.signa_send_notification == 1)
             {
