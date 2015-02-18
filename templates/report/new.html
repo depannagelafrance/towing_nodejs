@@ -36,6 +36,7 @@
         }
         table thead{
             background: #F2F2F2;
+            text-transform: uppercase;
         }
 
         table thead td{
@@ -50,7 +51,7 @@
         }
 
         ul{
-            padding: 0;
+            padding: 2px;
             margin: 0;
             list-style-position: inside;
         }
@@ -73,6 +74,12 @@
 
         .padded-large{
             padding: 5px;
+        }
+        .padded-special{
+            padding: 2px 8px;
+        }
+        .padded-special2{
+            padding: 2px 4px;
         }
 
         .margined{
@@ -131,6 +138,10 @@
             font-size: 12px;
         }
 
+        .page{
+            min-height: 1024px;
+        }
+
         /* Title */
         .l-title{
             font-size: 22px;
@@ -147,617 +158,648 @@
             background: #e0e0e0;
         }
 
+        .pickedupby,
+        .item-heading{
+            text-transform: uppercase;
+            background: #F2F2F2;
+        }
+        
+        .autograph{
+            height: 110px;
+        }
+
     </style>
 </head>
 <body>
 <div class="container" style="width: 720px;">
-    <!-- Title -->
-    <div class="l-title l-2-col black-alpha cf margined">
-        <div class="takelbon">Takelbon F.A.S.T < 3,5 Ton</div>
-        <div class="perceel">Perceel 1: Ring</div>
-    </div>
+    <div class="page">
+        <!-- Title -->
+        <div class="l-title l-2-col black-alpha cf margined">
+            <div class="takelbon">Takelbon F.A.S.T < 3,5 Ton</div>
+            <div class="perceel">Perceel 1: Ring</div>
+        </div>
 
-    <!-- Numbers -->
-    <div class="l-2-col l-numbers cf margined">
-        <div class="padded">
-            <div class="padded-large bordered">
-                <label>Takelbon nr.:</label>
-                <span>000002</span>
+        <!-- Numbers -->
+        <div class="l-2-col l-numbers cf margined">
+            <div class="padded">
+                <div class="padded-large bordered" style="padding-left: 8px;">
+                    <label>Takelbon nr.:</label>
+                    <span>000002</span>
+                </div>
+            </div>
+            <div class="padded">
+                <div class="padded-large bordered" style="padding-left: 8px;">
+                    <label>Oproep nr.:</label>
+                    <span>100140010000</span>
+                </div>
             </div>
         </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <label>Oproep nr.:</label>
-                <span>100140010000</span>
+
+        <!--  DETAILS -->
+        <div class="l-2-col l-details cf margined">
+            <div class="padded">
+                <div class="bordered">
+                    <table>
+                        <thead>
+                            <tr>
+                                <td style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Dienstverlener</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="padded-special" colspan="2">Depannage La France NV</td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special" colspan="2">Voorspoedstraat 8</td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special" colspan="2">Essen</td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special"><label>Tel:</label> 3247270332</td>
+                                <td class="padded-special"><label>BTW Nr:</label> BE2342340</td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special" colspan="2">Kvandermast</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="padded">
+                <div class="bordered">
+                    <table>
+                        <thead>
+                        <tr>
+                            <td style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Hinderverwekker</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="padded-special" colspan="2">AW&V - Antwerpen</td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2">Boulevillekaai 11</td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2">2920 Antwerpen</td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special"><label>Tel:</label> 3247270332</td>
+                            <td class="padded-special"><label>BTW Nr:</label> BE2342340</td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special"><label>Nr. pl.:</label> ZER-435</td>
+                            <td class="padded-special"><label>Merk/type:</label> BMW</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!--  DETAILS -->
-    <div class="l-2-col l-details cf margined">
-        <div class="padded">
-            <div class="bordered">
-                <table>
+        <!-- LOCATION -->
+        <div class="l-1-col l-location cf margined">
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                        <label>Gemeente:</label>
+                        <span>A12, E32 > 89</span>
+                    </div>
+                    <div class="padded">
+                        <label>Aantal versperde rijstroken:</label>
+                        <span>Aanduiding 1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOWING DETAILS -->
+        <div class="l-4-col l-towing-details cf margined">
+            <div class="padded">
+                <div class="padded-large bordered">
+                   <div class="padded">
+                       <label>Datum:</label>
+                       <span>01-12-2014</span>
+                   </div>
+                    <div class="padded">
+                        <label>Uur:</label>
+                        <span>13:00</span>
+                    </div>
+                    <div class="padded">
+                        <span class="check"></span>
+                        <span>Feestdag</span>
+                    </div>
+                    <div class="padded">&nbsp;</div>
+                </div>
+            </div>
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                        <label>Aankomst Signal:</label>
+                        <span>12:49</span>
+                    </div>
+                    <div class="padded">
+                        <label>Aankomst Takel:</label>
+                        <span>13:00</span>
+                    </div>
+                    <div class="padded">
+                        <label>Start Takel:</label>
+                        <span>13:10</span>
+                    </div>
+                    <div class="padded">
+                        <label>Stop Takel:</label>
+                        <span>13:30</span>
+                    </div>
+                </div>
+            </div>
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                        <label>Signal:</label>
+                        <span></span>
+                    </div>
+                    <div class="padded">
+                        <label>Takel:</label>
+                        <span></span>
+                    </div>
+                    <div class="padded">
+                        <label>Aantal Takelbons:</label>
+                        <span>1</span>
+                    </div>
+                    <div class="padded">&nbsp;</div>
+                </div>
+            </div>
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                        <span class="check"></span>
+                        <span>PANNE</span>
+                    </div>
+                    <div class="padded">
+                        <span class="check"></span>
+                        <span>ONGEVAL</span>
+                    </div>
+                    <div class="padded">
+                        <span class="check"></span>
+                        <span>ACHTERGEL. VTG.</span>
+                    </div>
+                    <div class="padded">
+                        <span class="check"></span>
+                        <span>LADING VERLIES</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEPOT -->
+        <div class="l-1-col l-depot cf margined">
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                        <label>Locatie depot afvoer:</label>
+                        <span>Depot la france, noorderlaan 4, 2000 antwerpen</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--PAYME -->
+        <div class="l-1-col l-payme cf margined">
+            <div class="padded">
+                <table class="table--centered">
                     <thead>
                         <tr>
-                            <td style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Dienstverlener</td>
+                            <td style="width: 25%;" class="padded-large bordered text-center text-bold">Type Takeling</td>
+                            <td colspan="3" class="padded-large bordered text-center text-bold">Basistarief</td>
+                            <td colspan="3" class="padded-large bordered text-center text-bold">Tarief I</td>
+                            <td colspan="3" class="padded-large bordered text-center text-bold">Tarief II</td>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="padded" colspan="2">Depannage La France NV</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="text-small padded bordered text-center">Aantal</td>
+                            <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
+                            <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
+
+                            <td class="text-small padded bordered text-center">Aantal</td>
+                            <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
+                            <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
+
+                            <td class="text-small padded bordered text-center">Aantal</td>
+                            <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
+                            <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
                         </tr>
+
                         <tr>
-                            <td class="padded" colspan="2">Voorspoedstraat 8</td>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
                         </tr>
+
                         <tr>
-                            <td class="padded" colspan="2">Essen</td>
+                            <td class="padded bordered text-center">Type II (achtergel)</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">425,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">98,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
                         </tr>
+
                         <tr>
-                            <td class="padded"><label>Tel:</label> 3247270332</td>
-                            <td class="padded"><label>BTW Nr:</label> BE2342340</td>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
                         </tr>
+
                         <tr>
-                            <td class="padded" colspan="2">Kvandermast</td>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
                         </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td class="padded bordered text-center">Type I (Panne)</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">245,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="disabled padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">225,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+
+                            <td class="padded bordered text-center">&nbsp;</td>
+                            <td class="padded bordered text-center">45,45</td>
+                            <td class="padded bordered text-center">&nbsp;</td>
+                        </tr>
+
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="padded">
-            <div class="bordered">
+
+        <!-- -->
+        <div class="l-2-col cf margined">
+            <div class="padded">
+                <div class="padded-large bordered text-small">
+                    <label>Stallingskosten</label>
+                    <span>(vanaf 4e kalenderdag)</span>
+                </div>
+                <div class="margined">
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td class="padded-large bordered ">Aantal</td>
+                            <td class="padded-large bordered text-center">5d</td>
+                            <td class="padded-large bordered ">Prijs</td>
+                            <td class="padded-large bordered text-center">€123</td>
+                            <td class="padded-large bordered ">Totaal</td>
+                            <td class="padded-large bordered text-center">€423</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                       <ul class="text-small">
+                           <li>Basistarief: werkdagen 08:00 - 17:00u</li>
+                           <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
+                           <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
+                       </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- -->
+        <div class="l-2-col l-paytotal cf margined">
+            <div class="padded">
                 <table>
-                    <thead>
-                    <tr>
-                        <td style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Hinderverwekker</td>
-                    </tr>
-                    </thead>
                     <tbody>
-                    <tr>
-                        <td class="padded" colspan="2">AW&V - Antwerpen</td>
-                    </tr>
-                    <tr>
-                        <td class="padded" colspan="2">Boulevillekaai 11</td>
-                    </tr>
-                    <tr>
-                        <td class="padded" colspan="2">2920 Antwerpen</td>
-                    </tr>
-                    <tr>
-                        <td class="padded"><label>Tel:</label> 3247270332</td>
-                        <td class="padded"><label>BTW Nr:</label> BE2342340</td>
-                    </tr>
-                    <tr>
-                        <td class="padded"><label>Nr. pl.:</label> ZER-435</td>
-                        <td class="padded"><label>Merk/type:</label> BMW</td>
-                    </tr>
+                        <tr>
+                            <td class="padded-large bordered">ALGEMEEN TOTAAL INCL. BTW</td>
+                            <td class="padded-large bordered">€ 245,34</td>
+                        </tr>
+                        <tr>
+                            <td class="padded-large bordered">GARANTIE ASSISTANCE</td>
+                            <td class="padded-large bordered">€ 0</td>
+                        </tr>
+                        <tr>
+                            <td class="padded-large bordered">TEN LASTE VAN DE KLANT</td>
+                            <td class="padded-large bordered">€ 0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="padded-large bordered text-center text-bold">BETALINGSWIJZE</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="padded-large bordered">&nbsp;</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-
-    <!-- LOCATION -->
-    <div class="l-1-col l-location cf margined">
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                    <label>Gemeente:</label>
-                    <span>A12, E32 > 89</span>
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded text-small">
+                        De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
+                        waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
+                        en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
+                    </div>
                 </div>
-                <div class="padded">
-                    <label>Aantal versperde rijstroken:</label>
-                    <span>Aanduiding 1</span>
+                <div class="padded bordered margined">
+                    <div class="pickedupby padded-large text-center text-bold">
+                        OPGEHAALD DOOR
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOWING DETAILS -->
-    <div class="l-4-col l-towing-details cf margined">
-        <div class="padded">
-            <div class="padded-large bordered">
-               <div class="padded">
-                   <label>Datum:</label>
-                   <span>01-12-2014</span>
-               </div>
-                <div class="padded">
-                    <label>Uur:</label>
-                    <span>13:00</span>
-                </div>
-                <div class="padded">
-                    <span class="check"></span>
-                    <span>Feestdag</span>
-                </div>
-                <div class="padded">&nbsp;</div>
-            </div>
-        </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                    <label>Aankomst Signal:</label>
-                    <span>12:49</span>
-                </div>
-                <div class="padded">
-                    <label>Aankomst Takel:</label>
-                    <span>13:00</span>
-                </div>
-                <div class="padded">
-                    <label>Start Takel:</label>
-                    <span>13:10</span>
-                </div>
-                <div class="padded">
-                    <label>Stop Takel:</label>
-                    <span>13:30</span>
+                <div class="padded bordered margined text-small">
+                    <div class="padded-large">
+                        <div>
+                            <label>Naam/Firma:</label>
+                            <span>Accuzio BVBA</span>
+                        </div>
+                        <div>
+                            <label>Datum:</label>
+                            <span>Accuzio BVBA</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                    <label>Signal:</label>
-                    <span></span>
-                </div>
-                <div class="padded">
-                    <label>Takel:</label>
-                    <span></span>
-                </div>
-                <div class="padded">
-                    <label>Aantal Takelbons:</label>
-                    <span>1</span>
-                </div>
-                <div class="padded">&nbsp;</div>
-            </div>
-        </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                    <span class="check"></span>
-                    <span>PANNE</span>
-                </div>
-                <div class="padded">
-                    <span class="check"></span>
-                    <span>ONGEVAL</span>
-                </div>
-                <div class="padded">
-                    <span class="check"></span>
-                    <span>ACHTERGEL. VTG.</span>
-                </div>
-                <div class="padded">
-                    <span class="check"></span>
-                    <span>LADING VERLIES</span>
+
+        <!-- SIGNATURES -->
+        <div class="l-3-col cf margined">
+            <div class="padded">
+                <div class="bordered">
+                    <div class="padded-large item-heading text-bold">VOOR AKKOORD (DIENSTVERLENER)</div>
+                    <div class="padded-special2">(Gegevens uitvoerder/onderaannemer)</div>
+                    <div>&nbsp;</div>
+                    <div class="padded-special2">
+                        <label>Naam:</label>
+                        <span>Depannage La France</span>
+                    </div>
+                    <div class="padded-special2">
+                        <label>Adres:</label>
+                        <span>Voorspoed 8 Essen</span>
+                    </div>
+                    <div class="padded-special2">
+                        <label>Tel:</label>
+                        <span>04354357777</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="padded-special2 autograph">
+                        <label>Handtekening:</label>
+                        <span>geen handtekening</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- DEPOT -->
-    <div class="l-1-col l-depot cf margined">
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                    <label>Locatie depot afvoer:</label>
-                    <span>Depot la france, noorderlaan 4, 2000 antwerpen</span>
+            <div class="padded">
+                <div class="bordered">
+                    <div class="padded-large item-heading text-bold">VOOR BEVESTIGING (POLITIE)</div>
+                    <div class="padded-special2">(Gegevens Politiepost)</div>
+                    <div>&nbsp;</div>
+                    <div class="padded-special2">
+                        <label>Verkeerspost:</label>
+                        <span>Brecht</span>
+                    </div>
+                    <div class="padded-special2">
+                        <label>Tel:</label>
+                        <span>047734534848</span>
+                    </div>
+                    <div class="padded-special2">
+                        <label>Tijdstip bevestiging:</label>
+                        <span>12:50</span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="padded-special2 autograph">
+                        <label>Handtekening:</label>
+                        <span>geen handtekening</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!--PAYME -->
-    <div class="l-1-col l-payme cf margined">
-        <div class="padded">
-            <table class="table--centered">
-                <thead>
-                    <tr>
-                        <td style="width: 25%;" class="padded-large bordered text-center text-bold">Type Takeling</td>
-                        <td colspan="3" class="padded-large bordered text-center text-bold">Basistarief</td>
-                        <td colspan="3" class="padded-large bordered text-center text-bold">Tarief I</td>
-                        <td colspan="3" class="padded-large bordered text-center text-bold">Tarief II</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="text-small padded bordered text-center">Aantal</td>
-                        <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
-                        <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
-
-                        <td class="text-small padded bordered text-center">Aantal</td>
-                        <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
-                        <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
-
-                        <td class="text-small padded bordered text-center">Aantal</td>
-                        <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
-                        <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type II (achtergel)</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">425,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">98,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                    <tr>
-                        <td class="padded bordered text-center">Type I (Panne)</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">245,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="disabled padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">225,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-
-                        <td class="padded bordered text-center">&nbsp;</td>
-                        <td class="padded bordered text-center">45,45</td>
-                        <td class="padded bordered text-center">&nbsp;</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- -->
-    <div class="l-2-col cf margined">
-        <div class="padded">
-            <div class="padded-large bordered text-small">
-                Stallingskosten
-                vanaf 4e kalenderdag
-                <br/> &nbsp;<br />&nbsp;
-            </div>
-        </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                   <ul class="text-small">
-                       <li>Basistarief: werkdagen 08:00 - 17:00u</li>
-                       <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
-                       <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
-                   </ul>
+            <div class="padded">
+                <div class="bordered">
+                    <div class="padded-large item-heading text-bold">VOOR KENNISNAME (HINDERVERWERKER)</div>
+                    <div class="padded-special2">(Gegevens Hinderverwekker)</div>
+                    <div>&nbsp;</div>
+                    <div class="padded-special2">
+                        <label>Naam:</label>
+                        <span></span>
+                    </div>
+                    <div class="padded-special2">
+                        <label>Adres:</label>
+                        <span></span>
+                    </div>
+                    <div class="padded-special2">
+                        <label>Tel:</label>
+                        <span></span>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="padded-special2 autograph">
+                        <label>Handtekening:</label>
+                        <span>geen handtekening</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- -->
-    <div class="l-2-col l-paytotal cf margined">
-        <div class="padded">
-            <table>
-                <tbody>
-                    <tr>
-                        <td class="padded-large bordered">ALGEMEEN TOTAAL INCL. BTW</td>
-                        <td class="padded-large bordered">€ 245,34</td>
-                    </tr>
-                    <tr>
-                        <td class="padded-large bordered">GARANTIE ASSISTANCE</td>
-                        <td class="padded-large bordered">€ 0</td>
-                    </tr>
-                    <tr>
-                        <td class="padded-large bordered">TEN LASTE VAN DE KLANT</td>
-                        <td class="padded-large bordered">€ 0</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="padded-large bordered text-center text-bold">BETALINGSWIJZE</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="padded-large bordered">&nbsp;</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- NOTAS -->
+        <div class="l-1-col l-nota cf margined">
+            <div class="padded">
+                <div class="padded-large bordered">
+                    <div class="padded">
+                        <label>Eventuele opmerkingen:</label>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded text-small">
-                    De dienstverlener levert u een factuur, de Vlaamse overheid doet nazicht en bericht u binnen 30 dagen,
-                    waarna eventuele correcties gefactureerd/gecrediteerd zullen worden. De hinderverwekker neemt kennis
-                    en verklaart zich akkoord met de algemene factuurvoorwaarden van de dienstverlener.
-                </div>
-            </div>
-            <div class="padded bordered margined">
-                <div class="padded-large text-center text-bold">
-                    OPGEHAALD DOOR
-                </div>
-            </div>
-            <div class="padded bordered margined text-small">
+
+        <!--  -->
+        <div class="l-1-col cf margined">
+            <div class="padded">
                 <div class="padded-large">
-                    <div>
-                        <label>Naam/Firma:</label>
-                        <span>Accuzio BVBA</span>
-                    </div>
-                    <div>
-                        <label>Datum:</label>
-                        <span>Accuzio BVBA</span>
+                    <div class="padded text-right text-italic">
+                        Exemplaar Dienstverlener
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- SIGNATURES -->
-    <div class="l-3-col cf margined">
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="text-bold">VOOR AKKOORD (DIENSTVERLENER)</div>
-                <div>(Gegevens uitvoerder/onderaannemer)</div>
-                <div>&nbsp;</div>
-                <div class="padded">
-                    <label>Naam:</label>
-                    <span>Depannage La France</span>
-                </div>
-                <div class="padded">
-                    <label>Adres:</label>
-                    <span>Voorspoed 8 Essen</span>
-                </div>
-                <div class="padded">
-                    <label>Tel:</label>
-                    <span>04354357777</span>
-                </div>
-                <div>&nbsp;</div>
-                <div>
-                    <label>Handtekening:</label>
-                    <span>geen handtekening</span>
-                </div>
-            </div>
-        </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="text-bold">VOOR BEVESTIGING (POLITIE)</div>
-                <div>(Gegevens Politiepost)</div>
-                <div>&nbsp;</div>
-                <div class="padded">
-                    <label>Verkeerspost:</label>
-                    <span>Brecht</span>
-                </div>
-                <div class="padded">
-                    <label>Tel:</label>
-                    <span>047734534848</span>
-                </div>
-                <div class="padded">
-                    <label>Tijdstip bevestiging:</label>
-                    <span>12:50</span>
-                </div>
-                <div>&nbsp;</div>
-                <div>
-                    <label>Handtekening:</label>
-                    <span>geen handtekening</span>
-                </div>
-            </div>
-        </div>
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="text-bold">VOOR KENNISNAME (HINDERVERWERKER)</div>
-                <div>(Gegevens Hinderverwekker)</div>
-                <div>&nbsp;</div>
-                <div class="padded">
-                    <label>Naam:</label>
-                    <span></span>
-                </div>
-                <div class="padded">
-                    <label>Adres:</label>
-                    <span></span>
-                </div>
-                <div class="padded">
-                    <label>Tel:</label>
-                    <span></span>
-                </div>
-                <div>&nbsp;</div>
-                <div>
-                    <label>Handtekening:</label>
-                    <span>geen handtekening</span>
+        <!-- -->
+        <div class="l-1-col cf margined">
+            <div class="padded">
+                <div class="padded-large">
+                    <div class="padded text-center text-smallest">
+                       Depannage La France - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- NOTAS -->
-    <div class="l-1-col l-nota cf margined">
-        <div class="padded">
-            <div class="padded-large bordered">
-                <div class="padded">
-                    <label>Eventuele opmerkingen:</label>
-                    <span></span>
+
+    <div class="page">
+
+        <!-- -->
+        <div class="l-1-col cf margined">
+            <div class="padded">
+                <div class="padded-large">
+                    <p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
+                    <p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
+                    <p>Indien de wegpolitie in de onmogelijkheid verkeert om deze takelbon ter plaatse af te tekenen vindt u op de voorzijde het oproepnummer dat CICANT en de Wegpolitie aan deze oproep hebben gegeven.</p>
+                    <p>Verkeersposten:<br />
+                        A = Verkeerspost Antwerpen, d'Herbouvillekaai 9, 2020 Antwerpen<br />
+                        B = Verkeerspost Brecht, Bethovenstraat 65, 2960 Brecht <br />
+                        G = Verkeerspost Grobbendonk, Herentalsesteenweg 42, 2280 Grobbendonk <br />
+                        T = Verkeerspost Turnhout, Steenweg op Gierle 336, 2300 Turnhout <br />
+                    </p>
+                    <p>Agentschap Wegen en Verkeer:<br/>
+                        Wegen en Verkeer Antwerpen district 121, d'Herbouvillekaai 11, 2020 Antwerpen<br />
+                        tel. +32 (0)3 241 51 11
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!--  -->
-    <div class="l-1-col cf margined">
-        <div class="padded">
-            <div class="padded-large">
-                <div class="padded text-right text-italic">
-                    Exemplaar Dienstverlener
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- -->
-    <div class="l-1-col cf margined">
-        <div class="padded">
-            <div class="padded-large">
-                <div class="padded text-center text-smallest">
-                   Depannage La France - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- -->
-    <div class="l-1-col cf margined">
-        <div class="padded">
-            <div class="padded-large">
-                <p>De oproep aan de FAST dienstverlener tot afhandeling van dit incident werd gedaan door het Centrum voor Informatie en Communicatie Antwerpen (CICANT) van de Federale Wegpolitie in het kader van artikel 51.5 (K.B. van 1 december 1975) van de wegcode welke bepaalt ‘Op autowegen en autosnelwegen zorgt de bevoegde persoon steeds ambtshalve voor de verplaatsing van het voertuig en de lading. De verplaatsing gebeurt op risico en kosten van de bestuurder en de burgerlijk aansprakelijke persoon’.</p>
-                <p>De takeling van het voertuig of de behandeling van ladingverlies gebeurt om de 'veiligheid en de vlotheid van het verkeer' te verzekeren zoals opgenomen in de artikels 51.1, 51.3 en 52.1 van de wegcode (K.B. van 1 december 1975).</p>
-                <p>Indien de wegpolitie in de onmogelijkheid verkeert om deze takelbon ter plaatse af te tekenen vindt u op de voorzijde het oproepnummer dat CICANT en de Wegpolitie aan deze oproep hebben gegeven.</p>
-                <p>Verkeersposten:<br />
-                    A = Verkeerspost Antwerpen, d'Herbouvillekaai 9, 2020 Antwerpen<br />
-                    B = Verkeerspost Brecht, Bethovenstraat 65, 2960 Brecht <br />
-                    G = Verkeerspost Grobbendonk, Herentalsesteenweg 42, 2280 Grobbendonk <br />
-                    T = Verkeerspost Turnhout, Steenweg op Gierle 336, 2300 Turnhout <br />
-                </p>
-                <p>Agentschap Wegen en Verkeer:<br/>
-                    Wegen en Verkeer Antwerpen district 121, d'Herbouvillekaai 11, 2020 Antwerpen<br />
-                    tel. +32 (0)3 241 51 11
-                </p>
-            </div>
-        </div>
-    </div>
 
 </div>
 </body>
