@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang=en-us>
 <head>
+    <title></title>
     <meta charset=utf-8>
 
     <style type="text/css">
@@ -12,7 +13,7 @@
 
         *, *:before, *:after {
             box-sizing: inherit;
-            font-family: 'arial narrow';
+            font-family: 'arial narrow', arial, sans serif;
         }
 
         .cf:before,
@@ -56,12 +57,9 @@
             list-style-position: inside;
         }
 
-        /* REUSEABLE */
+        /* REUSABLE */
         .black-alpha {
             color: #212121;
-        }
-        .black-beta {
-            color: #727272;
         }
 
         .bordered{
@@ -110,9 +108,6 @@
             font-style: italic;
         }
 
-        .table--centered{
-            text-align: center;
-        }
 
         .table-special{
             width: 25%;
@@ -247,12 +242,8 @@
                         </thead>
                         <tbody>
                         <% if(is_covered_by_insurance) { %>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%=insurance_name%></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%=insurance.display_address%></td>
-                        </tr>
+                        <tr><td class="padded-special" colspan="2"><%=insurance_name%></td></tr>
+                        <tr><td class="padded-special" colspan="2"><%=insurance.display_address%></td></tr>
                         <tr>
                             <td class="padded-special"><label>Btw Nr:</label> <%=insurance.vat%></td>
                             <td class="padded-special"><label>Dossier Nr:</label> <%=insurance_dossier%></td>

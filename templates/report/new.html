@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang=en-us>
 <head>
+    <title></title>
     <meta charset=utf-8>
 
     <style type="text/css">
@@ -12,7 +13,7 @@
 
         *, *:before, *:after {
             box-sizing: inherit;
-            font-family: 'arial narrow';
+            font-family: 'arial narrow', arial, sans serif;
         }
 
         .cf:before,
@@ -39,7 +40,7 @@
             text-transform: uppercase;
         }
 
-        table thead td{
+        table thead th{
             padding: 5px 0;
         }
         table tbody td{
@@ -56,12 +57,9 @@
             list-style-position: inside;
         }
 
-        /* REUSEABLE */
+        /* REUSABLE */
         .black-alpha {
             color: #212121;
-        }
-        .black-beta {
-            color: #727272;
         }
 
         .bordered{
@@ -110,9 +108,6 @@
             font-style: italic;
         }
 
-        .table--centered{
-            text-align: center;
-        }
 
         .table-special{
             width: 25%;
@@ -170,7 +165,7 @@
             text-transform: uppercase;
             background: #F2F2F2;
         }
-        
+
         .autograph{
             height: 110px;
         }
@@ -180,62 +175,59 @@
 <body>
 <div class="container" style="width: 720px;">
     <div class="page">
-        <!-- Title -->
         <div class="l-title l-2-col black-alpha cf margined">
-            <div class="takelbon">Takelbon F.A.S.T < 3,5 Ton</div>
+            <div class="takelbon">Takelbon F.A.S.T &lt; 3,5 Ton</div>
             <div class="perceel"><%= allotment_name %></div>
         </div>
 
-        <!-- Numbers -->
         <div class="l-2-col l-numbers cf margined">
             <div class="padded">
                 <div class="padded-large bordered" style="padding-left: 8px;">
                     <label>Takelbon nr.:</label>
-                    <span><%= VOUCHER_NUMBER %></span>
+                    <span><%= voucher_number %></span>
                 </div>
             </div>
             <div class="padded">
                 <div class="padded-large bordered" style="padding-left: 8px;">
                     <label>Oproep nr.:</label>
-                    <span><%= CALL_NUMBER %></span>
+                    <span><%= call_number %></span>
                 </div>
             </div>
         </div>
 
-        <!--  DETAILS -->
         <div class="l-2-col l-details cf margined">
             <div class="padded">
                 <div class="bordered">
                     <table>
                         <thead>
-                            <tr>
-                                <td style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Dienstverlener</td>
-                            </tr>
+                        <tr>
+                            <th style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Dienstverlener</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%= TOWING_SERVICE_NAME %></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%= TOWING_SERVICE_STREET %> <%= TOWING_SERVICE_NR %></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%= TOWING_SERVICE_ZIP %> <%= TOWING_SERVICE_CITY %></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special"><label>Tel:</label> <%= TOWING_SERVICE_PHONE %></td>
-                                <td class="padded-special"><label>BTW Nr:</label> <%= TOWING_SERVICE_VAT %></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special" colspan="2">
-                                    <%= TOWING_SERVICE_EMAIL %>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special" colspan="2">
-                                    <%= TOWING_SERVICE_SITE %>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2"><%= towing_service_name %></td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2"><%= towing_service_street %> <%= towing_service_nr  %></td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2"><%= towing_service_zip %> <%= towing_service_city %></td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special"><label>Tel:</label> <%= towing_service_phone  %></td>
+                            <td class="padded-special"><label>BTW Nr:</label> <%= towing_service_vat %></td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2">
+                                <%= towing_service_email %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2">
+                                <%= towing_service_site %>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -245,32 +237,28 @@
                     <table>
                         <thead>
                         <tr>
-                            <td style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Hinderverwekker</td>
+                            <th style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Hinderverwekker</th>
                         </tr>
                         </thead>
                         <tbody>
                         <% if(is_covered_by_insurance) { %>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%=insurance_name%></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%=insurance.display_address%></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special"><label>Btw Nr:</label> <%=insurance.vat%></td>
-                                <td class="padded-special"><label>Dossier Nr:</label> <%=insurance_dossier%></td>
-                            </tr>
+                        <tr><td class="padded-special" colspan="2"><%=insurance_name%></td></tr>
+                        <tr><td class="padded-special" colspan="2"><%=insurance.display_address%></td></tr>
+                        <tr>
+                            <td class="padded-special"><label>Btw Nr:</label> <%=insurance.vat%></td>
+                            <td class="padded-special"><label>Dossier Nr:</label> <%=insurance_dossier%></td>
+                        </tr>
                         <% } else { %>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%=customer_name%></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special" colspan="2"><%=customer_address%></td>
-                            </tr>
-                            <tr>
-                                <td class="padded-special"><label>Tel:</label> <%=customer_phone%></td>
-                                <td class="padded-special"><label>BTW Nr:</label> <%=customer_vat%></td>
-                            </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2"><%=customer_name%></td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special" colspan="2"><%=customer_address%></td>
+                        </tr>
+                        <tr>
+                            <td class="padded-special"><label>Tel:</label> <%=customer_phone%></td>
+                            <td class="padded-special"><label>BTW Nr:</label> <%=customer_vat%></td>
+                        </tr>
                         <% } %>
                         <tr>
                             <td class="padded-special"><label>Nr. pl.:</label> <%=vehicule_licence_plate%></td>
@@ -282,38 +270,36 @@
             </div>
         </div>
 
-        <!-- LOCATION -->
         <div class="l-1-col l-location cf margined">
             <div class="padded">
                 <div class="bordered">
                     <table>
                         <tbody>
-                            <tr>
-                                <td class="table-special"><label>Gemeente:</label></td>
-                                <td class="table-special"><%= location %></td>
-                                <td class="table-special"><label>Richting:</label></td>
-                                <td class="table-special"><%= direction %> thv <%= indicator %></td>
-                            </tr>
-                            <tr>
-                                <td class="table-special"><label>Aantal versperde rijstroken:</label></td>
-                                <td class="table-special"><%= nr_of_blocked_lanes %></td>
-                                <td class="table-special"><label>Aanduiding rijstrook:</label></td>
-                                <td class="table-special"><%= lane_indicator %></td>
-                            </tr>
+                        <tr>
+                            <td class="table-special"><label>Gemeente:</label></td>
+                            <td class="table-special"><%= location %></td>
+                            <td class="table-special"><label>Richting:</label></td>
+                            <td class="table-special"><%= direction %> thv <%= indicator %></td>
+                        </tr>
+                        <tr>
+                            <td class="table-special"><label>Aantal versperde rijstroken:</label></td>
+                            <td class="table-special"><%= nr_of_blocked_lanes %></td>
+                            <td class="table-special"><label>Aanduiding rijstrook:</label></td>
+                            <td class="table-special"><%= lane_indicator %></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- TOWING DETAILS -->
         <div class="l-4-col l-towing-details cf margined">
             <div class="padded">
                 <div class="padded-large bordered">
-                   <div class="padded">
-                       <label>Datum:</label>
-                       <span><%= call_date %></span>
-                   </div>
+                    <div class="padded">
+                        <label>Datum:</label>
+                        <span><%= call_date %></span>
+                    </div>
                     <div class="padded">
                         <label>Uur:</label>
                         <span><%= call_hour %></span>
@@ -329,19 +315,19 @@
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Aankomst Signal:</label>
-                        <span><%= signa_arrival %></span>
+                        <span><%=signa_arrival %></span>
                     </div>
                     <div class="padded">
                         <label>Aankomst Takel:</label>
-                        <span><%= towing_arrival %></span>
+                        <span><%=towing_arrival %></span>
                     </div>
                     <div class="padded">
                         <label>Start Takel:</label>
-                        <span><%= towing_start %></span>
+                        <span><%=towing_start %></span>
                     </div>
                     <div class="padded">
                         <label>Stop Takel:</label>
-                        <span><%= towing_end %></span>
+                        <span><%=towing_end %></span>
                     </div>
                 </div>
             </div>
@@ -357,7 +343,7 @@
                     </div>
                     <div class="padded">
                         <label>Aantal Takelbons:</label>
-                        <span><%= nr_of_vouchers %></span>
+                        <span><%=nr_of_vouchers %></span>
                     </div>
                     <div class="padded">&nbsp;</div>
                 </div>
@@ -384,130 +370,125 @@
             </div>
         </div>
 
-        <!-- DEPOT -->
         <div class="l-1-col l-depot cf margined">
             <div class="padded">
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Locatie depot afvoer:</label>
-                        <span><%= towing_location_depot %></span>
+                        <span><%=towing_location_depot %></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!--PAYME NEW -->
 
         <div class="l-4-col l-payme cf margined">
 
-            <!-- FIRST COL -->
             <div class="padded">
                 <table>
                     <thead>
-                        <tr><td colspan="3" class="padded-large bordered text-center text-bold">Type Takeling</td></tr>
+                    <tr><th colspan="3" class="padded-large bordered text-center text-bold">Type Takeling</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td class="padded-large bordered text-center text-bold">&nbsp;</td></tr>
-                        <% for(var $j in timeframe_activities) { %>
-                        <% if(timeframe_activities[$j].code != 'STALLING') { %>
-                                <tr>
-                                    <td colspan="3" class="padded-large bordered text-center"><%=timeframes[$i].name%></td>
-                                </tr>
-                        <% } %>
-                        <% } %>
-                        <tr><td class="padded-large bordered text-center">Totaal per tarief</td></tr>
+                    <tr><td class="padded-large bordered text-center text-bold">&nbsp;</td></tr>
+                    <% for(var $j in timeframe_activities) { %>
+                    <% if(timeframe_activities[$j].code != 'STALLING') { %>
+                    <tr>
+                        <td colspan="3" class="padded-large bordered text-center"><%=timeframes[$j].name%></td>
+                    </tr>
+                    <% } %>
+                    <% } %>
+                    <tr><td class="padded-large bordered text-center">Totaal per tarief</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- 2-4 COL -->
             <% var $_voucher_total   = ''; %>
             <% var $_depot_days      = ''; %>
             <% var $_depot_fee       = ''; %>
             <% var $_depot_total_fee = ''; %>
             <% var $vat_tag = 'incl.'; %>
             <% if(company_vat_foreign_country == 1) { %>
-                <% $vat_tag = 'excl.'; %>
+            <% $vat_tag = 'excl.'; %>
             <% } %>
 
             <% for(var $i in timeframes) { %>
             <div class="padded">
                 <table>
                     <thead>
-                        <tr><td colspan="3" class="padded-large bordered text-center text-bold"><%=timeframes[$i].name%></td></tr>
+                    <tr><th colspan="3" class="padded-large bordered text-center text-bold"><%=timeframes[$i].name%></th></tr>
                     </thead>
                     <tbody>
-                        <tr class="subhead">
-                            <td class="text-small padded bordered text-center">Aantal</td>
-                            <td class="text-small padded bordered text-center">Prijs (<%=$vat_tag%> BTW)</td>
-                            <td class="text-small padded bordered text-center">Totaal (<%=$vat_tag%> BTW)</td>
-                        </tr>
+                    <tr class="subhead">
+                        <td class="text-small padded bordered text-center">Aantal</td>
+                        <td class="text-small padded bordered text-center">Prijs (<%=$vat_tag%> BTW)</td>
+                        <td class="text-small padded bordered text-center">Totaal (<%=$vat_tag%> BTW)</td>
+                    </tr>
 
-                        <!-- COL CONTENT -->
-                        <% for(var $j in timeframe_activities) { %>
-                        <% if(timeframe_activities[$j].code != 'STALLING'){ %>
-                        <tr>
-                            <% for(var $x in timeframe_activity_fees) { %>
-                            <% for(var $k in timeframe_activity_fees[$x]){ %>
-                               <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id){
+                    <% for(var $j in timeframe_activities) { %>
+                    <% if(timeframe_activities[$j].code != 'STALLING'){ %>
+                    <tr>
+                        <% for(var $x in timeframe_activity_fees) { %>
+                        <% for(var $k in timeframe_activity_fees[$x]){ %>
+                        <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id){
 
-                                    <% var $_amount  = ''; %>
-                                    <% var $_cal_fee = ''; %>
+                        <% var $_amount  = ''; %>
+                        <% var $_cal_fee = ''; %>
 
-                                    <% if(timeframe_id == timeframes[$i].id){ %>
-                                        <% $found = false; %>
-                                        <% for(var $y in towing_activities) { %>
-                                            <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
-                                                <% $_amount  = towing_activities[$y].amount; %>
-                                                <% $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat; %>
-                                                <% $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat; %>
-                                                <% $_voucher_total = $_total; %>
-                                                <% $found=true; %>
-                                            <% } %>
-                                        <% } %>
-                                    <% } %>
-
-                                    <% if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP'){ %>
-                                        <td class="padded bordered text-center disabled">&nbsp;</td>
-                                    <% } else { %>
-                                        <td class="padded bordered text-center"><%= $_amount %></td>
-                                    <% } %>
-
-                                    <td class="padded bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-                                    <td class="padded bordered text-center"><%= $_cal_fee %></td>
-                                <% } %>
-                            <% } %>
-                            <% } %>
-                        </tr>
-                        <% }else{ %>
-                            <% for(var $x in timeframe_activity_fees) { %>
-                            <% for(var $k in timeframe_activity_fees[$x]) { %>
-                                <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) { %>
-                                    <% var $_amount  = ''; %>
-                                    <% var $_cal_fee = ''; %>
-                                    <% if(timeframe_id == timeframes[$i].id) { %>
-                                        <% $found = false; %>
-                                        <% for(var $y in towing_activities) { %>
-                                            <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
-                                                <% $_depot_days = towing_activities[$y].amount; %>
-                                                <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
-                                                <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
-                                                <% $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat; %>
-                                                <% $found=true; %>
-                                            <% } %>
-                                        <% } %>
-                                    <% } %>
-                                <% } %>
-                            <% } %>
-                            <% } %>
+                        <% if(timeframe_id == timeframes[$i].id){ %>
+                        <% $found = false; %>
+                        <% for(var $y in towing_activities) { %>
+                        <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
+                        <% $_amount  = towing_activities[$y].amount; %>
+                        <% $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat; %>
+                        <% $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat; %>
+                        <% $_voucher_total = $_total; %>
+                        <% $found=true; %>
+                        <% } %>
                         <% } %>
                         <% } %>
 
-                        <tr>
-                            <td class="padded bordered text-center disabled">&nbsp;</td>
-                            <td class="padded bordered text-center disabled">&nbsp;</td>
-                            <td class="padded bordered text-center"><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
-                        </tr>
+                        <% if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP'){ %>
+                        <td class="padded bordered text-center disabled">&nbsp;</td>
+                        <% } else { %>
+                        <td class="padded bordered text-center"><%= $_amount %></td>
+                        <% } %>
+
+                        <td class="padded bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                        <td class="padded bordered text-center"><%= $_cal_fee %></td>
+                        <% } %>
+                        <% } %>
+                        <% } %>
+                    </tr>
+                    <% }else{ %>
+                    <% for(var $x in timeframe_activity_fees) { %>
+                    <% for(var $k in timeframe_activity_fees[$x]) { %>
+                    <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) { %>
+                    <% var $_amount  = ''; %>
+                    <% var $_cal_fee = ''; %>
+                    <% if(timeframe_id == timeframes[$i].id) { %>
+                    <% $found = false; %>
+                    <% for(var $y in towing_activities) { %>
+                    <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
+                    <% $_depot_days = towing_activities[$y].amount; %>
+                    <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
+                    <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
+                    <% $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat; %>
+                    <% $found=true; %>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+
+                    <tr>
+                        <td class="padded bordered text-center disabled">&nbsp;</td>
+                        <td class="padded bordered text-center disabled">&nbsp;</td>
+                        <td class="padded bordered text-center"><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -515,7 +496,6 @@
         </div>
 
 
-        <!-- -->
         <div class="l-2-col cf margined">
             <div class="padded">
                 <div class="padded-large bordered text-small">
@@ -541,55 +521,54 @@
             <div class="padded">
                 <div class="padded-large bordered">
                     <div class="padded">
-                       <ul class="text-small">
-                           <li>Basistarief: werkdagen 08:00 - 17:00u</li>
-                           <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
-                           <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
-                       </ul>
+                        <ul class="text-small">
+                            <li>Basistarief: werkdagen 08:00 - 17:00u</li>
+                            <li>Tarief I: werkdagen 17:00 - 24:00u &amp; zaterdagen 08:00 - 24:00</li>
+                            <li>Tarief II: werkdagen/zaterdagen 00:00 - 08:00 &amp; zon-/feestdagen 00:00 - 24:00</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- -->
         <div class="l-2-col l-paytotal cf margined">
             <div class="padded">
                 <table class="table-focus">
                     <tbody>
-                        <tr>
-                            <td class="padded-large bordered">ALGEMEEN TOTAAL <%=$vat_tag%>  BTW</td>
-                            <td class="padded-large bordered">&euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-large bordered">GARANTIE ASSISTANCE</td>
-                            <td class="padded-large bordered">&euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-large bordered">TEN LASTE VAN DE KLANT</td>
-                            <td class="padded-large bordered">&euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="padded-large bordered text-center text-bold">BETALINGSWIJZE</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="padded-large bordered">
-                                <% if(towing_payments.paid_in_cash) { %>&#9746; Contant <% } %>
-                                <% if(towing_payments.paid_by_bank_deposit) { %>&#9746; Overschrijving <% } %>
-                                <% if(towing_payments.paid_by_debit_card) { %>&#9746; Bancontact <% } %>
-                                <% if(towing_payments.paid_by_credit_card) { %>&#9746; Kredietkaart <% } %>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td class="padded-large bordered">ALGEMEEN TOTAAL <%=$vat_tag%>  BTW</td>
+                        <td class="padded-large bordered">&euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td>
+                    </tr>
+                    <tr>
+                        <td class="padded-large bordered">GARANTIE ASSISTANCE</td>
+                        <td class="padded-large bordered">&euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td>
+                    </tr>
+                    <tr>
+                        <td class="padded-large bordered">TEN LASTE VAN DE KLANT</td>
+                        <td class="padded-large bordered">&euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="padded-large bordered text-center text-bold">BETALINGSWIJZE</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="padded-large bordered">
+                            <% if(towing_payments.paid_in_cash) { %>&#9746; Contant <% } %>
+                            <% if(towing_payments.paid_by_bank_deposit) { %>&#9746; Overschrijving <% } %>
+                            <% if(towing_payments.paid_by_debit_card) { %>&#9746; Bancontact <% } %>
+                            <% if(towing_payments.paid_by_credit_card) { %>&#9746; Kredietkaart <% } %>
+                        </td>
+                    </tr>
 
-                        <% if(is_covered_by_insurance) { %>
-                        <tr>
-                            <td colspan="2" class="padded-large bordered">
-                                <span class="label">Klant:</span> <%=customer_name%> <br />
-                                <span class="label">Adres:</span> <%=customer_address%> <br />
-                                <span class="label">Telnr.:</span> <%=customer_phone%> <br />
-                                <span class="label">BTW Nr.:</span> <%=customer_vat%>
-                            </td>
-                        </tr>
-                        <% } %>
+                    <% if(is_covered_by_insurance) { %>
+                    <tr>
+                        <td colspan="2" class="padded-large bordered">
+                            <span class="label">Klant:</span> <%=customer_name%> <br />
+                            <span class="label">Adres:</span> <%=customer_address%> <br />
+                            <span class="label">Telnr.:</span> <%=customer_phone%> <br />
+                            <span class="label">BTW Nr.:</span> <%=customer_vat%>
+                        </td>
+                    </tr>
+                    <% } %>
 
                     </tbody>
                 </table>
@@ -611,25 +590,25 @@
                     <div class="padded-large">
                         <table>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <label>Naam/Firma:</label>
-                                        <span><%=collected_by%></span>
-                                    </td>
-                                    <td rowspan="2">
-                                        <% if(collected_by_signature) { %>
-                                        <img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
-                                        <% } else { %>
-                                        Geen handtekening
-                                        <% } %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label>Datum:</label>
-                                        <span><%=collection_date%></span>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    <label>Naam/Firma:</label>
+                                    <span><%=collected_by%></span>
+                                </td>
+                                <td rowspan="2">
+                                    <% if(collected_by_signature) { %>
+                                    <img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
+                                    <% } else { %>
+                                    Geen handtekening
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Datum:</label>
+                                    <span><%=collection_date%></span>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -637,7 +616,6 @@
             </div>
         </div>
 
-        <!-- SIGNATURES -->
         <div class="l-3-col cf margined">
             <div class="padded">
                 <div class="bordered">
@@ -731,7 +709,6 @@
             </div>
         </div>
 
-        <!-- NOTAS -->
         <div class="l-1-col l-nota cf margined">
             <div class="padded">
                 <div class="padded-large bordered">
@@ -743,7 +720,6 @@
             </div>
         </div>
 
-        <!--  -->
         <div class="l-1-col cf margined">
             <div class="padded">
                 <div class="padded-large">
@@ -754,7 +730,6 @@
             </div>
         </div>
 
-        <!-- -->
         <div class="l-1-col cf margined">
             <div class="padded">
                 <div class="padded-large">
@@ -769,7 +744,6 @@
 
     <div class="page">
 
-        <!-- -->
         <div class="l-1-col cf margined">
             <div class="padded">
                 <div class="padded-large">
