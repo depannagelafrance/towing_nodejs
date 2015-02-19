@@ -394,7 +394,7 @@
                     <% for(var $j in timeframe_activities) { %>
                     <% if(timeframe_activities[$j].code != 'STALLING') { %>
                     <tr>
-                        <td colspan="3" class="padded-large bordered text-center"><%=timeframes[$j].name%></td>
+                        <td colspan="3" class="padded-large bordered text-center"><%=timeframe_activities[$j].name%></td>
                     </tr>
                     <% } %>
                     <% } %>
@@ -403,15 +403,17 @@
                 </table>
             </div>
 
-            <% var $_voucher_total   = ''; %>
-            <% var $_depot_days      = ''; %>
-            <% var $_depot_fee       = ''; %>
-            <% var $_depot_total_fee = ''; %>
-            <% var $vat_tag = 'incl.'; %>
-            <% if(company_vat_foreign_country == 1) { %>
-            <% $vat_tag = 'excl.'; %>
-            <% } %>
+            <%
+              var $_voucher_total   = '';
+              var $_depot_days      = '';
+              var $_depot_fee       = '';
+              var $_depot_total_fee = '';
+              var $vat_tag = 'incl.';
 
+              if(company_vat_foreign_country == 1) {
+                $vat_tag = 'excl.'; 
+              }
+            %>
             <% for(var $i in timeframes) { %>
             <div class="padded">
                 <table>
@@ -425,64 +427,83 @@
                         <td class="text-small padded bordered text-center">Totaal (<%=$vat_tag%> BTW)</td>
                     </tr>
 
-                    <% for(var $j in timeframe_activities) { %>
-                    <% if(timeframe_activities[$j].code != 'STALLING'){ %>
+                    <%
+                    for(var $j in timeframe_activities)
+                    {
+                      if(timeframe_activities[$j].code != 'STALLING')
+                      {
+                    %>
                     <tr>
-                        <% for(var $x in timeframe_activity_fees) { %>
-                        <% for(var $k in timeframe_activity_fees[$x]){ %>
-                        <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id){
+                        <%
+                          for(var $x in timeframe_activity_fees)
+                          {
+                            for(var $k in timeframe_activity_fees[$x])
+                            {
+                              if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+                              {
 
-                        <% var $_amount  = ''; %>
-                        <% var $_cal_fee = ''; %>
+                                var $_amount  = '';
+                                var $_cal_fee = '';
 
-                        <% if(timeframe_id == timeframes[$i].id){ %>
-                        <% $found = false; %>
-                        <% for(var $y in towing_activities) { %>
-                        <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
-                        <% $_amount  = towing_activities[$y].amount; %>
-                        <% $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat; %>
-                        <% $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat; %>
-                        <% $_voucher_total = $_total; %>
-                        <% $found=true; %>
-                        <% } %>
-                        <% } %>
-                        <% } %>
+                                if(timeframe_id == timeframes[$i].id)
+                                {
+                                    $found = false;
 
-                        <% if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP'){ %>
-                        <td class="padded bordered text-center disabled">&nbsp;</td>
-                        <% } else { %>
-                        <td class="padded bordered text-center"><%= $_amount %></td>
-                        <% } %>
+                                    for(var $y in towing_activities)
+                                    {
+                                      if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+                                      {
+                                        $_amount  = towing_activities[$y].amount;
+                                        $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
 
-                        <td class="padded bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-                        <td class="padded bordered text-center"><%= $_cal_fee %></td>
-                        <% } %>
-                        <% } %>
-                        <% } %>
+                                        $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
+                                        $_voucher_total = $_total;
+                                        $found=true;
+                                      }
+                                    }
+                                }
+
+                                if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
+                                {
+                                  %><td class="padded bordered text-center disabled">&nbsp;</td><%
+                                } else {
+                                  %><td class="padded bordered text-center"><%= $_amount %></td><%
+                                } %>
+
+                                <td class="padded bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                                <td class="padded bordered text-center"><%= $_cal_fee %></td>
+                        <%    }
+                            }
+                          }
+                        %>
                     </tr>
-                    <% }else{ %>
-                    <% for(var $x in timeframe_activity_fees) { %>
-                    <% for(var $k in timeframe_activity_fees[$x]) { %>
-                    <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) { %>
-                    <% var $_amount  = ''; %>
-                    <% var $_cal_fee = ''; %>
-                    <% if(timeframe_id == timeframes[$i].id) { %>
-                    <% $found = false; %>
-                    <% for(var $y in towing_activities) { %>
-                    <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
-                    <% $_depot_days = towing_activities[$y].amount; %>
-                    <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
-                    <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
-                    <% $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat; %>
-                    <% $found=true; %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
+                    <% }
+                      else
+                      {
+                        for(var $x in timeframe_activity_fees) {
+                          for(var $k in timeframe_activity_fees[$x]) {
+                            if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) {
+                              var $_amount  = '';
+                              var $_cal_fee = '';
+
+                              if(timeframe_id == timeframes[$i].id) {
+                                $found = false;
+                                for(var $y in towing_activities) {
+                                  if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) {
+                                    $_depot_days = towing_activities[$y].amount;
+                                    $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                                    $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                                    $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
+                                    $found=true;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    %>
 
                     <tr>
                         <td class="padded bordered text-center disabled">&nbsp;</td>
