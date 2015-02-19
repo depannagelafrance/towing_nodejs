@@ -100,6 +100,7 @@ const SQL_ADD_CAUSER_SIGNATURE          = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?
 const SQL_ADD_POLICE_SIGNATURE          = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_INSURANCE_DOCUMENT        = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
 const SQL_ADD_ANY_DOCUMENT              = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
+const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT   = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
 const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
 
 const SQL_FETCH_ALL_INTERNAL_COMMUNICATION = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
@@ -360,6 +361,10 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
       $sql = SQL_ADD_INSURANCE_DOCUMENT;
       $file_name = ju.requires('file_name', $req.body);
       break;
+    case 'vehicle_damage':
+      $sql = SQL_ADD_VEHICLE_DAMAGE_DOCUMENT;
+      $file_name = ju.requires('file_name', $req.body);
+      break;
     case 'any':
       $sql = SQL_ADD_ANY_DOCUMENT;
       $file_name = ju.requires('file_name', $req.body);
@@ -375,7 +380,7 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
 
   $params = [$voucher_id, $content_type, $file_size, $content, $token];
 
-  if($file_name && $file_name != "" && ($category == 'insurance_document' || $category == 'any')) {
+  if($file_name && $file_name != "" && ($category == 'insurance_document' || $category == 'any' || $category == 'vehicle_damage')) {
     $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $token];
   }
 
