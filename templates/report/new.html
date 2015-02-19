@@ -114,6 +114,17 @@
             text-align: center;
         }
 
+        .table-special{
+            width: 25%;
+            padding-left: 10px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+
+        .table-focus{
+            background: #e0e0e0;
+        }
+
         .l-1-col > *{
             width: 100%;
         }
@@ -154,10 +165,6 @@
             text-align: right;
         }
 
-        .l-paytotal table{
-            background: #e0e0e0;
-        }
-
         .pickedupby,
         .item-heading{
             text-transform: uppercase;
@@ -176,7 +183,7 @@
         <!-- Title -->
         <div class="l-title l-2-col black-alpha cf margined">
             <div class="takelbon">Takelbon F.A.S.T < 3,5 Ton</div>
-            <div class="perceel">Perceel 1: Ring</div>
+            <div class="perceel"><%= allotment_name %></div>
         </div>
 
         <!-- Numbers -->
@@ -184,13 +191,13 @@
             <div class="padded">
                 <div class="padded-large bordered" style="padding-left: 8px;">
                     <label>Takelbon nr.:</label>
-                    <span>000002</span>
+                    <span><%= VOUCHER_NUMBER %></span>
                 </div>
             </div>
             <div class="padded">
                 <div class="padded-large bordered" style="padding-left: 8px;">
                     <label>Oproep nr.:</label>
-                    <span>100140010000</span>
+                    <span><%= CALL_NUMBER %></span>
                 </div>
             </div>
         </div>
@@ -207,20 +214,27 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="padded-special" colspan="2">Depannage La France NV</td>
+                                <td class="padded-special" colspan="2"><%= TOWING_SERVICE_NAME %></td>
                             </tr>
                             <tr>
-                                <td class="padded-special" colspan="2">Voorspoedstraat 8</td>
+                                <td class="padded-special" colspan="2"><%= TOWING_SERVICE_STREET %> <%= TOWING_SERVICE_NR %></td>
                             </tr>
                             <tr>
-                                <td class="padded-special" colspan="2">Essen</td>
+                                <td class="padded-special" colspan="2"><%= TOWING_SERVICE_ZIP %> <%= TOWING_SERVICE_CITY %></td>
                             </tr>
                             <tr>
-                                <td class="padded-special"><label>Tel:</label> 3247270332</td>
-                                <td class="padded-special"><label>BTW Nr:</label> BE2342340</td>
+                                <td class="padded-special"><label>Tel:</label> <%= TOWING_SERVICE_PHONE %></td>
+                                <td class="padded-special"><label>BTW Nr:</label> <%= TOWING_SERVICE_VAT %></td>
                             </tr>
                             <tr>
-                                <td class="padded-special" colspan="2">Kvandermast</td>
+                                <td class="padded-special" colspan="2">
+                                    <%= TOWING_SERVICE_EMAIL %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special" colspan="2">
+                                    <%= TOWING_SERVICE_SITE %>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -235,22 +249,32 @@
                         </tr>
                         </thead>
                         <tbody>
+                        <% if(is_covered_by_insurance) { %>
+                            <tr>
+                                <td class="padded-special" colspan="2"><%=insurance_name%></td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special" colspan="2"><%=insurance.display_address%></td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special"><label>Btw Nr:</label> <%=insurance.vat%></td>
+                                <td class="padded-special"><label>Dossier Nr:</label> <%=insurance_dossier%></td>
+                            </tr>
+                        <% } else { %>
+                            <tr>
+                                <td class="padded-special" colspan="2"><%=customer_name%></td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special" colspan="2"><%=customer_address%></td>
+                            </tr>
+                            <tr>
+                                <td class="padded-special"><label>Tel:</label> <%=customer_phone%></td>
+                                <td class="padded-special"><label>BTW Nr:</label> <%=customer_vat%></td>
+                            </tr>
+                        <% } %>
                         <tr>
-                            <td class="padded-special" colspan="2">AW&V - Antwerpen</td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2">Boulevillekaai 11</td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2">2920 Antwerpen</td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special"><label>Tel:</label> 3247270332</td>
-                            <td class="padded-special"><label>BTW Nr:</label> BE2342340</td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special"><label>Nr. pl.:</label> ZER-435</td>
-                            <td class="padded-special"><label>Merk/type:</label> BMW</td>
+                            <td class="padded-special"><label>Nr. pl.:</label> <%=vehicule_licence_plate%></td>
+                            <td class="padded-special"><label>Merk/type:</label> <%=vehicule_type%></td>
                         </tr>
                         </tbody>
                     </table>
@@ -261,15 +285,23 @@
         <!-- LOCATION -->
         <div class="l-1-col l-location cf margined">
             <div class="padded">
-                <div class="padded-large bordered">
-                    <div class="padded">
-                        <label>Gemeente:</label>
-                        <span>A12, E32 > 89</span>
-                    </div>
-                    <div class="padded">
-                        <label>Aantal versperde rijstroken:</label>
-                        <span>Aanduiding 1</span>
-                    </div>
+                <div class="bordered">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="table-special"><label>Gemeente:</label></td>
+                                <td class="table-special"><%= location %></td>
+                                <td class="table-special"><label>Richting:</label></td>
+                                <td class="table-special"><%= direction %> thv <%= indicator %></td>
+                            </tr>
+                            <tr>
+                                <td class="table-special"><label>Aantal versperde rijstroken:</label></td>
+                                <td class="table-special"><%= nr_of_blocked_lanes %></td>
+                                <td class="table-special"><label>Aanduiding rijstrook:</label></td>
+                                <td class="table-special"><%= lane_indicator %></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -280,14 +312,14 @@
                 <div class="padded-large bordered">
                    <div class="padded">
                        <label>Datum:</label>
-                       <span>01-12-2014</span>
+                       <span><%= call_date %></span>
                    </div>
                     <div class="padded">
                         <label>Uur:</label>
-                        <span>13:00</span>
+                        <span><%= call_hour %></span>
                     </div>
                     <div class="padded">
-                        <span class="check"></span>
+                        <span class="check"><%=cb_is_holiday%></span>
                         <span>Feestdag</span>
                     </div>
                     <div class="padded">&nbsp;</div>
@@ -297,35 +329,35 @@
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Aankomst Signal:</label>
-                        <span>12:49</span>
+                        <span><%= signa_arrival %></span>
                     </div>
                     <div class="padded">
                         <label>Aankomst Takel:</label>
-                        <span>13:00</span>
+                        <span><%= towing_arrival %></span>
                     </div>
                     <div class="padded">
                         <label>Start Takel:</label>
-                        <span>13:10</span>
+                        <span><%= towing_start %></span>
                     </div>
                     <div class="padded">
                         <label>Stop Takel:</label>
-                        <span>13:30</span>
+                        <span><%= towing_end %></span>
                     </div>
                 </div>
             </div>
             <div class="padded">
                 <div class="padded-large bordered">
                     <div class="padded">
-                        <label>Signal:</label>
-                        <span></span>
+                        <label>Signal.:</label>
+                        <span><%=signa_licence_plate%></span>
                     </div>
                     <div class="padded">
                         <label>Takel:</label>
-                        <span></span>
+                        <span><%=towing_licence_plate%></span>
                     </div>
                     <div class="padded">
                         <label>Aantal Takelbons:</label>
-                        <span>1</span>
+                        <span><%= nr_of_vouchers %></span>
                     </div>
                     <div class="padded">&nbsp;</div>
                 </div>
@@ -333,19 +365,19 @@
             <div class="padded">
                 <div class="padded-large bordered">
                     <div class="padded">
-                        <span class="check"></span>
+                        <span class="check"><%=cb_incident_type_panne%></span>
                         <span>PANNE</span>
                     </div>
                     <div class="padded">
-                        <span class="check"></span>
+                        <span class="check"><%=cb_incident_type_ongeval%></span>
                         <span>ONGEVAL</span>
                     </div>
                     <div class="padded">
-                        <span class="check"></span>
+                        <span class="check"><%=cb_incident_type_achtergelaten_voertuig%></span>
                         <span>ACHTERGEL. VTG.</span>
                     </div>
                     <div class="padded">
-                        <span class="check"></span>
+                        <span class="check"><%=cb_incident_type_verloren_voorwerp%></span>
                         <span>LADING VERLIES</span>
                     </div>
                 </div>
@@ -358,221 +390,130 @@
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Locatie depot afvoer:</label>
-                        <span>Depot la france, noorderlaan 4, 2000 antwerpen</span>
+                        <span><%= towing_location_depot %></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!--PAYME -->
-        <div class="l-1-col l-payme cf margined">
+        <!--PAYME NEW -->
+
+        <div class="l-4-col l-payme cf margined">
+
+            <!-- FIRST COL -->
             <div class="padded">
-                <table class="table--centered">
+                <table>
                     <thead>
-                        <tr>
-                            <td style="width: 25%;" class="padded-large bordered text-center text-bold">Type Takeling</td>
-                            <td colspan="3" class="padded-large bordered text-center text-bold">Basistarief</td>
-                            <td colspan="3" class="padded-large bordered text-center text-bold">Tarief I</td>
-                            <td colspan="3" class="padded-large bordered text-center text-bold">Tarief II</td>
-                        </tr>
+                        <tr><td colspan="3" class="padded-large bordered text-center text-bold">Type Takeling</td></tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="text-small padded bordered text-center">Aantal</td>
-                            <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
-                            <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
-
-                            <td class="text-small padded bordered text-center">Aantal</td>
-                            <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
-                            <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
-
-                            <td class="text-small padded bordered text-center">Aantal</td>
-                            <td class="text-small padded bordered text-center">Prijs (incl btw)</td>
-                            <td class="text-small padded bordered text-center">Totaal (incl btw)</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type II (achtergel)</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">425,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">98,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
-                        <tr>
-                            <td class="padded bordered text-center">Type I (Panne)</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">245,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="disabled padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">225,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-
-                            <td class="padded bordered text-center">&nbsp;</td>
-                            <td class="padded bordered text-center">45,45</td>
-                            <td class="padded bordered text-center">&nbsp;</td>
-                        </tr>
-
+                        <tr><td class="padded-large bordered text-center text-bold">&nbsp;</td></tr>
+                        <% for(var $j in timeframe_activities) { %>
+                        <% if(timeframe_activities[$j].code != 'STALLING') { %>
+                                <tr>
+                                    <td colspan="3" class="padded-large bordered text-center"><%=timeframes[$i].name%></td>
+                                </tr>
+                        <% } %>
+                        <% } %>
+                        <tr><td class="padded-large bordered text-center">Totaal per tarief</td></tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- 2-4 COL -->
+            <% var $_voucher_total   = ''; %>
+            <% var $_depot_days      = ''; %>
+            <% var $_depot_fee       = ''; %>
+            <% var $_depot_total_fee = ''; %>
+            <% var $vat_tag = 'incl.'; %>
+            <% if(company_vat_foreign_country == 1) { %>
+                <% $vat_tag = 'excl.'; %>
+            <% } %>
+
+            <% for(var $i in timeframes) { %>
+            <div class="padded">
+                <table>
+                    <thead>
+                        <tr><td colspan="3" class="padded-large bordered text-center text-bold"><%=timeframes[$i].name%></td></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="subhead">
+                            <td class="text-small padded bordered text-center">Aantal</td>
+                            <td class="text-small padded bordered text-center">Prijs (<%=$vat_tag%> BTW)</td>
+                            <td class="text-small padded bordered text-center">Totaal (<%=$vat_tag%> BTW)</td>
+                        </tr>
+
+                        <!-- COL CONTENT -->
+                        <% for(var $j in timeframe_activities) { %>
+                        <% if(timeframe_activities[$j].code != 'STALLING'){ %>
+                        <tr>
+                            <% for(var $x in timeframe_activity_fees) { %>
+                            <% for(var $k in timeframe_activity_fees[$x]){ %>
+                               <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id){
+
+                                    <% var $_amount  = ''; %>
+                                    <% var $_cal_fee = ''; %>
+
+                                    <% if(timeframe_id == timeframes[$i].id){ %>
+                                        <% $found = false; %>
+                                        <% for(var $y in towing_activities) { %>
+                                            <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
+                                                <% $_amount  = towing_activities[$y].amount; %>
+                                                <% $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat; %>
+                                                <% $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat; %>
+                                                <% $_voucher_total = $_total; %>
+                                                <% $found=true; %>
+                                            <% } %>
+                                        <% } %>
+                                    <% } %>
+
+                                    <% if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP'){ %>
+                                        <td class="padded bordered text-center disabled">&nbsp;</td>
+                                    <% } else { %>
+                                        <td class="padded bordered text-center"><%= $_amount %></td>
+                                    <% } %>
+
+                                    <td class="padded bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                                    <td class="padded bordered text-center"><%= $_cal_fee %></td>
+                                <% } %>
+                            <% } %>
+                            <% } %>
+                        </tr>
+                        <% }else{ %>
+                            <% for(var $x in timeframe_activity_fees) { %>
+                            <% for(var $k in timeframe_activity_fees[$x]) { %>
+                                <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) { %>
+                                    <% var $_amount  = ''; %>
+                                    <% var $_cal_fee = ''; %>
+                                    <% if(timeframe_id == timeframes[$i].id) { %>
+                                        <% $found = false; %>
+                                        <% for(var $y in towing_activities) { %>
+                                            <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
+                                                <% $_depot_days = towing_activities[$y].amount; %>
+                                                <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
+                                                <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
+                                                <% $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat; %>
+                                                <% $found=true; %>
+                                            <% } %>
+                                        <% } %>
+                                    <% } %>
+                                <% } %>
+                            <% } %>
+                            <% } %>
+                        <% } %>
+                        <% } %>
+
+                        <tr>
+                            <td class="padded bordered text-center disabled">&nbsp;</td>
+                            <td class="padded bordered text-center disabled">&nbsp;</td>
+                            <td class="padded bordered text-center"><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <% } %>
         </div>
+
 
         <!-- -->
         <div class="l-2-col cf margined">
@@ -586,11 +527,11 @@
                         <tbody>
                         <tr>
                             <td class="padded-large bordered ">Aantal</td>
-                            <td class="padded-large bordered text-center">5d</td>
-                            <td class="padded-large bordered ">Prijs</td>
-                            <td class="padded-large bordered text-center">€123</td>
-                            <td class="padded-large bordered ">Totaal</td>
-                            <td class="padded-large bordered text-center">€423</td>
+                            <td class="padded-large bordered text-center"><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
+                            <td class="padded-large bordered ">Prijs (<%=$vat_tag%> BTW)</td>
+                            <td class="padded-large bordered text-center"><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
+                            <td class="padded-large bordered ">Totaal (<%=$vat_tag%> BTW)</td>
+                            <td class="padded-large bordered text-center"><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
                         </tr>
 
                         </tbody>
@@ -613,26 +554,43 @@
         <!-- -->
         <div class="l-2-col l-paytotal cf margined">
             <div class="padded">
-                <table>
+                <table class="table-focus">
                     <tbody>
                         <tr>
-                            <td class="padded-large bordered">ALGEMEEN TOTAAL INCL. BTW</td>
-                            <td class="padded-large bordered">€ 245,34</td>
+                            <td class="padded-large bordered">ALGEMEEN TOTAAL <%=$vat_tag%>  BTW</td>
+                            <td class="padded-large bordered">&euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td>
                         </tr>
                         <tr>
                             <td class="padded-large bordered">GARANTIE ASSISTANCE</td>
-                            <td class="padded-large bordered">€ 0</td>
+                            <td class="padded-large bordered">&euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td>
                         </tr>
                         <tr>
                             <td class="padded-large bordered">TEN LASTE VAN DE KLANT</td>
-                            <td class="padded-large bordered">€ 0</td>
+                            <td class="padded-large bordered">&euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td>
                         </tr>
                         <tr>
                             <td colspan="2" class="padded-large bordered text-center text-bold">BETALINGSWIJZE</td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="padded-large bordered">&nbsp;</td>
+                            <td colspan="2" class="padded-large bordered">
+                                <% if(towing_payments.paid_in_cash) { %>&#9746; Contant <% } %>
+                                <% if(towing_payments.paid_by_bank_deposit) { %>&#9746; Overschrijving <% } %>
+                                <% if(towing_payments.paid_by_debit_card) { %>&#9746; Bancontact <% } %>
+                                <% if(towing_payments.paid_by_credit_card) { %>&#9746; Kredietkaart <% } %>
+                            </td>
                         </tr>
+
+                        <% if(is_covered_by_insurance) { %>
+                        <tr>
+                            <td colspan="2" class="padded-large bordered">
+                                <span class="label">Klant:</span> <%=customer_name%> <br />
+                                <span class="label">Adres:</span> <%=customer_address%> <br />
+                                <span class="label">Telnr.:</span> <%=customer_phone%> <br />
+                                <span class="label">BTW Nr.:</span> <%=customer_vat%>
+                            </td>
+                        </tr>
+                        <% } %>
+
                     </tbody>
                 </table>
             </div>
@@ -651,14 +609,29 @@
                 </div>
                 <div class="padded bordered margined text-small">
                     <div class="padded-large">
-                        <div>
-                            <label>Naam/Firma:</label>
-                            <span>Accuzio BVBA</span>
-                        </div>
-                        <div>
-                            <label>Datum:</label>
-                            <span>Accuzio BVBA</span>
-                        </div>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label>Naam/Firma:</label>
+                                        <span><%=collected_by%></span>
+                                    </td>
+                                    <td rowspan="2">
+                                        <% if(collected_by_signature) { %>
+                                        <img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
+                                        <% } else { %>
+                                        Geen handtekening
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label>Datum:</label>
+                                        <span><%=collection_date%></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -673,20 +646,26 @@
                     <div>&nbsp;</div>
                     <div class="padded-special2">
                         <label>Naam:</label>
-                        <span>Depannage La France</span>
+                        <span><%=towing_service_name%></span>
                     </div>
                     <div class="padded-special2">
                         <label>Adres:</label>
-                        <span>Voorspoed 8 Essen</span>
+                        <span><%= towing_service_street %> <%= towing_service_nr %>, <%= towing_service_zip %> <%= towing_service_city %></span>
                     </div>
                     <div class="padded-special2">
                         <label>Tel:</label>
-                        <span>04354357777</span>
+                        <span><%=towing_service_phone%></span>
                     </div>
                     <div>&nbsp;</div>
                     <div class="padded-special2 autograph">
                         <label>Handtekening:</label>
-                        <span>geen handtekening</span>
+                        <span>
+                            <% if(signature_signa) { %>
+                                <img src="data:image/png;base64,<%=signature_signa %>" class="signature" />
+                            <% } else { %>
+                                Geen handtekening
+                            <% } %>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -697,20 +676,26 @@
                     <div>&nbsp;</div>
                     <div class="padded-special2">
                         <label>Verkeerspost:</label>
-                        <span>Brecht</span>
+                        <span><%=traffic_post%></span>
                     </div>
                     <div class="padded-special2">
                         <label>Tel:</label>
-                        <span>047734534848</span>
+                        <span><%=traffic_post_phone%> (tijdens kantoor uren)</span>
                     </div>
                     <div class="padded-special2">
                         <label>Tijdstip bevestiging:</label>
-                        <span>12:50</span>
+                        <span><%=traffic_post_confirmation%></span>
                     </div>
                     <div>&nbsp;</div>
                     <div class="padded-special2 autograph">
                         <label>Handtekening:</label>
-                        <span>geen handtekening</span>
+                        <span>
+                            <% if(signature_police) { %>
+                                <img src="data:image/png;base64,<%=signature_police %>" class="signature" />
+                            <% } else { %>
+                                Geen handtekening
+                            <% } %>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -721,20 +706,26 @@
                     <div>&nbsp;</div>
                     <div class="padded-special2">
                         <label>Naam:</label>
-                        <span></span>
+                        <span><%=causer_name%></span>
                     </div>
                     <div class="padded-special2">
                         <label>Adres:</label>
-                        <span></span>
+                        <span><%=causer_address%></span>
                     </div>
                     <div class="padded-special2">
                         <label>Tel:</label>
-                        <span></span>
+                        <span><%=causer_phone%></span>
                     </div>
                     <div>&nbsp;</div>
                     <div class="padded-special2 autograph">
                         <label>Handtekening:</label>
-                        <span>geen handtekening</span>
+                        <span>
+                            <% if(signature_causer) { %>
+                                <img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+                            <% } else { %>
+                                Geen handtekening
+                            <% } %>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -746,7 +737,7 @@
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Eventuele opmerkingen:</label>
-                        <span></span>
+                        <span><%=extra_info%></span>
                     </div>
                 </div>
             </div>
@@ -757,7 +748,7 @@
             <div class="padded">
                 <div class="padded-large">
                     <div class="padded text-right text-italic">
-                        Exemplaar Dienstverlener
+                        <%=copy_for%>
                     </div>
                 </div>
             </div>
@@ -768,7 +759,7 @@
             <div class="padded">
                 <div class="padded-large">
                     <div class="padded text-center text-smallest">
-                       Depannage La France - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
+                        <%=towing_service_name%> - BNP Parisbas Fortis: BE60 2200 3624 2670 (BIC: GEBABEBB) - ING: BE72 3200 5535 2516 (BIC: BBRUBEBB)
                     </div>
                 </div>
             </div>

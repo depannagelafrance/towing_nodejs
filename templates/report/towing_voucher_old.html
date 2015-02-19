@@ -276,32 +276,33 @@
     </div>
 
 <div class="clear">
+
+
 	<div class="style4" style="width: 133px; font-size: 0.8em;">
 		<table width="100%">
 			<thead>
 				<tr><th>Type Takeling</th></tr>
 				<tr><th class="small">&nbsp;</th></tr>
 			</thead>
-<tbody>
-<% 	for(var $j in timeframe_activities)
-		{
-			if(timeframe_activities[$j].code != 'STALLING')
-			{
-				%>
+			<tbody>
+			<% 	for(var $j in timeframe_activities)
+					{
+						if(timeframe_activities[$j].code != 'STALLING')
+						{
+							%>
+							<tr>
+								<td><%=timeframe_activities[$j].name%></td>
+							</tr>
+							<%
+						}
+					}
+			%>
 				<tr>
-					<td><%=timeframe_activities[$j].name%></td>
+						<td>Totaal per tarief</td>
 				</tr>
-				<%
-			}
-		}
-%>
-	<tr>
-			<td>Totaal per tarief</td>
-	</tr>
-</tbody>
-
-				</table>
-			</div>
+			</tbody>
+		</table>
+	</div>
 
 
 <%
@@ -332,24 +333,19 @@ for(var $i in timeframes) {
 <%
 		$_total = "";
 
-		for(var $j in timeframe_activities)
-		{
-			if(timeframe_activities[$j].code != 'STALLING')
-			{
+		for(var $j in timeframe_activities){
+			if(timeframe_activities[$j].code != 'STALLING'){
 				%>
 				<tr>
-<% 				for(var $x in timeframe_activity_fees)
-					{
-						for(var $k in timeframe_activity_fees[$x])
-						{
-							if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id
-							&& timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
-							{
+<%
+					for(var $x in timeframe_activity_fees){
+						for(var $k in timeframe_activity_fees[$x]){
+							if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id){
+
 								var $_amount = "";
 								var $_cal_fee = "";
 
-								if(timeframe_id == timeframes[$i].id)
-								{
+								if(timeframe_id == timeframes[$i].id){
 									$found = false;
 
 									for(var $y in towing_activities)
@@ -414,14 +410,14 @@ for(var $i in timeframes) {
 										$_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
 
 										$found=true;
-									} //end if (!$found)
-								} // end for(var $y ...)
-							} //end if (timeframe_id = ...)
-						} //end if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id ...
-					} //end for(var $k in timeframe_activity_fees[$x]) ...
-				} // end for var $x in timeframe_activity_fees
-			} // end if(timeframe_activities[$j].code != 'STALLING')
-		} // end for(var $j in timeframe_activities)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 %>
 			<tr>
 				<td class="disabled">&nbsp;</td>
