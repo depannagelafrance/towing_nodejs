@@ -191,13 +191,13 @@
             <div class="padded">
                 <div class="padded-large bordered" style="padding-left: 8px;">
                     <label>Takelbon nr.:</label>
-                    <span><%= VOUCHER_NUMBER %></span>
+                    <span><%= voucher_number %></span>
                 </div>
             </div>
             <div class="padded">
                 <div class="padded-large bordered" style="padding-left: 8px;">
                     <label>Oproep nr.:</label>
-                    <span><%= CALL_NUMBER %></span>
+                    <span><%= call_number %></span>
                 </div>
             </div>
         </div>
@@ -214,26 +214,26 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td class="padded-special" colspan="2"><%= TOWING_SERVICE_NAME %></td>
+                            <td class="padded-special" colspan="2"><%= towing_service_name %></td>
                         </tr>
                         <tr>
-                            <td class="padded-special" colspan="2"><%= TOWING_SERVICE_STREET %> <%= TOWING_SERVICE_NR %></td>
+                            <td class="padded-special" colspan="2"><%= towing_service_street %> <%= towing_service_nr  %></td>
                         </tr>
                         <tr>
-                            <td class="padded-special" colspan="2"><%= TOWING_SERVICE_ZIP %> <%= TOWING_SERVICE_CITY %></td>
+                            <td class="padded-special" colspan="2"><%= towing_service_zip %> <%= towing_service_city %></td>
                         </tr>
                         <tr>
-                            <td class="padded-special"><label>Tel:</label> <%= TOWING_SERVICE_PHONE %></td>
-                            <td class="padded-special"><label>BTW Nr:</label> <%= TOWING_SERVICE_VAT %></td>
+                            <td class="padded-special"><label>Tel:</label> <%= towing_service_phone  %></td>
+                            <td class="padded-special"><label>BTW Nr:</label> <%= towing_service_vat %></td>
                         </tr>
                         <tr>
                             <td class="padded-special" colspan="2">
-                                <%= TOWING_SERVICE_EMAIL %>
+                                <%= towing_service_email %>
                             </td>
                         </tr>
                         <tr>
                             <td class="padded-special" colspan="2">
-                                <%= TOWING_SERVICE_SITE %>
+                                <%= towing_service_site %>
                             </td>
                         </tr>
                         </tbody>
@@ -329,19 +329,19 @@
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Aankomst Signal:</label>
-                        <span><%= signa_arrival %></span>
+                        <span><%=signa_arrival %></span>
                     </div>
                     <div class="padded">
                         <label>Aankomst Takel:</label>
-                        <span><%= towing_arrival %></span>
+                        <span><%=towing_arrival %></span>
                     </div>
                     <div class="padded">
                         <label>Start Takel:</label>
-                        <span><%= towing_start %></span>
+                        <span><%=towing_start %></span>
                     </div>
                     <div class="padded">
                         <label>Stop Takel:</label>
-                        <span><%= towing_end %></span>
+                        <span><%=towing_end %></span>
                     </div>
                 </div>
             </div>
@@ -357,7 +357,7 @@
                     </div>
                     <div class="padded">
                         <label>Aantal Takelbons:</label>
-                        <span><%= nr_of_vouchers %></span>
+                        <span><%=nr_of_vouchers %></span>
                     </div>
                     <div class="padded">&nbsp;</div>
                 </div>
@@ -390,7 +390,7 @@
                 <div class="padded-large bordered">
                     <div class="padded">
                         <label>Locatie depot afvoer:</label>
-                        <span><%= towing_location_depot %></span>
+                        <span><%=towing_location_depot %></span>
                     </div>
                 </div>
             </div>
