@@ -29,13 +29,16 @@ var apnagent = require('apnagent')
  */
 
 agent
-  .set('pfx file', pfx)
+  .set('cert file', join(__dirname, '../_certs/towingtool-dev-cert.pem'))
+  .set('key file', join(__dirname, '../_certs/towingtool-dev-key.pem'))  
   .set('passphrase', 'T0w1nG')
-  .set('cert file', join(__dirname, '../_certs/towingtool-dev.p12'))
-  .set('key file', join(__dirname, '../_certs/towingtool-dev.pem'))
   .enable('sandbox');
+  //.set('pfx file', pfx)
+  // .set('cert file', join(__dirname, '../_certs/towingtool-dev.p12'))
+  // .set('key file', join(__dirname, '../_certs/towingtool-dev.pem'))
 
-console.log('Reading Push certificate from ' + pfx);
+console.log('Reading Push certificate from ' + join(__dirname, '../_certs/towingtool-dev-cert.pem'));
+console.log('Reading Push certificate from ' + join(__dirname, '../_certs/towingtool-dev-key.pem'));
 agent
   .set('expires', '1d')
   .set('reconnect delay', '1s')

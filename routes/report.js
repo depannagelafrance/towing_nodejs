@@ -40,7 +40,7 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
   var $type       = ju.requires('type', $req.params);
 
   dossier.findById($dossier_id, $token, function($dossier){
-    var $filename='./templates/report/towing_voucher.html';
+    var $filename='./templates/report/new.html'; //towing_voucher.html';
 
     fs.readFile($filename, 'utf8', function($err, $data){
       if($err) { 
