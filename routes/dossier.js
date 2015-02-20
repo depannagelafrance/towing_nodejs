@@ -87,6 +87,7 @@ const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,
 
 const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
 const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_CUSTOMER_TO_AGENCY  = "CALL R_UPDATE_TOWING_CUSTOMER_TO_AGENCY(?,?);";
 
 const SQL_FETCH_CAUSER                      = "CALL R_FETCH_TOWING_CAUSER(?, ?); ";
 const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -524,6 +525,21 @@ router.get('/customer/:dossier/:voucher/:token', function($req, $res) {
   db.one(SQL_FETCH_CUSTOMER, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   })
+});
+
+router.put('/customer/agency/:voucher/:token', function($req, $res) {
+  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  $token            = ju.requires('token', $req.params);
+
+  db.one(SQL_UPDATE_TOWING_CUSTOMER_TO_AGENCY, [$voucher_id, $token], function($error, $result, $fields){
+      if($result.id) {
+        db.one(SQL_FETCH_CUSTOMER, [$voucher_id, $token], function($error, $result, $fields) {
+          ju.send($req, $res, $result);
+        });
+      } else {
+        ju.send($req, $res, $result);
+      }
+  });
 });
 
 router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
