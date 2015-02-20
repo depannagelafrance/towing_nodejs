@@ -1,4 +1,5 @@
 var soap      = require('soap');
+var _         = require('underscore');
 var common    = require('../util/common.js');
 var LOG       = require('../util/logger.js');
 var settings  = require('../settings/settings.js');
@@ -36,8 +37,10 @@ var checkVat = function($vat, cb)
           client.checkVat({'countryCode': $countryCode, 'vatNumber': $vatNumber}, function(err, result){
             if(result.valid)
             {
-              LOG.d(TAG, "--> Valid result: " + JSON.stringify(result));
-              cb(result, null);
+              $_result = postProcessResult(result);
+
+              LOG.d(TAG, "--> Valid result: " + JSON.stringify($_result));
+              cb($_result, null);
             }
             else
             {
@@ -54,5 +57,47 @@ var checkVat = function($vat, cb)
   }
 }
 
+
+function postProcessResult($result) {
+  if($result) {
+    if($result.address) {
+      $_address = $result.address.split("\n");
+
+      if($_address && $_address.length == 2) {
+        $_street_and_nr = $_address[0].split(" ");
+        $_zip_and_city  = $_address[1].split(" ");
+
+        $_street  = null;
+        $_nr      = null;
+        $_zip     = null;
+        $_city    = null;
+
+        if($_street_and_nr.length >= 2) {
+          $_street = _.first($_street_and_nr).trim();
+          $_nr = _.rest($_street_and_nr).join(" ").trim();
+        } else {
+          $_street = $_address[0];
+        }
+
+        if($_zip_and_city.length >= 2) {
+          $_zip = _.first($_zip_and_city);
+          $_city = _.rest($_zip_and_city).join(" ").trim();
+        } else {
+          $$_city = $_address[1];
+        }
+
+        $result.address_data = {
+          "street": $_street,
+          "street_number": $_nr,
+          "zip": $_zip,
+          "city": $_city
+        }
+
+      }
+    }
+  }
+
+  return $result;
+}
 
 exports.checkVat = checkVat;

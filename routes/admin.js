@@ -356,7 +356,14 @@ router.post('/insurance/:token', function($req, $res) {
       }
 
       if(!$street || $street == '') {
-        $street = $result.address;
+        if($result.address_data) {
+          $street = $result.address_data.street;
+          $number = $result.address_data.street_number;
+          $zip    = $result.address_data.zip;
+          $city   = $result.address_data.city;
+        } else {
+          $street = $result.address;
+        }
       }
 
       db.one(SQL_CREATE_INSURANCE, [$name, $vat, $street, $number, $pobox, $zip, $city, $token], function($error, $result, $fields) {
