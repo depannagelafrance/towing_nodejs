@@ -198,7 +198,7 @@
         <div class="l-2-col l-details cf margined">
             <div class="padded">
                 <div class="bordered">
-                    <table>
+                    <table style="height:170px;">
                         <thead>
                         <tr>
                             <th style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Dienstverlener</th>
@@ -234,7 +234,7 @@
             </div>
             <div class="padded">
                 <div class="bordered">
-                    <table>
+                    <table style="height:170px;">
                         <thead>
                         <tr>
                             <th style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Hinderverwekker</th>
@@ -390,15 +390,15 @@
                     <tr><th colspan="3" class="padded-large bordered text-center text-bold">Type Takeling</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td class="padded-large bordered text-center text-bold">&nbsp;</td></tr>
+                    <tr><td class="bordered text-center text-bold">&nbsp;</td></tr>
                     <% for(var $j in timeframe_activities) { %>
                     <% if(timeframe_activities[$j].code != 'STALLING') { %>
                     <tr>
-                        <td colspan="3" class="padded-large bordered text-center"><%=timeframe_activities[$j].name%></td>
+                        <td colspan="3" class="bordered text-center"><%=timeframe_activities[$j].name%></td>
                     </tr>
                     <% } %>
                     <% } %>
-                    <tr><td class="padded-large bordered text-center">Totaal per tarief</td></tr>
+                    <tr><td class="bordered text-center">Totaal per tarief</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -527,14 +527,13 @@
                     <table>
                         <tbody>
                         <tr>
-                            <td class="padded-large bordered ">Aantal</td>
-                            <td class="padded-large bordered text-center"><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
-                            <td class="padded-large bordered ">Prijs (<%=$vat_tag%> BTW)</td>
-                            <td class="padded-large bordered text-center"><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
-                            <td class="padded-large bordered ">Totaal (<%=$vat_tag%> BTW)</td>
-                            <td class="padded-large bordered text-center"><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
+                            <td style="width:10%;" class="padded-large bordered ">Aantal</td>
+                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
+                            <td style="width:30%;" class="padded-large bordered ">Prijs (<%=$vat_tag%> BTW)</td>
+                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
+                            <td style="width:30%;" class="padded-large bordered ">Totaal (<%=$vat_tag%> BTW)</td>
+                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
                         </tr>
-
                         </tbody>
                     </table>
                 </div>
@@ -639,7 +638,7 @@
 
         <div class="l-3-col cf margined">
             <div class="padded">
-                <div class="bordered">
+                <div style="height:265px;" class="bordered">
                     <div class="padded-large item-heading text-bold">VOOR AKKOORD (DIENSTVERLENER)</div>
                     <div class="padded-special2">(Gegevens uitvoerder/onderaannemer)</div>
                     <div>&nbsp;</div>
@@ -669,7 +668,7 @@
                 </div>
             </div>
             <div class="padded">
-                <div class="bordered">
+                <div style="height:265px;" class="bordered">
                     <div class="padded-large item-heading text-bold">VOOR BEVESTIGING (POLITIE)</div>
                     <div class="padded-special2">(Gegevens Politiepost)</div>
                     <div>&nbsp;</div>
@@ -699,7 +698,7 @@
                 </div>
             </div>
             <div class="padded">
-                <div class="bordered">
+                <div style="height:265px;" class="bordered">
                     <div class="padded-large item-heading text-bold">VOOR KENNISNAME (HINDERVERWERKER)</div>
                     <div class="padded-special2">(Gegevens Hinderverwekker)</div>
                     <div>&nbsp;</div>
