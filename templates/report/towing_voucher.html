@@ -404,6 +404,7 @@
             </div>
 
             <%
+              var $_total           = null;
               var $_voucher_total   = '';
               var $_depot_days      = '';
               var $_depot_fee       = '';
@@ -411,7 +412,7 @@
               var $vat_tag = 'incl.';
 
               if(company_vat_foreign_country == 1) {
-                $vat_tag = 'excl.'; 
+                $vat_tag = 'excl.';
               }
             %>
             <% for(var $i in timeframes) { %>
