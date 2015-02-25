@@ -30,7 +30,7 @@ var apnagent = require('apnagent')
 
 agent
   .set('cert file', join(__dirname, '../_certs/towingtool-dev-cert.pem'))
-  .set('key file', join(__dirname, '../_certs/towingtool-dev-key.pem'))  
+  .set('key file', join(__dirname, '../_certs/towingtool-dev-key.pem'))
   .set('passphrase', 'T0w1nG')
   .enable('sandbox');
   //.set('pfx file', pfx)
@@ -99,6 +99,9 @@ agent.on('message:error', function (err, msg) {
     // unlikely, but could occur if trying to send over a dead socket
     default:
       console.log('[message:error] other error: %s', err.message);
+      console.log('[message:error] error code: %s', err.code);
+      console.log('[message:error] device: %s', msg.device().toString());
+      console.log(JSON.stringify(msg));
       break;
   }
 });

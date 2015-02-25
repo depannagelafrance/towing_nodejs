@@ -481,7 +481,8 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
       vies.checkVat($_customer.company_vat, function($result, $error) {
         if($error)
         {
-          ju.send($req, $res, $error);
+          ju.send($req, $res, {"result" : "invalid_vat", "vat": $_customer.company_vat});
+          // ju.send($req, $res, $error);
         }
         else
         {
@@ -555,7 +556,8 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
       vies.checkVat($_customer.company_vat, function($result, $error) {
         if($error)
         {
-          ju.send($req, $res, $error);
+          ju.send($req, $res, {"result" : "invalid_vat", "vat": $_customer.company_vat});
+          //ju.send($req, $res, $error);
         }
         else
         {
