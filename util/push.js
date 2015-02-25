@@ -101,7 +101,6 @@ agent.on('message:error', function (err, msg) {
       console.log('[message:error] other error: %s', err.message);
       console.log('[message:error] error code: %s', err.code);
       console.log('[message:error] device: %s', msg.device().toString());
-      console.log(JSON.stringify(msg));
       break;
   }
 });
