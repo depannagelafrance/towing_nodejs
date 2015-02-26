@@ -481,7 +481,8 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
       vies.checkVat($_customer.company_vat, function($result, $error) {
         if($error)
         {
-          ju.send($req, $res, $error);
+          ju.send($req, $res, {"result" : "invalid_vat", "vat": $_customer.company_vat});
+          // ju.send($req, $res, $error);
         }
         else
         {
@@ -555,7 +556,8 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
       vies.checkVat($_customer.company_vat, function($result, $error) {
         if($error)
         {
-          ju.send($req, $res, $error);
+          ju.send($req, $res, {"result" : "invalid_vat", "vat": $_customer.company_vat});
+          //ju.send($req, $res, $error);
         }
         else
         {
@@ -690,7 +692,7 @@ router.put('/:dossier/:token', function($req, $res) {
           $vehicule_country         = $voucher.vehicule_country;
           $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
           $vehicule_impact_remarks  = $voucher.vehicule_impact_remarks;
-          $towing_id                = _.isNaN(parseFloat($voucher.towing_id)) ? null : $voucher.towing_id;
+          $towing_id                = $voucher.towing_id; //towing_id is a VARCHAR field
           $towed_by                 = $voucher.towed_by;
           $towing_vehicle_id        = _.isNaN(parseFloat($voucher.towing_vehicle_id)) ? null : parseFloat($voucher.towing_vehicle_id);
           $towed_by_vehicule        = $voucher.towed_by_vehicle;
@@ -698,7 +700,7 @@ router.put('/:dossier/:token', function($req, $res) {
           $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
           $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
           $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
-          $signa_id                 = _.isNaN(parseFloat($voucher.signa_id)) ? null : parseFloat($voucher.signa_id);
+          $signa_id                 = $voucher.signa_id; //signa_id is a VARCHAR field
           $signa_by                 = $voucher.signa_by;
           $signa_by_vehicule        = $voucher.signa_by_vehicle;
           $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
@@ -789,7 +791,7 @@ router.put('/:dossier/:token', function($req, $res) {
             if($actions.signa_send_notification && $actions.signa_send_notification == 1)
             {
               LOG.d(TAG, " =============================================== ");
-              LOG.d(TAG, "  > Sending a notification")
+              LOG.d(TAG, "  > Sending a notification - NEW_TOWING_VOUCHER_ASSIGNED")
               LOG.d(TAG, " =============================================== ");
 
               db.one(SQL_FETCH_USER_BY_ID, [$signa_id, $token], function($error, $result, $fields) {
@@ -800,6 +802,29 @@ router.put('/:dossier/:token', function($req, $res) {
                         .alert('Nieuwe takelbon beschikbaar!')
                         .set('ACTION', 'NEW_TOWING_VOUCHER_ASSIGNED')
                         .send();
+                }
+              });
+
+            }
+
+            if(!$actions.signa_send_notification && $actions.towing_updated_notification && towing_updated_notification && $actions.towing_updated_notification == 1)
+            {
+              LOG.d(TAG, " =============================================== ");
+              LOG.d(TAG, "  > Sending a notification - TOWING_UPDATED_FOR_VOUCHER")
+              LOG.d(TAG, " =============================================== ");
+
+              db.one(SQL_FETCH_USER_BY_ID, [$signa_id, $token], function($error, $result, $fields) {
+                if($result && $result.mobile_device_id && $result.mobile_device_id != '')
+                {
+
+                    agent.createMessage()
+                          .device($result.mobile_device_id)
+                          .alert('Takelbon werd aangepast!')
+                          .set('ACTION', 'TOWING_UPDATED_FOR_VOUCHER')
+                          .set('towing_id', $towing_id)
+                          .set('towing_vehicle_id', $towing_vehicle_id)
+                          .set('voucher_id', $voucher_id)
+                          .send();
                 }
               });
 

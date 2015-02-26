@@ -31,7 +31,11 @@ var smtpTransportSettings = {
 }
 
 var apns = {
-    default_device: '<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>'
+    default_device: '<edd14b0e f7980538 2e44ed6c 250d57e8 1e00c5b6 e924a013 9d67ef51 c741dbc0>',
+    cert: '../_certs/dlf-towing-d-cert.pem',
+    key: '../_certs/dlf-towing-d-key.pem',
+    passphrase: 'T0w1nG',
+    sandbox: true
 }
 
 

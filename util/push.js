@@ -10,12 +10,15 @@ process.env.DEBUG = process.env.DEBUG
   : 'apnagent:*';
 
 
+
+var settings  = require('../settings/settings.js');
+
 /*!
  * Locate your certificate
  */
 
-var join = require('path').join
-  , pfx = join(__dirname, '../_certs/towingtool-dev.p12');
+var join = require('path').join;
+  //, pfx = join(__dirname, '../_certs/towingtool-dev.p12');
 
 /*!
  * Create a new gateway agent
@@ -29,42 +32,40 @@ var apnagent = require('apnagent')
  */
 
 agent
-  .set('cert file', join(__dirname, '../_certs/towingtool-dev-cert.pem'))
-  .set('key file', join(__dirname, '../_certs/towingtool-dev-key.pem'))  
-  .set('passphrase', 'T0w1nG')
-  .enable('sandbox');
-  //.set('pfx file', pfx)
-  // .set('cert file', join(__dirname, '../_certs/towingtool-dev.p12'))
-  // .set('key file', join(__dirname, '../_certs/towingtool-dev.pem'))
+  .set('cert file', join(__dirname, settings.apns.cert))
+  .set('key file', join(__dirname, settings.apns.key))
+  .set('passphrase', settings.apns.passphrase);
 
-console.log('Reading Push certificate from ' + join(__dirname, '../_certs/towingtool-dev-cert.pem'));
-console.log('Reading Push certificate from ' + join(__dirname, '../_certs/towingtool-dev-key.pem'));
+if(settings.apns.sandbox)
+  agent.enable('sandbox');
+
+
 agent
-  .set('expires', '1d')
+  .set('expires', '1h')
   .set('reconnect delay', '1s')
   .set('cache ttl', '30m');
 
 
-process.stdin.resume();//so the program will not close instantly
-
-function exitHandler(options, err) {
-  agent.close(function() {
-    console.log("Closing the APNS connection");
-  });
-
-  if (options.cleanup) console.log('clean');
-  if (err) console.log(err.stack);
-  if (options.exit) process.exit();
-}
-
-//do something when app is closing
-process.on('exit', exitHandler.bind(null,{cleanup:true}));
-
-//catches ctrl+c event
-process.on('SIGINT', exitHandler.bind(null, {exit:true}));
-
-//catches uncaught exceptions
-process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+// process.stdin.resume();//so the program will not close instantly
+//
+// function exitHandler(options, err) {
+//   agent.close(function() {
+//     console.log("Closing the APNS connection");
+//   });
+//
+//   if (options.cleanup) console.log('clean');
+//   if (err) console.log(err.stack);
+//   if (options.exit) process.exit();
+// }
+//
+// //do something when app is closing
+// process.on('exit', exitHandler.bind(null,{cleanup:true}));
+//
+// //catches ctrl+c event
+// process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+//
+// //catches uncaught exceptions
+// process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 
 
@@ -99,6 +100,8 @@ agent.on('message:error', function (err, msg) {
     // unlikely, but could occur if trying to send over a dead socket
     default:
       console.log('[message:error] other error: %s', err.message);
+      console.log('[message:error] error code: %s', err.code);
+      console.log('[message:error] device: %s', msg.device().toString());
       break;
   }
 });

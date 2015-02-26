@@ -20,6 +20,7 @@ const SQL_ALL_COUNTRY_LICENCE_PLATES    = "CALL R_FETCH_ALL_LICENCE_PLATE_COUNTR
 const SQL_ALL_DIRECTIONS                = "CALL R_FETCH_ALL_DIRECTIONS(?);";
 const SQL_ALL_INDICATORS_BY_DIRECTIONS  = "CALL R_FETCH_INDICATORS_BY_DIRECTION(?, ?);";
 const SQL_ALL_INCIDENT_TYPES            = "CALL R_FETCH_ALL_INCIDENT_TYPES(?)";
+const SQL_ALL_VEHICLES                  = "CALL R_FETCH_ALL_VEHICLES(?)";
 
 
 // -- FACILITATORS
@@ -64,6 +65,11 @@ router.get('/country_licence_plates/:token', function($req, $res) {
 router.get('/incident_types/:token', function($req, $res) {
   fetchVocabularies($req, $res, SQL_ALL_INCIDENT_TYPES);
 });
+
+router.get('/vehicles/:token', function($req, $res) {
+  fetchVocabularies($req, $res, SQL_ALL_VEHICLES);
+});
+
 
 // -- -------------------------------------------------
 // -- TIMEFRAME ACTIVITY VOCABS
