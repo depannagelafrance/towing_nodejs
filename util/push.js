@@ -14,8 +14,8 @@ process.env.DEBUG = process.env.DEBUG
  * Locate your certificate
  */
 
-var join = require('path').join
-  , pfx = join(__dirname, '../_certs/towingtool-dev.p12');
+var join = require('path').join;
+  //, pfx = join(__dirname, '../_certs/towingtool-dev.p12');
 
 /*!
  * Create a new gateway agent
@@ -29,18 +29,16 @@ var apnagent = require('apnagent')
  */
 
 agent
-  .set('cert file', join(__dirname, '../_certs/towingtool-dev-cert.pem'))
-  .set('key file', join(__dirname, '../_certs/towingtool-dev-key.pem'))
+  .set('cert file', join(__dirname, '../_certs/dlf-towing-d-cert.pem'))
+  .set('key file', join(__dirname, '../_certs/dlf-towing-d-key.pem'))
   .set('passphrase', 'T0w1nG')
   .enable('sandbox');
   //.set('pfx file', pfx)
   // .set('cert file', join(__dirname, '../_certs/towingtool-dev.p12'))
   // .set('key file', join(__dirname, '../_certs/towingtool-dev.pem'))
 
-console.log('Reading Push certificate from ' + join(__dirname, '../_certs/towingtool-dev-cert.pem'));
-console.log('Reading Push certificate from ' + join(__dirname, '../_certs/towingtool-dev-key.pem'));
 agent
-  .set('expires', '1d')
+  .set('expires', '1h')
   .set('reconnect delay', '1s')
   .set('cache ttl', '30m');
 
