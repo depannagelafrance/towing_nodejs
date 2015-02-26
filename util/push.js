@@ -10,6 +10,9 @@ process.env.DEBUG = process.env.DEBUG
   : 'apnagent:*';
 
 
+
+var settings  = require('../settings/settings.js');
+
 /*!
  * Locate your certificate
  */
@@ -29,13 +32,13 @@ var apnagent = require('apnagent')
  */
 
 agent
-  .set('cert file', join(__dirname, '../_certs/dlf-towing-d-cert.pem'))
-  .set('key file', join(__dirname, '../_certs/dlf-towing-d-key.pem'))
-  .set('passphrase', 'T0w1nG')
-  .enable('sandbox');
-  //.set('pfx file', pfx)
-  // .set('cert file', join(__dirname, '../_certs/towingtool-dev.p12'))
-  // .set('key file', join(__dirname, '../_certs/towingtool-dev.pem'))
+  .set('cert file', join(__dirname, settings.apns.cert))
+  .set('key file', join(__dirname, settings.apns.key))
+  .set('passphrase', settings.apns.passphrase);
+
+if(settings.apns.sandbox)
+  agent.enable('sandbox');
+
 
 agent
   .set('expires', '1h')
@@ -43,26 +46,26 @@ agent
   .set('cache ttl', '30m');
 
 
-process.stdin.resume();//so the program will not close instantly
-
-function exitHandler(options, err) {
-  agent.close(function() {
-    console.log("Closing the APNS connection");
-  });
-
-  if (options.cleanup) console.log('clean');
-  if (err) console.log(err.stack);
-  if (options.exit) process.exit();
-}
-
-//do something when app is closing
-process.on('exit', exitHandler.bind(null,{cleanup:true}));
-
-//catches ctrl+c event
-process.on('SIGINT', exitHandler.bind(null, {exit:true}));
-
-//catches uncaught exceptions
-process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+// process.stdin.resume();//so the program will not close instantly
+//
+// function exitHandler(options, err) {
+//   agent.close(function() {
+//     console.log("Closing the APNS connection");
+//   });
+//
+//   if (options.cleanup) console.log('clean');
+//   if (err) console.log(err.stack);
+//   if (options.exit) process.exit();
+// }
+//
+// //do something when app is closing
+// process.on('exit', exitHandler.bind(null,{cleanup:true}));
+//
+// //catches ctrl+c event
+// process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+//
+// //catches uncaught exceptions
+// process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 
 
