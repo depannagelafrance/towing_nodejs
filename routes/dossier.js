@@ -30,6 +30,7 @@ const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
+const SQL_MARK_VOUCHER_AS_IDLE              = "CALL R_MARK_VOUCHER_AS_IDLE(?,?); ";
 
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
                                                   + "?," //p_dossier_id
@@ -339,6 +340,15 @@ router.post('/voucher/:dossier_id/:token', function($req, $res) {
       fetchDossierById($req, $res, $dossier_id, $token);
     }
   });
+});
+
+router.post('/voucher/idle/:voucher_id/:token', function($req, $res) {
+  $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  $token      = ju.requires('token', $req.params);
+
+  db.one(SQL_MARK_VOUCHER_AS_IDLE, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  })
 });
 
 // -- CREATE VOUCHER ATTACHMENT
