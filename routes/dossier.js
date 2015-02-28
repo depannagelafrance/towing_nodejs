@@ -833,6 +833,7 @@ router.put('/:dossier/:token', function($req, $res) {
                           .set('ACTION', 'TOWING_UPDATED_FOR_VOUCHER')
                           .set('towing_id', $towing_id)
                           .set('towing_vehicle_id', $towing_vehicle_id)
+                          .set('towing_called', $towing_called)
                           .set('voucher_id', $voucher_id)
                           .send();
                 }
