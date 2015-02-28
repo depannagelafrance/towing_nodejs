@@ -817,7 +817,7 @@ router.put('/:dossier/:token', function($req, $res) {
 
             }
 
-            if(!$actions.signa_send_notification && $actions.towing_updated_notification && towing_updated_notification && $actions.towing_updated_notification == 1)
+            if(!$actions.signa_send_notification && $actions.towing_updated_notification && $actions.towing_updated_notification == 1)
             {
               LOG.d(TAG, " =============================================== ");
               LOG.d(TAG, "  > Sending a notification - TOWING_UPDATED_FOR_VOUCHER")
