@@ -246,16 +246,15 @@ function convertToAddressString($info) {
 
     $address += ($info.street_pobox ? '/' + $info.street_pobox : '');
 
-    $address = $address + '<br />';
+    $address = $address + ', ';
 
-    $address += $info.zip ? $info.zip : '';
-    $address += ' ';
+    $address += $info.zip ? $info.zip + ' ' : '';
 
     $address = $address.trim();
 
     $address += $info.city ? $info.city : '';
 
-    $address += '<br />' + ($info.country ? $info.country : '');
+    $address += ', ' + ($info.country ? $info.country : '');
   }
 
   return $address.trim();
