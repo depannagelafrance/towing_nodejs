@@ -58,15 +58,15 @@ var findById = function($dossier_id, $token, cb) {
         var $vt_params  = [$voucher.id, $token];
 
         //settign the summary of the uploaded attachments and sent communications
-        db.many(SQL_FETCH_COMM_AND_ATT_SUMMARY, $dvt_params, function($error, $att_result, $fields) {
-            $_result = {};
-
-            $att_result.forEach(function($item) {
-                $_result[$item.type] = $item.number;
-            });
-
-            $voucher.communication_and_attachment_summary = $_result;
-        });
+        // db.many(SQL_FETCH_COMM_AND_ATT_SUMMARY, $dvt_params, function($error, $att_result, $fields) {
+        //     $_result = {};
+        //
+        //     $att_result.forEach(function($item) {
+        //         $_result[$item.type] = $item.number;
+        //     });
+        //
+        //     $voucher.communication_and_attachment_summary = $_result;
+        // });
 
         //fetch the towing payments information
         db.one(SQL_FETCH_TOWING_PAYMENTS_BY_VOUCHER, $dvt_params, function($error, $p_result, $fields)

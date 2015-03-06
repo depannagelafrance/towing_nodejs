@@ -719,6 +719,10 @@ router.put('/:dossier/:token', function($req, $res) {
 
           $actions                  = $voucher.actions;
 
+          LOG.d(TAG, "Current voucher: " + $voucher_id);
+          LOG.d(TAG, "   -> Collector id: " + $collector_id);
+          LOG.d(TAG, "   -> Collected date: " + $vehicule_collected);
+
           //upate the voucher's depot if it is available
           if($voucher.depot && $voucher.depot.id) {
             $_depot = $voucher.depot;
