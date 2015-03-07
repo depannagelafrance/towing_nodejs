@@ -599,11 +599,13 @@
                                     <span><%=collected_by%></span>
                                 </td>
                                 <td rowspan="2">
-                                    <% if(collected_by_signature) { %>
-                                    <img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
-                                    <% } else { %>
-                                    Geen handtekening
-                                    <% } %>
+                                  <div style="width:150px; height: 120px;">
+                                      <% if(collected_by_signature) { %>
+                                          <img width="100%" height="100%" src="data:image/png;base64,<%=collected_by_signature %>" class="signature" />
+                                      <% } else { %>
+                                          Geen handtekening
+                                      <% } %>
+                                  </div>
                                 </td>
                             </tr>
                             <tr>
