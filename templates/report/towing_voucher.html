@@ -391,7 +391,9 @@
               var $_depot_days      = '';
               var $_depot_fee       = '';
               var $_depot_total_fee = '';
-              var $vat_tag = 'incl.';
+              var $vat_tag          = 'incl.';
+              var $DEBUG            = true;
+              var $DEBUG_LOG        = '';
 
               if(company_vat_foreign_country == 1) {
                 $vat_tag = 'excl.';
@@ -428,14 +430,28 @@
                                 var $_amount  = '';
                                 var $_cal_fee = '';
 
+                                if($DEBUG) {
+                                  $DEBUG_LOG += '<p>Checking timeframe: ' + timeframe_id + '/' + timeframes[$i].id + '</p>';
+                                }
+
                                 if(timeframe_id === timeframes[$i].id)
                                 {
                                     $found = false;
 
                                     for(var $y in towing_activities)
                                     {
+                                      if($DEBUG) {
+                                        $DEBUG_LOG += '<p>$y: ' + $y + '</p>';
+                                        $DEBUG_LOG += '<p>towing_activities[$y].activity_id === timeframe_activity_fees[$x][$k].id ? ' + towing_activities[$y].activity_id + ' === ' + timeframe_activity_fees[$x][$k].id + '</p>';
+                                      }
+
+
                                       if(towing_activities[$y].activity_id === timeframe_activity_fees[$x][$k].id)
                                       {
+                                        if($DEBUG) {
+                                          $DEBUG_LOG += '<p>Setting amount: ' + towing_activities[$y].amount + '</p>';
+                                        }
+
                                         $_amount  = towing_activities[$y].amount;
                                         $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
 
@@ -453,7 +469,7 @@
                                   if($_amount != '') {
                                     %><td height="15px" class="bordered text-center"><%= $_amount %></td><%
                                   } else {
-                                    %><td height="15px" class="bordered text-center">&nbsp;[TF <%=timeframe_id%>/<%=timeframes[$i].id%>]</td><%
+                                    %><td height="15px" class="bordered text-center">&nbsp;</td><%
                                   }
                                 } %>
 
@@ -772,6 +788,12 @@
                 </div>
             </div>
         </div>
+
+        <%
+        if($DEBUG) {
+          %><%=$DEBUG_LOG%><%
+        }
+        %>
     </div>
 
 
