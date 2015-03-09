@@ -448,13 +448,17 @@
 
                                 if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
                                 {
-                                  %><td height="15px" class=" bordered text-center disabled">&nbsp;</td><%
+                                  %><td height="15px" class="bordered text-center disabled">&nbsp;</td><%
                                 } else {
-                                  %><td height="15px" class=" bordered text-center"><%= $_amount %></td><%
+                                  if($_amount && $_amount != '') {
+                                    %><td height="15px" class="bordered text-center" style="background-color: #000;color: #fff"><%= $_amount %></td><%
+                                  } else {
+                                    %><td height="15px" class="bordered text-center">&nbsp;</td><%
+                                  }
                                 } %>
 
-                                <td height="15px" class=" bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-                                <td height="15px" class=" bordered text-center"><%= $_cal_fee %></td>
+                                <td height="15px" class="bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                                <td height="15px" class="bordered text-center"><%= $_cal_fee %></td>
                         <%    }
                             }
                           }

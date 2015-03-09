@@ -62,6 +62,8 @@ router.get('/towing_voucher/:type/:dossier_id/:voucher_id/:token', function($req
       db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, [$dossier_id, $voucher_id, $token], function($error, $result, $fields) {
         $vars.towing_activities       = $result;
 
+        LOG.d(TAG, "(JSON) Fetched towing activities: " + JSON.stringify($result));
+
         vocab.findAllTimeframes($token, function($data) {
           $vars.timeframes = $data;
 
