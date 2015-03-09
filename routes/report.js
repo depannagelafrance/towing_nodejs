@@ -357,6 +357,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "customer_phone"      : $voucher.customer.phone,
       "customer_vat"                : $voucher.customer.company_vat,
       "company_vat_foreign_country" : $voucher.customer.company_vat_foreign_country,
+      "vehicule"            : $voucher.vehicule,
       "vehicule_type"       : $voucher.vehicule_type,
       "vehicule_licence_plate" : $voucher.vehicule_licenceplate,
       'cb_incident_type_panne'                  : $dossier.incident_type_code == 'PANNE' ? '&#9746;' : '&#9744;',
