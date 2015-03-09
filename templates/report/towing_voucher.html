@@ -422,19 +422,19 @@
                           {
                             for(var $k in timeframe_activity_fees[$x])
                             {
-                              if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id)
+                              if(timeframe_activity_fees[$x][$k].timeframe_id === timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id === timeframe_activities[$j].id)
                               {
 
                                 var $_amount  = '';
                                 var $_cal_fee = '';
 
-                                if(timeframe_id == timeframes[$i].id)
+                                if(timeframe_id === timeframes[$i].id)
                                 {
                                     $found = false;
 
                                     for(var $y in towing_activities)
                                     {
-                                      if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id)
+                                      if(towing_activities[$y].activity_id === timeframe_activity_fees[$x][$k].id)
                                       {
                                         $_amount  = towing_activities[$y].amount;
                                         $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
@@ -453,7 +453,7 @@
                                   if($_amount != '') {
                                     %><td height="15px" class="bordered text-center"><%= $_amount %></td><%
                                   } else {
-                                    %><td height="15px" class="bordered text-center">&nbsp;</td><%
+                                    %><td height="15px" class="bordered text-center">&nbsp;[TF <%=timeframe_id%>/<%=timeframes[$i].id%>]</td><%
                                   }
                                 } %>
 
@@ -469,11 +469,11 @@
                       {
                         for(var $x in timeframe_activity_fees) {
                           for(var $k in timeframe_activity_fees[$x]) {
-                            if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) {
+                            if(timeframe_activity_fees[$x][$k].timeframe_id === timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id === timeframe_activities[$j].id) {
                               var $_amount  = '';
                               var $_cal_fee = '';
 
-                              if(timeframe_id == timeframes[$i].id) {
+                              if(timeframe_id === timeframes[$i].id) {
                                 $found = false;
                                 for(var $y in towing_activities) {
                                   if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) {

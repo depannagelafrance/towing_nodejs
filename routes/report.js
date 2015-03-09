@@ -252,9 +252,9 @@ function convertToAddressString($info) {
 
     $address += $info.zip ? $info.zip + ' ' : '';
 
-    $address = $address.trim();
+    $address += $info.city ? $info.city + ' ' : '';
 
-    $address += $info.city ? $info.city : '';
+    $address = $address.trim();
 
     $address += ', ' + ($info.country ? $info.country : '');
   }
