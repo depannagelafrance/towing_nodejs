@@ -442,11 +442,11 @@
                                     {
                                       if($DEBUG) {
                                         $DEBUG_LOG += '<p>$y: ' + $y + '</p>';
-                                        $DEBUG_LOG += '<p>towing_activities[$y].activity_id === timeframe_activity_fees[$x][$k].timeframe_activity_id ? ' + towing_activities[$y].activity_id + ' === ' + timeframe_activity_fees[$x][$k].timeframe_activity_id + '</p>';
+                                        $DEBUG_LOG += '<p>towing_activities[$y].timeframe_activity_id === timeframe_activity_fees[$x][$k].timeframe_activity_id ? ' + towing_activities[$y].activity_id + ' === ' + timeframe_activity_fees[$x][$k].timeframe_activity_id + '</p>';
                                       }
 
 
-                                      if(towing_activities[$y].activity_id === timeframe_activity_fees[$x][$k].timeframe_activity_id)
+                                      if(towing_activities[$y].timeframe_activity_id === timeframe_activity_fees[$x][$k].timeframe_activity_id)
                                       {
                                         if($DEBUG) {
                                           $DEBUG_LOG += '<p>Setting amount: ' + towing_activities[$y].amount + '</p>';
