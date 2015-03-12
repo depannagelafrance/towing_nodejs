@@ -564,18 +564,18 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
         }
         else
         {
-          updateCustomer($_customer, $req, $res);
+          updateCustomer($_customer, $voucher_id, $token, $req, $res);
         }
       });
     }
     else
     {
-      updateCustomer($_customer, $req, $res);
+      updateCustomer($_customer, $voucher_id, $token, $req, $res);
     }
   }
 });
 
-function updateCustomer($_customer, $req, $res) {
+function updateCustomer($_customer, $voucher_id, $token, $req, $res) {
   var $params = [$_customer.id, $voucher_id,
                   $_customer.type,
                   $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
