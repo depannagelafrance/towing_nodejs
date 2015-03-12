@@ -517,14 +517,7 @@ function updateCauser($_customer, $voucher_id, $token, $req, $res)
                 $token];
 
   db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
-    if($result && 'id' in $result)
-    {
-      ju.send($req, $res, $_causer);
-    }
-    else
-    {
       ju.send($req, $res, $result);
-    }
   });
 }
 
