@@ -294,8 +294,8 @@ function fetchDossierById($req, $res, $dossier_id, $token) {
 }
 
 router.get('/:dossier/:token', function($req, $res) {
-  $dossier_id = $req.params.dossier;
-  $token = $req.params.token;
+  var $dossier_id = $req.params.dossier;
+  var $token = $req.params.token;
 
   fetchDossierById($req, $res, $dossier_id, $token);
 });
@@ -317,7 +317,7 @@ router.get('/find/dossier_number/:dossier/:token', function($req, $res) {
 
 // -- CREATE DOSSIER, TOWING VOUCHER
 router.post('/:token', function($req, $res) {
-  $token  = ju.requires('token', $req.params);
+  var $token  = ju.requires('token', $req.params);
 
   db.one(SQL_CREATE_DOSSIER, [$token], function($error, $result, $fields) {
     if($result && 'error' in $result) {
@@ -330,8 +330,8 @@ router.post('/:token', function($req, $res) {
 
 // -- CREATE VOUCHER
 router.post('/voucher/:dossier_id/:token', function($req, $res) {
-  $dossier_id = ju.requiresInt('dossier_id', $req.params);
-  $token  = ju.requires('token', $req.params);
+  var $dossier_id = ju.requiresInt('dossier_id', $req.params);
+  var $token  = ju.requires('token', $req.params);
 
   db.one(SQL_CREATE_TOWING_VOUCHER, [$dossier_id, $token], function($error, $result, $fields) {
     if($result && 'error' in $result) {
@@ -343,8 +343,8 @@ router.post('/voucher/:dossier_id/:token', function($req, $res) {
 });
 
 router.post('/voucher/idle/:voucher_id/:token', function($req, $res) {
-  $voucher_id = ju.requiresInt('voucher_id', $req.params);
-  $token      = ju.requires('token', $req.params);
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
 
   db.one(SQL_MARK_VOUCHER_AS_IDLE, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -353,12 +353,12 @@ router.post('/voucher/idle/:voucher_id/:token', function($req, $res) {
 
 // -- CREATE VOUCHER ATTACHMENT
 router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $res) {
-  $voucher_id = ju.requiresInt('voucher_id', $req.params);
-  $token      = ju.requires('token', $req.params);
-  $category   = ju.requires('category', $req.params);
-  $file_name  = "";
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
+  var $category   = ju.requires('category', $req.params);
+  var $file_name  = "";
 
-  $sql = "";
+  var $sql = "";
 
   //validate incomming category
   switch($category) {
@@ -384,12 +384,12 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
       throw new common.InvalidRequest();
   }
 
-  $content_type = ju.requires('content_type', $req.body);
-  $file_size    = ju.requiresInt('file_size', $req.body);
-  $content      = ju.requires('content', $req.body);
+  var $content_type = ju.requires('content_type', $req.body);
+  var $file_size    = ju.requiresInt('file_size', $req.body);
+  var $content      = ju.requires('content', $req.body);
 
 
-  $params = [$voucher_id, $content_type, $file_size, $content, $token];
+  var $params = [$voucher_id, $content_type, $file_size, $content, $token];
 
   if($file_name && $file_name != "" && ($category == 'insurance_document' || $category == 'any' || $category == 'vehicle_damage')) {
     $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $token];
@@ -402,8 +402,8 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
 });
 
 router.get('/voucher/attachment/:voucher_id/:token', function($req, $res) {
-  $voucher_id = ju.requiresInt('voucher_id', $req.params);
-  $token      = ju.requires('token', $req.params);
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
 
   db.many(SQL_FETCH_ALL_VOUCHER_ATTACHMENTS, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -431,9 +431,9 @@ router.delete('/voucher/:voucher_id/activity/:activity_id/:token', function($req
 
 
 router.get('/depot/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
 
   db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
@@ -442,18 +442,18 @@ router.get('/depot/:dossier/:voucher/:token', function($req, $res) {
 });
 
 router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
-  $depot = ju.requires('depot', $req.body);
+  var $depot = ju.requires('depot', $req.body);
 
   //upate the voucher's depot if it is available
   if($depot.id) {
-    $_depot = $depot;
+    var $_depot = $depot;
 
-    $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
-               $_depot.street_pobox, $_depot.zip, $_depot.city, $_depot.default_depot, $token];
+    var $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
+                   $_depot.street_pobox, $_depot.zip, $_depot.city, $_depot.default_depot, $token];
 
     db.one(SQL_UPDATE_TOWING_DEPOT, $params, function($error, $result, $fields){
       if($result && 'id' in $result) {
@@ -466,9 +466,9 @@ router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
 });
 
 router.get('/causer/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
   db.one(SQL_FETCH_CAUSER, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -476,15 +476,15 @@ router.get('/causer/:dossier/:voucher/:token', function($req, $res) {
 });
 
 router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
-  $_causer = ju.requires('causer', $req.body);
+  var $_causer = ju.requires('causer', $req.body);
 
   if($_causer && $_causer.id)
   {
-    $_customer = $_causer;
+    var $_customer = $_causer;
 
     if($_customer.company_vat)
     {
@@ -509,12 +509,12 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
 
 function updateCauser($_customer, $req, $res)
 {
-  $params = [$_customer.id, $voucher_id,
-              $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
-              $_customer.street, $_customer.street_number, $_customer.street_pobox,
-              $_customer.zip, $_customer.city, $_customer.country,
-              $_customer.phone, $_customer.email,
-              $token];
+  var $params = [$_customer.id, $voucher_id,
+                $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+                $_customer.street, $_customer.street_number, $_customer.street_pobox,
+                $_customer.zip, $_customer.city, $_customer.country,
+                $_customer.phone, $_customer.email,
+                $token];
 
   db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
     if($result && 'id' in $result)
@@ -529,9 +529,9 @@ function updateCauser($_customer, $req, $res)
 }
 
 router.get('/customer/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
   db.one(SQL_FETCH_CUSTOMER, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -539,8 +539,8 @@ router.get('/customer/:dossier/:voucher/:token', function($req, $res) {
 });
 
 router.put('/customer/agency/:voucher/:token', function($req, $res) {
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
   db.one(SQL_UPDATE_TOWING_CUSTOMER_TO_AGENCY, [$voucher_id, $token], function($error, $result, $fields){
       if($result.id) {
@@ -554,11 +554,11 @@ router.put('/customer/agency/:voucher/:token', function($req, $res) {
 });
 
 router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
-  $_customer = ju.requires('customer', $req.body);
+  var $_customer = ju.requires('customer', $req.body);
 
   if($_customer && $_customer.id) {
     if($_customer.company_vat)
@@ -583,14 +583,14 @@ router.put('/customer/:dossier/:voucher/:token', function($req, $res) {
 });
 
 function updateCustomer($_customer, $req, $res) {
-  $params = [$_customer.id, $voucher_id,
-              $_customer.type,
-              $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
-              $_customer.street, $_customer.street_number, $_customer.street_pobox,
-              $_customer.zip, $_customer.city, $_customer.country,
-              $_customer.phone, $_customer.email,
-              $_customer.invoice_ref,
-              $token];
+  var $params = [$_customer.id, $voucher_id,
+                  $_customer.type,
+                  $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+                  $_customer.street, $_customer.street_number, $_customer.street_pobox,
+                  $_customer.zip, $_customer.city, $_customer.country,
+                  $_customer.phone, $_customer.email,
+                  $_customer.invoice_ref,
+                  $token];
 
   db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
     if($result && 'id' in $result) {
@@ -602,16 +602,16 @@ function updateCustomer($_customer, $req, $res) {
 }
 
 router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
 
-  $token            = ju.requires('token', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
-  $activities       = ju.requires('activities', $req.body);
+  var $activities       = ju.requires('activities', $req.body);
 
 
   if($activities && $activities.length > 0) {
-    $i = 0;
+    var $i = 0;
     $activities.forEach(function($activity) {
       db.one(SQL_UPDATE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity.activity_id, $activity.amount, $token], function($error, $result, $fields) {
         $i++;
@@ -635,25 +635,25 @@ router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) 
 
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
-  $dossier_id       = ju.requiresInt('dossier', $req.params);
-  $token            = ju.requires('token', $req.params);
+  var $dossier_id       = ju.requiresInt('dossier', $req.params);
+  var $token            = ju.requires('token', $req.params);
 
-  $dossier          = ju.requires('dossier', $req.body);
+  var $dossier          = ju.requires('dossier', $req.body);
 
   //dossier fields
-  $call_number      = ju.requires('call_number', $dossier);
-  $company_id       = ju.requiresInt('company_id', $dossier);
-  $incident_type_id = ju.requiresInt('incident_type_id', $dossier);
-  $allotment_id     = ju.requiresInt('allotment_id', $dossier);
-  $direction_id     = ju.requiresInt(['direction_id', 'allotment_direction_id'], $dossier);
-  $indicator_id     = ju.requiresInt(['indicator_id', 'allotment_direction_indicator_id'], $dossier);
-  $traffic_lanes    = $dossier.traffic_lanes;
-  $traffic_post_id  = $dossier.police_traffic_post_id;
+  var $call_number      = ju.requires('call_number', $dossier);
+  var $company_id       = ju.requiresInt('company_id', $dossier);
+  var $incident_type_id = ju.requiresInt('incident_type_id', $dossier);
+  var $allotment_id     = ju.requiresInt('allotment_id', $dossier);
+  var $direction_id     = ju.requiresInt(['direction_id', 'allotment_direction_id'], $dossier);
+  var $indicator_id     = ju.requiresInt(['indicator_id', 'allotment_direction_indicator_id'], $dossier);
+  var $traffic_lanes    = $dossier.traffic_lanes;
+  var $traffic_post_id  = $dossier.police_traffic_post_id;
 
-  $vouchers         = ju.requires('towing_vouchers', $dossier);
+  var $vouchers         = ju.requires('towing_vouchers', $dossier);
 
 
-  $params = [$dossier_id, $call_number, $company_id, $incident_type_id, $allotment_id, $direction_id, $indicator_id, $traffic_post_id, $token];
+  var $params = [$dossier_id, $call_number, $company_id, $incident_type_id, $allotment_id, $direction_id, $indicator_id, $traffic_post_id, $token];
 
   db.one(SQL_UPDATE_DOSSIER, $params, function($error, $result, $fields) {
     if($result && 'error' in $result) {
@@ -681,43 +681,43 @@ router.put('/:dossier/:token', function($req, $res) {
         }
       });
 
-      $i = 0;
+      var $i = 0;
 
       if(!$vouchers || $vouchers.length == 0) {
         fetchDossierById($req, $res, $result.id, $token);
       } else {
         $vouchers.forEach(function($voucher) {
-          $voucher_id               = $voucher.id;
-          $insurance_id             = _.isNaN(parseFloat($voucher.insurance_id)) ? null : $voucher.insurance_id;
-          $insurance_dossier_nr     = $voucher.insurance_dossiernr;
-          $warranty_holder          = $voucher.insurance_warranty_held_by;
-          $collector_id             = _.isNaN(parseFloat($voucher.collector_id)) ? null : $voucher.collector_id;
-          $police_signature_date    = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
-          $recipient_signature_date = _.isNaN(parseFloat($voucher.recipient_signature_dt)) ? null : parseFloat($voucher.recipient_signature_dt);
-          $vehicule                 = $voucher.vehicule;
-          $vehicule_type            = $voucher.vehicule_type;
-          $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
-          $vehicule_color           = $voucher.vehicule_color;
-          $vehicule_keys_present    = $voucher.vehicule_keys_present;
-          $vehicule_country         = $voucher.vehicule_country;
-          $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
-          $vehicule_impact_remarks  = $voucher.vehicule_impact_remarks;
-          $towing_id                = $voucher.towing_id; //towing_id is a VARCHAR field
-          $towed_by                 = $voucher.towed_by;
-          $towing_vehicle_id        = _.isNaN(parseFloat($voucher.towing_vehicle_id)) ? null : parseFloat($voucher.towing_vehicle_id);
-          $towed_by_vehicule        = $voucher.towed_by_vehicle;
-          $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
-          $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
-          $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
-          $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
-          $signa_id                 = $voucher.signa_id; //signa_id is a VARCHAR field
-          $signa_by                 = $voucher.signa_by;
-          $signa_by_vehicule        = $voucher.signa_by_vehicle;
-          $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
-          $cic                      = _.isNaN(parseFloat($voucher.cic)) ? null : parseFloat($voucher.cic);
-          $additional_info          = $voucher.additional_info;
+          var $voucher_id               = $voucher.id;
+          var $insurance_id             = _.isNaN(parseFloat($voucher.insurance_id)) ? null : $voucher.insurance_id;
+          var $insurance_dossier_nr     = $voucher.insurance_dossiernr;
+          var $warranty_holder          = $voucher.insurance_warranty_held_by;
+          var $collector_id             = _.isNaN(parseFloat($voucher.collector_id)) ? null : $voucher.collector_id;
+          var $police_signature_date    = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
+          var $recipient_signature_date = _.isNaN(parseFloat($voucher.recipient_signature_dt)) ? null : parseFloat($voucher.recipient_signature_dt);
+          var $vehicule                 = $voucher.vehicule;
+          var $vehicule_type            = $voucher.vehicule_type;
+          var $vehicule_licence_plate   = $voucher.vehicule_licenceplate;
+          var $vehicule_color           = $voucher.vehicule_color;
+          var $vehicule_keys_present    = $voucher.vehicule_keys_present;
+          var $vehicule_country         = $voucher.vehicule_country;
+          var $vehicule_collected       = _.isNaN(parseFloat($voucher.vehicule_collected)) ? null : parseFloat($voucher.vehicule_collected);
+          var $vehicule_impact_remarks  = $voucher.vehicule_impact_remarks;
+          var $towing_id                = $voucher.towing_id; //towing_id is a VARCHAR field
+          var $towed_by                 = $voucher.towed_by;
+          var $towing_vehicle_id        = _.isNaN(parseFloat($voucher.towing_vehicle_id)) ? null : parseFloat($voucher.towing_vehicle_id);
+          var $towed_by_vehicule        = $voucher.towed_by_vehicle;
+          var $towing_called            = _.isNaN(parseFloat($voucher.towing_called)) ? null : parseFloat($voucher.towing_called);
+          var $towing_arrival           = _.isNaN(parseFloat($voucher.towing_arrival)) ? null : parseFloat($voucher.towing_arrival);
+          var $towing_start             = _.isNaN(parseFloat($voucher.towing_start)) ? null : parseFloat($voucher.towing_start);
+          var $towing_completed         = _.isNaN(parseFloat($voucher.towing_completed)) ? null : parseFloat($voucher.towing_completed);
+          var $signa_id                 = $voucher.signa_id; //signa_id is a VARCHAR field
+          var $signa_by                 = $voucher.signa_by;
+          var $signa_by_vehicule        = $voucher.signa_by_vehicle;
+          var $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
+          var $cic                      = _.isNaN(parseFloat($voucher.cic)) ? null : parseFloat($voucher.cic);
+          var $additional_info          = $voucher.additional_info;
 
-          $actions                  = $voucher.actions;
+          var $actions                  = $voucher.actions;
 
           LOG.d(TAG, "Current voucher: " + $voucher_id);
           LOG.d(TAG, "   -> Collector id: " + $collector_id);
@@ -725,44 +725,44 @@ router.put('/:dossier/:token', function($req, $res) {
 
           //upate the voucher's depot if it is available
           if($voucher.depot && $voucher.depot.id) {
-            $_depot = $voucher.depot;
+            var $_depot = $voucher.depot;
 
-            $params = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
-                       $_depot.street_pobox, $_depot.zip, $_depot.city, $_depot.default_depot, $token];
+            var $params2 = [$_depot.id, $voucher_id, $_depot.name, $_depot.street, $_depot.street_number,
+                           $_depot.street_pobox, $_depot.zip, $_depot.city, $_depot.default_depot, $token];
 
-            db.one(SQL_UPDATE_TOWING_DEPOT, $params, function($error, $result, $fields){
+            db.one(SQL_UPDATE_TOWING_DEPOT, $params2, function($error, $result, $fields){
               //fire and forget!
             });
           }
 
           //TODO: insert VAT check
           if($voucher.causer && $voucher.causer.id) {
-            $_customer = $voucher.causer;
+            var $_customer = $voucher.causer;
 
-            $params = [$_customer.id, $voucher_id,
-                       $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
-                       $_customer.street, $_customer.street_number, $_customer.street_pobox,
-                       $_customer.zip, $_customer.city, $_customer.country,
-                       $_customer.phone, $_customer.email,
-                       $token];
+            var $params2 = [$_customer.id, $voucher_id,
+                            $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+                            $_customer.street, $_customer.street_number, $_customer.street_pobox,
+                            $_customer.zip, $_customer.city, $_customer.country,
+                            $_customer.phone, $_customer.email,
+                            $token];
 
-            db.one(SQL_UPDATE_TOWING_CAUSER, $params, function($error, $result, $fields){
+            db.one(SQL_UPDATE_TOWING_CAUSER, $params2, function($error, $result, $fields){
               //fire and forget!
             });
           }
 
           //TODO: insert VAT check!
           if($voucher.customer && $voucher.customer.id) {
-            $_customer = $voucher.customer;
+            var $_customer = $voucher.customer;
 
-            $params = [$_customer.id, $voucher_id,
-                       $_customer.type,
-                       $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
-                       $_customer.street, $_customer.street_number, $_customer.street_pobox,
-                       $_customer.zip, $_customer.city, $_customer.country,
-                       $_customer.phone, $_customer.email,
-                       $_customer.invoice_ref,
-                       $token];
+            var $params2 = [$_customer.id, $voucher_id,
+                            $_customer.type,
+                            $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
+                            $_customer.street, $_customer.street_number, $_customer.street_pobox,
+                            $_customer.zip, $_customer.city, $_customer.country,
+                            $_customer.phone, $_customer.email,
+                            $_customer.invoice_ref,
+                            $token];
 
             db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
               //fire and forget!
@@ -789,16 +789,21 @@ router.put('/:dossier/:token', function($req, $res) {
 
           $cic = $cic == '' ? null : $cic;
 
-          $params = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
-                     $warranty_holder, $collector_id,
-                     $vehicule, $vehicule_type, $vehicule_color, $vehicule_keys_present, $vehicule_licence_plate, $vehicule_country,
-                     $vehicule_impact_remarks,
-                     $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
-                     $towing_id, $towed_by, $towing_vehicle_id, $towed_by_vehicule,
-                     $towing_called, $towing_arrival, $towing_start,
-                     $towing_completed, $police_signature_date, $recipient_signature_date,
-                     $vehicule_collected, $cic, $additional_info, $token];
+          var $params3 = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
+                         $warranty_holder, $collector_id,
+                         $vehicule, $vehicule_type, $vehicule_color, $vehicule_keys_present, $vehicule_licence_plate, $vehicule_country,
+                         $vehicule_impact_remarks,
+                         $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
+                         $towing_id, $towed_by, $towing_vehicle_id, $towed_by_vehicule,
+                         $towing_called, $towing_arrival, $towing_start,
+                         $towing_completed, $police_signature_date, $recipient_signature_date,
+                         $vehicule_collected, $cic, $additional_info, $token];
 
+           db.one(SQL_UPDATE_TOWING_VOUCHER, $params3, function($error, $result, $fields){
+             if(++$i == $vouchers.length) {
+               fetchDossierById($req, $res, $dossier_id, $token);
+             }
+           });
 
           if($actions && $signa_id != null)
           {
@@ -846,11 +851,7 @@ router.put('/:dossier/:token', function($req, $res) {
             }
           }
 
-          db.one(SQL_UPDATE_TOWING_VOUCHER, $params, function($error, $result, $fields){
-            if(++$i == $vouchers.length) {
-              fetchDossierById($req, $res, $dossier_id, $token);
-            }
-          });
+
         });
       }
     }
@@ -874,7 +875,7 @@ router.get('/communication/:type/:dossier/:voucher/:token', function($req, $res)
     case 'email':
       db.many(SQL_FETCH_ALL_EMAIL_COMMUNICATION, $params, function($error, $result, $fields) {
           if($result.length > 0  && !('error' in $result)) {
-            $comms = [];
+            var $comms = [];
 
             $result.forEach(function($item) {
               db.many(SQL_FETCH_ALL_EMAIL_RECIPIENTS, [$item.id, $token], function($error, $r_result, $fields) {
@@ -914,10 +915,10 @@ router.post('/communication/:type/:token', function($req, $res) {
 
   switch($type) {
     case 'email':
-      $subject    = ju.requires('subject', $req.body);
-      $recipients = ju.requires('recipients', $req.body);
+      var $subject    = ju.requires('subject', $req.body);
+      var $recipients = ju.requires('recipients', $req.body);
 
-      $params = [$dossier_id, $voucher_id, 'EMAIL', $subject, $message, $token];
+      var $params = [$dossier_id, $voucher_id, 'EMAIL', $subject, $message, $token];
 
       db.one(SQL_ADD_DOSSIER_COMMUNICATION, $params, function($error, $result, $fields) {
           if($result && $result.status == 'OK') {
@@ -954,7 +955,7 @@ router.post('/communication/:type/:token', function($req, $res) {
 
       break;
     case 'internal':
-      $params = [$dossier_id, $voucher_id, 'INTERNAL', null, $message, $token];
+      var $params = [$dossier_id, $voucher_id, 'INTERNAL', null, $message, $token];
 
       db.one(SQL_ADD_DOSSIER_COMMUNICATION, $params, function($error, $result, $fields) {
           ju.send($req, $res, $result);
