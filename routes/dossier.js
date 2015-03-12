@@ -496,18 +496,18 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
         }
         else
         {
-          updateCauser($_customer, $voucher_id, $req, $res);
+          updateCauser($_customer, $voucher_id, $token, $req, $res);
         }
       });
     }
     else
     {
-      updateCauser($_customer, $voucher_id, $req, $res);
+      updateCauser($_customer, $voucher_id, $token, $req, $res);
     }
   }
 });
 
-function updateCauser($_customer, $voucher_id, $req, $res)
+function updateCauser($_customer, $voucher_id, $token, $req, $res)
 {
   var $params = [$_customer.id, $voucher_id,
                 $_customer.first_name, $_customer.last_name, $_customer.company_name, $_customer.company_vat,
