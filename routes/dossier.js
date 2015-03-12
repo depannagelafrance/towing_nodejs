@@ -502,7 +502,7 @@ router.put('/causer/:dossier/:voucher/:token', function($req, $res) {
     }
     else
     {
-      updateCauser($_customer, $voucher_id $req, $res);
+      updateCauser($_customer, $voucher_id, $req, $res);
     }
   }
 });
