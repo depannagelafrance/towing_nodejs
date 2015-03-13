@@ -585,6 +585,8 @@ function updateCustomer($_customer, $voucher_id, $token, $req, $res) {
                   $_customer.invoice_ref,
                   $token];
 
+  // LOG.d(TAG, "Update customer parameters:" + JSON.stringify($params));
+
   db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
     if($result && 'id' in $result) {
       ju.send($req, $res, $_customer);
@@ -757,7 +759,7 @@ router.put('/:dossier/:token', function($req, $res) {
                             $_customer.invoice_ref,
                             $token];
 
-            db.one(SQL_UPDATE_TOWING_CUSTOMER, $params, function($error, $result, $fields){
+            db.one(SQL_UPDATE_TOWING_CUSTOMER, $params2, function($error, $result, $fields){
               //fire and forget!
             });
           }
