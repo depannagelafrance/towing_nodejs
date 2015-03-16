@@ -370,7 +370,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       'collection_date'             : convertUnixTStoDateFormat($voucher.vehicule_collected),
       'traffic_post'                : $dossier.traffic_post_name,
       'traffic_post_phone'          : $dossier.traffic_post_phone,
-      'traffic_post_confirmation'   : '',
+      'traffic_post_confirmation'   : convertUnixTStoTimeFormat($voucher.police_signature_dt),
       'copy_for'                    : $copy_for,
       'insurance_name'              : $voucher.insurance_name,
       'insurance_dossier'           : $voucher.insurance_dossiernr,
