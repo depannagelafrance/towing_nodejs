@@ -105,13 +105,15 @@ const SQL_ADD_ANY_DOCUMENT              = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)"
 const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT   = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
 const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
 
-const SQL_FETCH_ALL_INTERNAL_COMMUNICATION = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
-const SQL_FETCH_ALL_EMAIL_COMMUNICATION    = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS(?,?,?); ";
-const SQL_FETCH_ALL_EMAIL_RECIPIENTS       = "CALL R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS(?,?); ";
-const SQL_ADD_DOSSIER_COMMUNICATION        = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
-const SQL_ADD_DOSSIER_COMM_RECIPIENT       = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
+const SQL_FETCH_ALL_INTERNAL_COMMUNICATION        = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
+const SQL_FETCH_ALL_EMAIL_COMMUNICATION           = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS(?,?,?); ";
+const SQL_FETCH_ALL_EMAIL_RECIPIENTS              = "CALL R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS(?,?); ";
+const SQL_ADD_DOSSIER_COMMUNICATION               = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
+const SQL_ADD_DOSSIER_COMM_RECIPIENT              = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
 
-const SQL_FETCH_USER_BY_ID                 = "CALL R_FETCH_USER_BY_ID(?,?);";
+const SQL_FETCH_USER_BY_ID                        = "CALL R_FETCH_USER_BY_ID(?,?);";
+
+const SQL_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES   = "CALL R_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES(?,?);";
 
 const STATUS_ALL                = "ALL";
 const STATUS_NEW                = "NEW";
@@ -406,6 +408,15 @@ router.get('/voucher/attachment/:voucher_id/:token', function($req, $res) {
   var $token      = ju.requires('token', $req.params);
 
   db.many(SQL_FETCH_ALL_VOUCHER_ATTACHMENTS, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/voucher/validation_messages/:voucher_id/:token', function($req, $res) {
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
 });
