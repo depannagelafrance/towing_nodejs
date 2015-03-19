@@ -499,18 +499,18 @@
                               var $_amount  = '';
                               var $_cal_fee = '';
 
-                              if(timeframe_id === timeframes[$i].id) {
-                                $found = false;
-                                for(var $y in towing_activities) {
-                                  if(!$found && towing_activities[$y].timeframe_activity_id == timeframe_activity_fees[$x][$k].id) {
-                                    $_depot_days = towing_activities[$y].amount;
-                                    $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
-                                    $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
-                                    $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
-                                    $found=true;
-                                  }
+                              var $found = false;
+
+                              for(var $y in towing_activities) {
+                                if(!$found && towing_activities[$y].timeframe_activity_id == timeframe_activity_fees[$x][$k].timeframe_activity_id) {
+                                  $_depot_days = towing_activities[$y].amount;
+                                  $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                                  $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                                  $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
+                                  $found=true;
                                 }
                               }
+
                             }
                           }
                         }
