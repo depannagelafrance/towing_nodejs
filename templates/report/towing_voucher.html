@@ -392,7 +392,7 @@
               var $_depot_fee       = '';
               var $_depot_total_fee = '';
               var $vat_tag          = 'incl.';
-              var $DEBUG            = false;
+              var $DEBUG            = true;
               var $DEBUG_LOG        = '';
 
               if(company_vat_foreign_country == 1) {
@@ -483,8 +483,18 @@
                     <% }
                       else
                       {
+
+                        if($DEBUG) {
+                          $DEBUG_LOG += '<p>HEEFT STALLINGSKOSTEN</p>';
+                        }
+
                         for(var $x in timeframe_activity_fees) {
                           for(var $k in timeframe_activity_fees[$x]) {
+
+                            if($DEBUG) {
+                              $DEBUG_LOG += '<p>Comparing: ' + timeframe_activity_fees[$x][$k].timeframe_id + '===' + timeframes[$i].id + ' && ' + timeframe_activity_fees[$x][$k].timeframe_activity_id + ' === ' + timeframe_activities[$j].id + '</p>';
+                            }
+
                             if(timeframe_activity_fees[$x][$k].timeframe_id === timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id === timeframe_activities[$j].id) {
                               var $_amount  = '';
                               var $_cal_fee = '';
@@ -492,7 +502,7 @@
                               if(timeframe_id === timeframes[$i].id) {
                                 $found = false;
                                 for(var $y in towing_activities) {
-                                  if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) {
+                                  if(!$found && towing_activities[$y].timeframe_activity_id == timeframe_activity_fees[$x][$k].id) {
                                     $_depot_days = towing_activities[$y].amount;
                                     $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
                                     $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
