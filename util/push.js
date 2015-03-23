@@ -35,9 +35,9 @@ agent
   .set('cert file', join(__dirname, settings.apns.cert))
   .set('key file', join(__dirname, settings.apns.key))
   .set('passphrase', settings.apns.passphrase)
-  .set('expires', '1h')
+  .set('expires', '1m')
   .set('reconnect delay', '1s')
-  .set('cache ttl', '5m');
+  .set('cache ttl', '1s');
 
 if(settings.apns.sandbox)
   agent.enable('sandbox');
