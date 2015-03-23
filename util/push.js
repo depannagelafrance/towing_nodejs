@@ -34,16 +34,13 @@ var apnagent = require('apnagent')
 agent
   .set('cert file', join(__dirname, settings.apns.cert))
   .set('key file', join(__dirname, settings.apns.key))
-  .set('passphrase', settings.apns.passphrase);
+  .set('passphrase', settings.apns.passphrase)
+  .set('expires', '1h')
+  .set('reconnect delay', '1s')
+  .set('cache ttl', '5m');
 
 if(settings.apns.sandbox)
   agent.enable('sandbox');
-
-
-agent
-  .set('expires', '1h')
-  .set('reconnect delay', '1s')
-  .set('cache ttl', '30m');
 
 
 // process.stdin.resume();//so the program will not close instantly
