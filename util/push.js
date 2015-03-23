@@ -37,7 +37,7 @@ agent
   .set('passphrase', settings.apns.passphrase)
   .set('expires', '1m')
   .set('reconnect delay', '1s')
-  .set('cache ttl', '1s');
+  .set('cache ttl', '1m');
 
 if(settings.apns.sandbox)
   agent.enable('sandbox');
