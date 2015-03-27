@@ -12,7 +12,7 @@ var router = express.Router();
 
 
 //-- DEFINE CONSTANTS
-const SQL_SEARCH_TOWING_VOUCHERS         = "CALL R_SEARCH_TOWING_VOUCHER(?,?,?,?,?,?);";
+const SQL_SEARCH_TOWING_VOUCHERS         = "CALL R_SEARCH_TOWING_VOUCHER(?,?,?,?,?,?,?);";
 const SQL_SEARCH_TOWING_VOUCHERS_BY_NR   = "CALL R_SEARCH_TOWING_VOUCHER_BY_NUMBER(?,?);";
 
 
@@ -26,15 +26,16 @@ router.post('/:token', function($req, $res) {
   LOG.d(TAG, "Searching vouchers");
   var $token = ju.requires('token', $req.params);
 
-  var $call_number    = ju.valueOf('call_number', $req.body);
-  var $date           = ju.valueOf('call_date', $req.body);
-  var $type           = ju.valueOf('type', $req.body);
-  var $licence_plate  = ju.valueOf('licence_plate', $req.body);
-  var $name           = ju.valueOf('name', $req.body);
+  var $call_number    = ju.valueOf('call_number',     $req.body);
+  var $date           = ju.valueOf('call_date',       $req.body);
+  var $vehicle        = ju.valueOf('vehicle',         $req.body);
+  var $type           = ju.valueOf('type',            $req.body);
+  var $licence_plate  = ju.valueOf('licence_plate',   $req.body);
+  var $name           = ju.valueOf('name',            $req.body);
 
-  if($call_number || $date || $type || $licence_plate || $name)
+  if($call_number || $date || $vehicle || $type || $licence_plate || $name)
   {
-    var $params = [$call_number, $date, $type, $licence_plate, $name, $token];
+    var $params = [$call_number, $date, $vehicle, $type, $licence_plate, $name, $token];
 
     db.many(SQL_SEARCH_TOWING_VOUCHERS, $params, function($error, $result, $fields) {
       ju.send($req, $res, $result);
