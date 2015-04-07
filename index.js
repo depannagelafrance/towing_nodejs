@@ -3,6 +3,8 @@ const TAG = 'index.js';
 // -- IMPORT REQUIRED LIBARIES
 var express     = require('express.io');
 var bodyParser  = require('body-parser');
+var morgan      = require('morgan');
+
 var LOG         = require('./util/logger.js');
 
 // -- CREATE APPLICATION AND ROUTING
@@ -11,6 +13,7 @@ app.http().io();
 
 var router = express.Router();
 
+app.use(morgan('dev'));
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }))

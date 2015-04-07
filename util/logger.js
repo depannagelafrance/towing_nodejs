@@ -4,24 +4,44 @@ const LEVEL_DEBUG = 1000;
 const LEVEL_INFO  = 500;
 const LEVEL_ERR   = 100;
 
+
+
 const LEVEL_LABELS = {
   1000: "D/",
   500 : "I/",
   100 : "E/"
 }
 
+var LOGGERS = {};
+
+
 var log = function($tag, $message, $level) {
   if(DEBUG_LEVEL >= $level) {
+    if($level == DEBUG_LEVEL) {
 
-    console.log(
-      new Date().toISOString()
-      + " - "
-      + $tag
-      + " - "
-      + LEVEL_LABELS[$level]
-      + " - "
-      + $message
-    );
+      if(!LOGGERS['towing:'+$tag]) {
+        LOGGERS['towing:'+$tag] = require('debug')('towing:' + $tag)
+      }
+
+      var debug = LOGGERS['towing:'+$tag];
+      
+      debug(
+      // console.log(
+        new Date().toISOString()
+        + " - "
+        + $message
+      );
+    } else {
+      console.log(
+        new Date().toISOString()
+        + " - "
+        + $tag
+        + " - "
+        + LEVEL_LABELS[$level]
+        + " - "
+        + $message
+      );
+    }
   }
 }
 

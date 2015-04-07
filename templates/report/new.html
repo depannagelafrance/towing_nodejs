@@ -58,6 +58,12 @@
         }
 
         /* REUSABLE */
+        .headtitle{
+            background: #F2F2F2;
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: bold;
+        }
         .black-alpha {
             color: #212121;
         }
@@ -145,7 +151,16 @@
         }
 
         .page{
-            min-height: 1024px;
+            background: white;
+            width: 21cm;
+            height: 29.7cm;
+            display: block;
+            margin: 0 auto;
+            page-break-before: always;
+        }
+
+        .page2{
+            page-break-before: always;
         }
 
         /* Title */
@@ -197,75 +212,42 @@
 
         <div class="l-2-col l-details cf margined">
             <div class="padded">
-                <div class="bordered">
-                    <table style="height:170px;">
-                        <thead>
-                        <tr>
-                            <th style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Dienstverlener</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%= towing_service_name %></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%= towing_service_street %> <%= towing_service_nr  %></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%= towing_service_zip %> <%= towing_service_city %></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special"><label>Tel:</label> <%= towing_service_phone  %></td>
-                            <td class="padded-special"><label>BTW Nr:</label> <%= towing_service_vat %></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2">
-                                <%= towing_service_email %>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2">
-                                <%= towing_service_site %>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="bordered" style="height:135px;">
+                    <div style="margin-bottom: 10px;" class="headtitle padded-large">Dienstverlener</div>
+                    <div class="padded-special"><%= towing_service_name %></div>
+                    <div class="padded-special"><%= towing_service_street %> <%= towing_service_nr  %>, <%= towing_service_zip %> <%= towing_service_city %></div>
+                    <div class="padded-special cf">
+                        <div style="float:left; width:50%"><label>Tel:</label> <%= towing_service_phone  %></div>
+                            <div style="float:left; width:50%"><label>BTW Nr:</label> <%= towing_service_vat %></div>
+                    </div>
+                    <div class="padded-special cf">
+                        <div style="float:left; width:50%"><label>Email:</label> <%= towing_service_email %></div>
+                            <div style="float:left; width:50%"><label>Website:</label> <%= towing_service_site %></div>
+                    </div>
                 </div>
             </div>
             <div class="padded">
-                <div class="bordered">
-                    <table style="height:170px;">
-                        <thead>
-                        <tr>
-                            <th style="border-bottom: 1px solid #000;" class="padded-large text-center text-bold" colspan="2">Hinderverwekker</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <% if(is_covered_by_insurance) { %>
-                        <tr><td class="padded-special" colspan="2"><%=insurance_name%></td></tr>
-                        <tr><td class="padded-special" colspan="2"><%=insurance.display_address%></td></tr>
-                        <tr>
-                            <td class="padded-special"><label>Btw Nr:</label> <%=insurance.vat%></td>
-                            <td class="padded-special"><label>Dossier Nr:</label> <%=insurance_dossier%></td>
-                        </tr>
-                        <% } else { %>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%=customer_name%></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special" colspan="2"><%=customer_address%></td>
-                        </tr>
-                        <tr>
-                            <td class="padded-special"><label>Tel:</label> <%=customer_phone%></td>
-                            <td class="padded-special"><label>BTW Nr:</label> <%=customer_vat%></td>
-                        </tr>
-                        <% } %>
-                        <tr>
-                            <td class="padded-special"><label>Nr. pl.:</label> <%=vehicule_licence_plate%></td>
-                            <td class="padded-special"><label>Merk/type:</label> <%=vehicule_type%></td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="bordered" style="height:135px;">
+                    <div style="margin-bottom: 10px;" class="headtitle padded-large">Hinderverwekker</div>
+                    <% if(is_covered_by_insurance) { %>
+                        <div class="padded-special"><%=insurance_name%></div>
+                        <div class="padded-special"><%=insurance.display_address%></div>
+                        <div class="padded-special cf">
+                            <div style="float:left; width:50%"><label>Btw Nr:</label> <%=insurance.vat%></div>
+                            <div style="float:left; width:50%"><label>Dossier Nr:</label> <%=insurance_dossier%></div>
+                        </div>
+                    <% } else { %>
+                        <div class="padded-special"><%=customer_name%></div>
+                        <div class="padded-special"><%=customer_address%></div>
+                        <div class="padded-special cf">
+                            <div style="float:left; width:50%"><label>Tel:</label> <%=customer_phone%></div>
+                            <div style="float:left; width:50%"><label>BTW Nr:</label> <%=customer_vat%></div>
+                        </div>
+                    <% } %>
+                        <div class="padded-special cf">
+                            <div style="float:left; width:50%"><label>Nr. pl.:</label> <%=vehicule_licence_plate%></div>
+                            <div style="float:left; width:50%"><label>Merk/type:</label><%=vehicule%> <%=vehicule_type%></div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -390,104 +372,156 @@
                     <tr><th colspan="3" class="padded-large bordered text-center text-bold">Type Takeling</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td class="padded bordered text-center text-bold">&nbsp;</td></tr>
+                    <tr><td height="25px" class="bordered text-center text-bold">&nbsp;</td></tr>
                     <% for(var $j in timeframe_activities) { %>
                     <% if(timeframe_activities[$j].code != 'STALLING') { %>
                     <tr>
-                        <td colspan="3" class="padded bordered text-center"><%=timeframes[$j].name%></td>
+                        <td height="15px" colspan="3" class="bordered text-center"><%=timeframe_activities[$j].name%></td>
                     </tr>
                     <% } %>
                     <% } %>
-                    <tr><td class="padded bordered text-center">Totaal per tarief</td></tr>
+                    <tr><td class="bordered text-center">Totaal per tarief</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <% var $_voucher_total   = ''; %>
-            <% var $_depot_days      = ''; %>
-            <% var $_depot_fee       = ''; %>
-            <% var $_depot_total_fee = ''; %>
-            <% var $vat_tag = 'incl.'; %>
-            <% if(company_vat_foreign_country == 1) { %>
-            <% $vat_tag = 'excl.'; %>
-            <% } %>
+            <%
+              var $_total           = null;
+              var $_voucher_total   = '';
+              var $_depot_days      = '';
+              var $_depot_fee       = '';
+              var $_depot_total_fee = '';
+              var $vat_tag          = 'incl.';
+              var $DEBUG            = false;
+              var $DEBUG_LOG        = '';
 
+              if(company_vat_foreign_country == 1) {
+                $vat_tag = 'excl.';
+              }
+            %>
             <% for(var $i in timeframes) { %>
             <div class="padded">
                 <table>
                     <thead>
-                    <tr><th colspan="3" class="padded-large bordered text-center text-bold"><%=timeframes[$i].name%></th></tr>
+                    <tr><th colspan="3" class="bordered text-center text-bold"><%=timeframes[$i].name%></th></tr>
                     </thead>
                     <tbody>
                     <tr class="subhead">
-                        <td class="text-small padded bordered text-center">Aantal</td>
-                        <td class="text-small padded bordered text-center">Prijs (<%=$vat_tag%> BTW)</td>
-                        <td class="text-small padded bordered text-center">Totaal (<%=$vat_tag%> BTW)</td>
+                        <td height="25px" class="text-small bordered text-center">Aantal</td>
+                        <td height="25px" class="text-small bordered text-center">Prijs (<%=$vat_tag%> BTW)</td>
+                        <td height="25px" class="text-small  bordered text-center">Totaal (<%=$vat_tag%> BTW)</td>
                     </tr>
 
-                    <% for(var $j in timeframe_activities) { %>
-                    <% if(timeframe_activities[$j].code != 'STALLING'){ %>
+                    <%
+                    for(var $j in timeframe_activities)
+                    {
+                      if(timeframe_activities[$j].code != 'STALLING')
+                      {
+                    %>
                     <tr>
-                        <% for(var $x in timeframe_activity_fees) { %>
-                        <% for(var $k in timeframe_activity_fees[$x]){ %>
-                        <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id){
+                        <%
+                          for(var $x in timeframe_activity_fees)
+                          {
+                            for(var $k in timeframe_activity_fees[$x])
+                            {
+                              if(timeframe_activity_fees[$x][$k].timeframe_id === timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id === timeframe_activities[$j].id)
+                              {
 
-                        <% var $_amount  = ''; %>
-                        <% var $_cal_fee = ''; %>
+                                var $_amount  = '';
+                                var $_cal_fee = '';
 
-                        <% if(timeframe_id == timeframes[$i].id){ %>
-                        <% $found = false; %>
-                        <% for(var $y in towing_activities) { %>
-                        <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
-                        <% $_amount  = towing_activities[$y].amount; %>
-                        <% $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat; %>
-                        <% $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat; %>
-                        <% $_voucher_total = $_total; %>
-                        <% $found=true; %>
-                        <% } %>
-                        <% } %>
-                        <% } %>
+                                if($DEBUG) {
+                                  $DEBUG_LOG += '<p>Checking timeframe: ' + timeframe_id + '/' + timeframes[$i].id + '</p>';
+                                }
 
-                        <% if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP'){ %>
-                        <td class="padded bordered text-center disabled">&nbsp;</td>
-                        <% } else { %>
-                        <td class="padded bordered text-center"><%= $_amount %></td>
-                        <% } %>
+                                if(timeframe_id === timeframes[$i].id)
+                                {
+                                    $found = false;
 
-                        <td class="padded bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-                        <td class="padded bordered text-center"><%= $_cal_fee %></td>
-                        <% } %>
-                        <% } %>
-                        <% } %>
+                                    for(var $y in towing_activities)
+                                    {
+                                      if($DEBUG) {
+                                        $DEBUG_LOG += '<p>$y: ' + $y + '</p>';
+                                        $DEBUG_LOG += '<p>towing_activities[$y].timeframe_activity_id === timeframe_activity_fees[$x][$k].timeframe_activity_id ? ' + towing_activities[$y].activity_id + ' === ' + timeframe_activity_fees[$x][$k].timeframe_activity_id + '</p>';
+                                      }
+
+
+                                      if(towing_activities[$y].timeframe_activity_id === timeframe_activity_fees[$x][$k].timeframe_activity_id)
+                                      {
+                                        if($DEBUG) {
+                                          $DEBUG_LOG += '<p>Setting amount: ' + towing_activities[$y].amount + '</p>';
+                                        }
+
+                                        $_amount  = towing_activities[$y].amount;
+                                        $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
+
+                                        $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
+                                        $_voucher_total = $_total;
+                                        $found=true;
+                                      }
+                                    }
+                                }
+
+                                if(timeframe_activities[$j].code == 'VERLOREN_VOORWERP')
+                                {
+                                  %><td height="15px" class="bordered text-center disabled">&nbsp;</td><%
+                                } else {
+                                  if($_amount != '') {
+                                    %><td height="15px" class="bordered text-center"><%= $_amount %></td><%
+                                  } else {
+                                    %><td height="15px" class="bordered text-center">&nbsp;</td><%
+                                  }
+                                } %>
+
+                                <td height="15px" class="bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                                <td height="15px" class="bordered text-center"><%= $_cal_fee %></td>
+                        <%    }
+                            }
+                          }
+                        %>
                     </tr>
-                    <% }else{ %>
-                    <% for(var $x in timeframe_activity_fees) { %>
-                    <% for(var $k in timeframe_activity_fees[$x]) { %>
-                    <% if(timeframe_activity_fees[$x][$k].timeframe_id == timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id == timeframe_activities[$j].id) { %>
-                    <% var $_amount  = ''; %>
-                    <% var $_cal_fee = ''; %>
-                    <% if(timeframe_id == timeframes[$i].id) { %>
-                    <% $found = false; %>
-                    <% for(var $y in towing_activities) { %>
-                    <% if(!$found && towing_activities[$y].activity_id == timeframe_activity_fees[$x][$k].id) { %>
-                    <% $_depot_days = towing_activities[$y].amount; %>
-                    <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
-                    <% $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat; %>
-                    <% $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat; %>
-                    <% $found=true; %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
-                    <% } %>
+                    <% }
+                      else
+                      {
+
+                        if($DEBUG) {
+                          $DEBUG_LOG += '<p>HEEFT STALLINGSKOSTEN</p>';
+                        }
+
+                        for(var $x in timeframe_activity_fees) {
+                          for(var $k in timeframe_activity_fees[$x]) {
+
+                            if($DEBUG) {
+                              $DEBUG_LOG += '<p>Comparing: ' + timeframe_activity_fees[$x][$k].timeframe_id + '===' + timeframes[$i].id + ' && ' + timeframe_activity_fees[$x][$k].timeframe_activity_id + ' === ' + timeframe_activities[$j].id + '</p>';
+                            }
+
+                            if(timeframe_activity_fees[$x][$k].timeframe_id === timeframes[$i].id && timeframe_activity_fees[$x][$k].timeframe_activity_id === timeframe_activities[$j].id) {
+                              var $_amount  = '';
+                              var $_cal_fee = '';
+
+                              var $found = false;
+
+                              for(var $y in towing_activities) {
+                                if(!$found && towing_activities[$y].timeframe_activity_id == timeframe_activity_fees[$x][$k].timeframe_activity_id) {
+                                  $_depot_days = towing_activities[$y].amount;
+                                  $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                                  $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
+                                  $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
+                                  $found=true;
+                                }
+                              }
+
+                            }
+                          }
+                        }
+                      }
+                    }
+                    %>
 
                     <tr>
-                        <td class="padded bordered text-center disabled">&nbsp;</td>
-                        <td class="padded bordered text-center disabled">&nbsp;</td>
-                        <td class="padded bordered text-center"><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
+                        <td height="15px" class=" bordered text-center disabled">&nbsp;</td>
+                        <td height="15px" class=" bordered text-center disabled">&nbsp;</td>
+                        <td height="15px" class=" bordered text-center"><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
                     </tr>
                     </tbody>
                 </table>
@@ -513,7 +547,6 @@
                             <td style="width:30%;" class="padded-large bordered ">Totaal (<%=$vat_tag%> BTW)</td>
                             <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
                         </tr>
-
                         </tbody>
                     </table>
                 </div>
@@ -596,11 +629,13 @@
                                     <span><%=collected_by%></span>
                                 </td>
                                 <td rowspan="2">
-                                    <% if(collected_by_signature) { %>
-                                    <img src="data:image/png;base64,<%=collected_by_signature %>" class="signature_collector" />
-                                    <% } else { %>
-                                    Geen handtekening
-                                    <% } %>
+                                  <div style="width:120px; height: 50px;">
+                                      <% if(collected_by_signature) { %>
+                                          <img width="100%" height="100%" src="data:image/png;base64,<%=collected_by_signature %>" class="signature" />
+                                      <% } else { %>
+                                          Geen handtekening
+                                      <% } %>
+                                  </div>
                                 </td>
                             </tr>
                             <tr>
@@ -618,7 +653,7 @@
 
         <div class="l-3-col cf margined">
             <div class="padded">
-                <div style="height:265px;" class="bordered">
+                <div style="height:225px;" class="bordered">
                     <div class="padded-large item-heading text-bold">VOOR AKKOORD (DIENSTVERLENER)</div>
                     <div class="padded-special2">(Gegevens uitvoerder/onderaannemer)</div>
                     <div>&nbsp;</div>
@@ -637,18 +672,18 @@
                     <div>&nbsp;</div>
                     <div class="padded-special2 autograph">
                         <label>Handtekening:</label>
-                        <span>
+                        <div style="width:150px; height: 80px;">
                             <% if(signature_signa) { %>
-                                <img src="data:image/png;base64,<%=signature_signa %>" class="signature" />
+                                <img width="100%" height="100%" src="data:image/png;base64,<%=signature_signa %>" class="signature" />
                             <% } else { %>
                                 Geen handtekening
                             <% } %>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="padded">
-                <div style="height:265px;" class="bordered">
+                <div style="height:225px;" class="bordered">
                     <div class="padded-large item-heading text-bold">VOOR BEVESTIGING (POLITIE)</div>
                     <div class="padded-special2">(Gegevens Politiepost)</div>
                     <div>&nbsp;</div>
@@ -667,18 +702,18 @@
                     <div>&nbsp;</div>
                     <div class="padded-special2 autograph">
                         <label>Handtekening:</label>
-                        <span>
+                        <div style="width:150px; height: 80px;">
                             <% if(signature_police) { %>
-                                <img src="data:image/png;base64,<%=signature_police %>" class="signature" />
+                                <img width="100%" height="100%" src="data:image/png;base64,<%=signature_police %>" class="signature" />
                             <% } else { %>
-                                Geen handtekening
+                               Geen handtekening
                             <% } %>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="padded">
-                <div style="height:265px;" class="bordered">
+                <div style="height:225px;" class="bordered">
                     <div class="padded-large item-heading text-bold">VOOR KENNISNAME (HINDERVERWERKER)</div>
                     <div class="padded-special2">(Gegevens Hinderverwekker)</div>
                     <div>&nbsp;</div>
@@ -697,13 +732,13 @@
                     <div>&nbsp;</div>
                     <div class="padded-special2 autograph">
                         <label>Handtekening:</label>
-                        <span>
+                        <div style="width:150px; height: 80px;">
                             <% if(signature_causer) { %>
-                                <img src="data:image/png;base64,<%=signature_causer %>" class="signature" />
+                                <img width="100%" height="100%"  src="data:image/png;base64,<%=signature_causer %>" class="signature" />
                             <% } else { %>
-                                Geen handtekening
+                                 Geen handtekening
                             <% } %>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -742,7 +777,7 @@
     </div>
 
 
-    <div class="page">
+    <div class="page page2">
 
         <div class="l-1-col cf margined">
             <div class="padded">
@@ -763,6 +798,12 @@
                 </div>
             </div>
         </div>
+
+        <%
+        if($DEBUG) {
+          %><%=$DEBUG_LOG%><%
+        }
+        %>
     </div>
 
 
