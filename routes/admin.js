@@ -91,7 +91,8 @@ router.post('/users/:token', function($req, $res) {
 
   if(_.isArray($roles)) {
     if(!$roles || $roles.length <= 0) {
-      throw new common.InvalidRequest();
+      //throw new common.InvalidRequest();
+      $roles = [];
     }
 
 
@@ -168,7 +169,8 @@ router.put('/users/:user_id/:token', function($req, $res) {
 
   if(_.isArray($roles)) {
     if(!$roles || $roles.length <= 0) {
-      throw new common.InvalidRequest();
+      //throw new common.InvalidRequest();
+      $roles = [];
     }
 
 
