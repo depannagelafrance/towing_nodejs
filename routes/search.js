@@ -14,6 +14,7 @@ var router = express.Router();
 //-- DEFINE CONSTANTS
 const SQL_SEARCH_TOWING_VOUCHERS         = "CALL R_SEARCH_TOWING_VOUCHER(?,?,?,?,?,?,?);";
 const SQL_SEARCH_TOWING_VOUCHERS_BY_NR   = "CALL R_SEARCH_TOWING_VOUCHER_BY_NUMBER(?,?);";
+const SQL_SEARCH_CUSTOMERS               = "CALL R_SEARCH_CUSTOMERS(?,?); ";
 
 
 // -- ONLY POSTS ARE ALLOWED
@@ -48,21 +49,30 @@ router.post('/:token', function($req, $res) {
 });
 
 router.post('/towing_voucher/:token', function($req, $res) {
-    var $token = $req.params.token;
+  var $token = $req.params.token;
 
-    var $voucher_number = ju.requires('number', $req.body);
+  var $voucher_number = ju.requires('number', $req.body);
 
-    if($voucher_number)
-    {
-      db.many(SQL_SEARCH_TOWING_VOUCHERS_BY_NR, [$voucher_number, $token], function($error, $result, $fields) {
-        ju.send($req, $res, $result);
-      });
-    }
-    else
-    {
-      throw new common.InvalidRequest();
-    }
+  if($voucher_number)
+  {
+    db.many(SQL_SEARCH_TOWING_VOUCHERS_BY_NR, [$voucher_number, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+    });
+  }
+  else
+  {
+    throw new common.InvalidRequest();
+  }
 });
+
+router.post('/customer/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $data  = ju.requires('search', $req.body);
+
+  db.many(SQL_SEARCH_CUSTOMERS, [$data, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+})
 
 
 module.exports = router;

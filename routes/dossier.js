@@ -98,6 +98,10 @@ const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTI
 const SQL_REMOVE_TOWING_VOUCHER_ACTIVITY    = "CALL R_REMOVE_TOWING_VOUCHER_ACTIVITY(?,?,?);";
 const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?,?,?,?,?,?);";
 
+const SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_UPDATE_TOWING_ADDITIONAL_COST(?, ?, ?, ?, ?, ?); ";
+const SQL_REMOVE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_REMOVE_TOWING_ADDITIONAL_COST(?, ?, ?); ";
+const SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS = "CALL R_FETCH_ALL_TOWING_ADDITIONAL_COSTS(?, ?); ";
+
 const SQL_ADD_COLLECTOR_SIGNATURE       = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_CAUSER_SIGNATURE          = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_POLICE_SIGNATURE          = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
@@ -211,6 +215,17 @@ router.get('/list/activities/:dossier/:voucher/:token', function($req, $res) {
     ju.send($req, $res, $result);
   });
 });
+
+router.get('/list/additional_costs/:dossier/:voucher/:token', function($req, $res) {
+  var $dossier_id = ju.requiresInt('dossier', $req.params);
+  var $voucher_id = ju.requiresInt('voucher', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  //fetch the towing activities information
+  db.many(SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+})
 
 router.get('/list/available_allotments/direction/:direction/:token', function($req, $res) {
   var $direction  = ju.requiresInt('direction', $req.params);
@@ -442,11 +457,30 @@ router.delete('/voucher/:voucher_id/activity/:activity_id/:token', function($req
 });
 
 
+// -----------------------------------------------------------------------------
+// REMOVE AN ADDITIONAL COST FROM A VOUCHER
+//  * voucher_id (required), the voucher id
+//  * cost_id (required), the id of the activity to remove
+//  * token (required), the token of the current session
+// -----------------------------------------------------------------------------
+router.delete('/voucher/:voucher_id/additional_cost/:cost_id/:token', function($req, $res) {
+  var $token        = ju.requires('token', $req.params);
+  var $cost_id      = ju.requiresInt('cost_id', $req.params);
+  var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
+
+  db.one(SQL_REMOVE_TOWING_VOUCHER_ADDITIONAL_COST, [$voucher_id, $cost_id, $token], function($error, $result, $fields) {
+    //fetch the towing additional costs information
+    db.many(SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS, [$voucher_id, $token], function($error, $result, $fields) {
+      ju.send($req, $res, $result);
+    });
+  });
+});
+
+
 router.get('/depot/:dossier/:voucher/:token', function($req, $res) {
   var $dossier_id       = ju.requiresInt('dossier', $req.params);
   var $voucher_id       = ju.requiresInt('voucher', $req.params);
   var $token            = ju.requires('token', $req.params);
-
 
   db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -731,6 +765,9 @@ router.put('/:dossier/:token', function($req, $res) {
           LOG.d(TAG, "   -> Collector id: " + $collector_id);
           LOG.d(TAG, "   -> Collected date: " + $vehicule_collected);
 
+          // -------------------------------------------------------------------
+          // UPDATE VOUCHER DEPOT
+          // -------------------------------------------------------------------
           //upate the voucher's depot if it is available
           if($voucher.depot && $voucher.depot.id) {
             var $_depot = $voucher.depot;
@@ -742,6 +779,10 @@ router.put('/:dossier/:token', function($req, $res) {
               //fire and forget!
             });
           }
+
+          // -------------------------------------------------------------------
+          // UPDATE CAUSER
+          // -------------------------------------------------------------------
 
           //TODO: insert VAT check
           if($voucher.causer && $voucher.causer.id) {
@@ -759,6 +800,9 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          // -------------------------------------------------------------------
+          // UPDATE CUSTOMER
+          // -------------------------------------------------------------------
           //TODO: insert VAT check!
           if($voucher.customer && $voucher.customer.id) {
             var $_customer = $voucher.customer;
@@ -777,6 +821,22 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          // -------------------------------------------------------------------
+          // UPDATE ADDITIONAL COSTS
+          // -------------------------------------------------------------------
+          if($voucher.towing_additional_costs) {
+            $voucher.towing_additional_costs.forEach(function($cost) {
+              var params2 = [$cost.id, $voucher_id, $cost.name, $cost.fee_excl_vat, $cost.fee_incl_vat, $token];
+
+              db.one(SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST, $params2, function($error, $result, $fields) {
+                //fire and forget
+              });
+            });
+          }
+
+          // -------------------------------------------------------------------
+          // UPDATE TOWING ACTIVITIES
+          // -------------------------------------------------------------------
           if($voucher.towing_activities) {
             $voucher.towing_activities.forEach(function($activity) {
               db.one(SQL_UPDATE_TOWING_VOUCHER_ACTIVITY, [$voucher_id, $activity.activity_id, $activity.amount, $token], function($error, $result, $fields) {
@@ -785,6 +845,9 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          // -------------------------------------------------------------------
+          // UPDATE TOWING PAYMENTS
+          // -------------------------------------------------------------------
           if($voucher.towing_payments) {
             var $vtp = $voucher.towing_payments;
 
@@ -795,6 +858,9 @@ router.put('/:dossier/:token', function($req, $res) {
             });
           }
 
+          // -------------------------------------------------------------------
+          // UPDATE TOWING VOUCHER
+          // -------------------------------------------------------------------
           $cic = $cic == '' ? null : $cic;
 
           var $params3 = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
