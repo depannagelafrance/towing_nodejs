@@ -25,6 +25,8 @@ const SQL_FETCH_COMM_AND_ATT_SUMMARY        = "CALL R_FETCH_COMM_AND_ATT_SUMMARY
 
 const SQL_FETCH_ALLOTMENT_AGENCY            = "CALL R_FETCH_ALLOTMENT_AGENCY_BY_ALLOTMENT(?,?); ";
 
+const SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS = "CALL R_FETCH_ALL_TOWING_ADDITIONAL_COSTS(?, ?); ";
+
 var findById = function($dossier_id, $token, cb) {
   var $dossier = {};
 
@@ -103,18 +105,23 @@ var findById = function($dossier_id, $token, cb) {
                                 {
                                     $voucher.signature_traffic_post = $t_result;
 
-                                    //fetch the towing activities information
-                                    db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, $dvt_params, function($error, $a_result, $fields)
+                                    db.many(SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS, $vt_params, function($error, $t_result, $fields)
                                     {
-                                      $voucher.towing_activities = $a_result;
+                                        $voucher.towing_additional_costs = $t_result;
 
-                                      $vouchers.push($voucher);
+                                        //fetch the towing activities information
+                                        db.many(SQL_FETCH_TOWING_ACTIVITES_BY_VOUCHER, $dvt_params, function($error, $a_result, $fields)
+                                        {
+                                          $voucher.towing_activities = $a_result;
 
-                                      if($vouchers.length == $v_result.length) {
-                                        $dossier.towing_vouchers = $vouchers;
+                                          $vouchers.push($voucher);
 
-                                        cb($dossier);
-                                      }
+                                          if($vouchers.length == $v_result.length) {
+                                            $dossier.towing_vouchers = $vouchers;
+
+                                            cb($dossier);
+                                          }
+                                        });
                                     });
                                 });
                             });

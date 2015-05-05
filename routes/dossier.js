@@ -828,7 +828,10 @@ router.put('/:dossier/:token', function($req, $res) {
             $voucher.towing_additional_costs.forEach(function($cost) {
               var params2 = [$cost.id, $voucher_id, $cost.name, $cost.fee_excl_vat, $cost.fee_incl_vat, $token];
 
-              db.one(SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST, $params2, function($error, $result, $fields) {
+              console.log("----- Adding additional costs");
+              console.log(params2);
+              
+              db.one(SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST, params2, function($error, $result, $fields) {
                 //fire and forget
               });
             });
