@@ -1,3 +1,8 @@
+<%
+function d(val) {
+  return parseFloat(val.replace(",", "."));
+}
+%>
 <!doctype html>
 <html lang=en-us>
 <head>
@@ -221,8 +226,8 @@
                     <div class="padded-special"><%= towing_service_name %></div>
                     <div class="padded-special"><%= towing_service_street %> <%= towing_service_nr  %>, <%= towing_service_zip %> <%= towing_service_city %></div>
                     <div class="padded-special cf">
-                        <div style="float:left; width:50%"><label>Tel:</label> <%= towing_service_phone %></div>
-                        <div style="float:left; width:50%"><label>Fax:</label> <%= towing_service_fax %></div>
+                        <div style="float:left; width:50%"><label>Tel:</label> <%= towing_service_phone  %></div>
+                        <div style="float:left; width:50%"><label>Fax:</label> <%= towing_service_fax  %></div>
                         <div style="float:left; width:50%"><label>BTW Nr:</label> <%= towing_service_vat %></div>
                     </div>
                     <div class="padded-special cf">
@@ -418,6 +423,9 @@
                     </tr>
 
                     <%
+
+                    $_total = null;
+
                     for(var $j in timeframe_activities)
                     {
                       if(timeframe_activities[$j].code != 'STALLING')
@@ -460,8 +468,8 @@
                                         $_amount  = towing_activities[$y].amount;
                                         $_cal_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat: towing_activities[$y].cal_fee_incl_vat;
 
-                                        $_total   = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
-                                        $_voucher_total = $_total;
+                                        $_total   = ($_total ? $_total : 0.0)  + d($_cal_fee); //company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat;
+                                        $_voucher_total = company_vat_foreign_country == 1 ? towing_activities[$y].total_bill_excl_vat : towing_activities[$y].total_bill_incl_vat; // $_total;
                                         $found=true;
                                       }
                                     }
@@ -478,8 +486,8 @@
                                   }
                                 } %>
 
-                                <td height="15px" class="bordered text-center"><%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
-                                <td height="15px" class="bordered text-center"><%= $_cal_fee %></td>
+                                <td height="15px" class="bordered text-center">&euro; <%= company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat%></td>
+                                <td height="15px" class="bordered text-center"><%= $_cal_fee ? "&euro; " + $_cal_fee : "&nbsp;" %></td>
                         <%    }
                             }
                           }
@@ -512,6 +520,9 @@
                                   $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
                                   $_depot_fee = company_vat_foreign_country == 1 ? timeframe_activity_fees[$x][$k].fee_excl_vat : timeframe_activity_fees[$x][$k].fee_incl_vat;
                                   $_depot_total_fee = company_vat_foreign_country == 1 ? towing_activities[$y].cal_fee_excl_vat : towing_activities[$y].cal_fee_incl_vat;
+
+                                  //$_total = $_total - $_depot_total_fee;
+
                                   $found=true;
                                 }
                               }
@@ -526,7 +537,7 @@
                     <tr>
                         <td height="15px" class=" bordered text-center disabled">&nbsp;</td>
                         <td height="15px" class=" bordered text-center disabled">&nbsp;</td>
-                        <td height="15px" class=" bordered text-center"><%=($_total == '' || !$_total ? '' : parseFloat($_total).toFixed(2))%></td>
+                        <td height="15px" class=" bordered text-center"><%=($_total == '' || !$_total ? '' : "&euro; " + parseFloat($_total).toFixed(2))%></td>
                     </tr>
                     </tbody>
                 </table>
@@ -537,22 +548,35 @@
 
         <div class="l-2-col cf margined">
             <div class="padded">
-                <div class="padded-large bordered text-small">
-                    <label>Stallingskosten</label>
-                    <span>(vanaf 4e kalenderdag)</span>
-                </div>
                 <div class="margined">
                     <table>
-                        <tbody>
-                        <tr>
-                            <td style="width:10%;" class="padded-large bordered ">Aantal</td>
-                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
-                            <td style="width:30%;" class="padded-large bordered ">Prijs (<%=$vat_tag%> BTW)</td>
-                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_fee ? $_depot_fee : "&nbsp;" %></td>
-                            <td style="width:30%;" class="padded-large bordered ">Totaal (<%=$vat_tag%> BTW)</td>
-                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_total_fee ? $_depot_total_fee : "&nbsp;" %></td>
+                      <tbody>
+                        <tr class="subhead">
+                            <th class="bordered text-small">Omschrijving kost:</th>
+                            <th class="bordered text-small">Aantal</th>
+                            <th class="bordered text-small">Prijs (<%=$vat_tag%> BTW)</th>
+                            <th class="bordered text-small">Totaal (<%=$vat_tag%> BTW)</th>
                         </tr>
-                        </tbody>
+                        <tr>
+                            <td style="width:50%;" class="padded-large bordered text-small"><label>Stallingskosten</label><span>(vanaf 4e kalenderdag)</span></td>
+                            <td style="width:10%;" class="padded-large bordered text-center"><%=$_depot_days ? $_depot_days : "&nbsp;" %></td>
+                            <td style="width:20%;" class="padded-large bordered text-right"><%=$_depot_fee ? "&euro; " + $_depot_fee : "&nbsp;" %></td>
+                            <td style="width:20%;" class="padded-large bordered text-right"><%=$_depot_total_fee ? "&euro; " + $_depot_total_fee : "&nbsp;" %></td>
+                        </tr>
+                        <%
+                          for(var $k in towing_additional_costs) {
+                            var $_cost = towing_additional_costs[$k];
+                        %>
+                        <tr>
+                            <td style="width:50%;" class="padded-large bordered text-small"><label><%=$_cost.name%></label></td>
+                            <td style="width:10%;" class="padded-large bordered text-center">1</td>
+                            <td style="width:20%;" class="padded-large bordered text-right">&euro; <%=company_vat_foreign_country == 1 ? $_cost.fee_excl_vat : $_cost.fee_incl_vat %></td>
+                            <td style="width:20%;" class="padded-large bordered text-right">&euro; <%=company_vat_foreign_country == 1 ? $_cost.fee_excl_vat : $_cost.fee_incl_vat %></td>
+                        </tr>
+                        <%
+                          }
+                        %>
+                      </tbody>
                     </table>
                 </div>
             </div>

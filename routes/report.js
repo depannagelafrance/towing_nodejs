@@ -377,7 +377,8 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       'insurance_name'              : $voucher.insurance_name,
       'insurance_dossier'           : $voucher.insurance_dossiernr,
       'towing_payments'             : $voucher.towing_payments,
-      'is_covered_by_insurance'     : $voucher.insurance_id ? true : false
+      'is_covered_by_insurance'     : $voucher.insurance_id ? true : false,
+      'towing_additional_costs'     : $voucher.towing_additional_costs
     };
 
     return $params;

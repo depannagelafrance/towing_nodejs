@@ -86,6 +86,7 @@ const SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES             = "CALL R_FETCH_ALL_DOSSIE
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?,?); ";
+const SQL_UPDATE_TOWING_DEPOT_TO_AGENCY     = "CALL R_UPDATE_TOWING_DEPOT_TO_AGENCY(?,?,?);";
 
 const SQL_FETCH_CUSTOMER                    = "CALL R_FETCH_TOWING_CUSTOMER(?, ?); ";
 const SQL_UPDATE_TOWING_CUSTOMER            = "CALL R_UPDATE_TOWING_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -487,6 +488,29 @@ router.get('/depot/:dossier/:voucher/:token', function($req, $res) {
   });
 });
 
+router.put('/depot_agency/:depot_id/:voucher/:token', function($req, $res) {
+  var $depot_id         = ju.requiresInt('depot_id', $req.params);
+  var $voucher_id       = ju.requiresInt('voucher', $req.params);
+  var $token            = ju.requires('token', $req.params);
+
+  //upate the voucher's depot if it is available
+
+  var $params = [$depot_id, $voucher_id, $token];
+
+  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields){
+    console.log($error);
+    console.log($result);
+    
+    if($result.id) {
+      db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
+    } else {
+      ju.send($req, $res, $result);
+    }
+  });
+});
+
 router.put('/depot/:dossier/:voucher/:token', function($req, $res) {
   var $dossier_id       = ju.requiresInt('dossier', $req.params);
   var $voucher_id       = ju.requiresInt('voucher', $req.params);
@@ -830,7 +854,7 @@ router.put('/:dossier/:token', function($req, $res) {
 
               console.log("----- Adding additional costs");
               console.log(params2);
-              
+
               db.one(SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST, params2, function($error, $result, $fields) {
                 //fire and forget
               });
