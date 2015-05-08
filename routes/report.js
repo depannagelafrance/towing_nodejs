@@ -348,7 +348,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
       "towing_end"          : convertUnixTStoTimeFormat($voucher.towing_completed),
       "towing_licence_plate": $voucher.towed_by_vehicle,
       "extra_info"          : $voucher.additional_info,
-      "nr_of_vouchers"      : 1,
+      "nr_of_vouchers"      : $dossier.nr_of_vouchers,
       "towing_location_depot" :  $voucher.depot.display_name,
       "causer_name"         : convertToNameString($voucher.causer),
       "causer_address"      : convertToAddressString($voucher.causer),
