@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang=en-us>
+<head>
+    <title></title>
+    <meta charset=utf-8>
+
+    <style type="text/css">
+
+        /* Reset */
+        html {
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+            font-family: 'arial narrow', arial, sans serif;
+        }
+
+        .cf:before,
+        .cf:after {
+            content: " "; /* 1 */
+            display: table; /* 2 */
+        }
+
+        .cf:after {
+            clear: both;
+        }
+
+        .text-right{
+            text-align: right;
+        }
+
+        .page{
+            background: white;
+            width: 21cm;
+            height: 29.7cm;
+            display: block;
+            margin: 0 auto;
+            page-break-before: always;
+        }
+
+        .container{
+            font-size: 14px;
+        }
+
+        #info_from,
+        #info_to{
+            float: left;
+            width: 50%;
+            padding: 25px 40px;
+        }
+        #info_to_block{
+            border: 1px solid #CCC;
+            padding: 25px;
+            margin-top: 45px;
+        }
+
+        .from_company{
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #info_invoice,
+        #info_key{
+            float: left;
+            width: 50%;
+            padding: 25px 40px;
+        }
+
+        #info_key{
+            text-align: right;
+        }
+
+        .info_padded{
+            padding: 2px 0px;
+        }
+
+        .table_wrap{
+            padding: 25px 40px;
+        }
+
+        table{
+            width: 100%;
+            text-align: center;
+        }
+
+        table, th, td {
+            border: 1px solid #CCC;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+        }
+
+        th{
+            background: #EEE;
+            font-weight: bold;
+        }
+
+        td{
+            font-weight: 500;
+        }
+
+        .odd td{
+            background: #FFF;
+        }
+
+        .even td{
+            background: #F2F2F2;
+        }
+
+        .seperation{
+            height: 1px;
+            background: #EEE;
+            width: 100%;
+        }
+
+        .seperation_wrap{
+            padding: 0px 40px;
+        }
+
+        .bold{
+            font-weight: bold;
+        }
+
+        #total {
+            padding: 5px 50px;
+            text-align: right;
+            font-size: 16px;
+        }
+
+        #total span{
+            width: 150px;
+            display: inline-block;
+        }
+        .full-total{
+            margin-top: 15px;
+            border-top: 1px solid #CCC;
+            padding-top: 15px;
+            width: 45%;
+            float: right;
+        }
+
+        #closer{
+            padding: 10px 40px;
+            font-size: 12px;
+            margin-top: 40px;
+            font-style: italic;
+            color: #999;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container" style="width: 720px;">
+    <div class="page">
+        <div class="cf">
+            <div id="info_from">
+                <div class="from_company">Depannage la France</div>
+                <div class="from_street">Tweemondstraat 310</div>
+                <div class="from_city">B2100 Deurne</div>
+                <div class="from_country">België</div>
+                <div><label>BTW: </label> BE 0123.456.789</div>
+                </br></br>
+                <div><label>Tel: </label> 0032 3 666 67 88</div>
+                <div><label>Fax: </label> 0032 3 666 67 89</div>
+                </br></br>
+                <div><label>Email: </label> info@lafrance.be</div>
+                </br></br>
+                <div><label>Iban: </label> BE 0123.456.789</div>
+                <div><label>Bic: </label> 123456789</div>
+            </div>
+            <div id="info_to">
+                <div id="info_to_block">
+                    <div>Acuzio BVBA</div>
+                    <div>tav. Kris Vandermast</div>
+                    </br></br>
+                    <div>Voorspoedstraat 8</div>
+                    <div>B2910 Essen</div>
+                    </br></br>
+                    <div>België</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
+        <div class="cf">
+            <div id="info_invoice">
+                <div class="bold info_padded"><label>Factuur: </label>2015/0000001</div>
+                <div class="bold info_padded"><label>Datum: </label>23/02/2015</div>
+            </div>
+            <div id="info_key">
+                <div class="bold info_padded"><label>Uw Kenmerk: </label>BE0123.456.789</div>
+                <div class="bold info_padded"><label>Betalingskenmerk: </label>+++012/345678/92+++</div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
+        <div class="cf">
+            <div class="table_wrap">
+                <table>
+                    <thead>
+                        <th>Item</th>
+                        <th>Omschrijving</th>
+                        <th>Aantal</th>
+                        <th>EHP (excl BTW)</th>
+                        <th>Totaal/Item (excl BTW)</th>
+                    </thead>
+                    <tbody>
+                        <tr class="odd">
+                            <td>1</td>
+                            <td>Signalisatie</td>
+                            <td>1</td>
+                            <td class="text-right">€100</td>
+                            <td class="text-right">€100</td>
+                        </tr>
+                        <tr class="even">
+                            <td>2</td>
+                            <td>Ongeval</td>
+                            <td>1</td>
+                            <td class="text-right">€100</td>
+                            <td class="text-right">€100</td>
+                        </tr>
+                        <tr class="odd">
+                            <td>3</td>
+                            <td>Stallingskost</td>
+                            <td>1</td>
+                            <td class="text-right">€100</td>
+                            <td class="text-right">€100</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="cf">
+            <div id="total">
+                <div class="bold info_padded"><label>Totaal (excl. BTW): </label><span>€300.00</span></div>
+                <div class="bold info_padded"><label>BTW (21%): </label><span>€69.00</span></div>
+                <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span>€369.00</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cf">
+            <div id="closer">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum feugiat posuere. In fringilla mauris non libero pulvinar, vitae ultrices lectus ullamcorper. Curabitur eu mi ac lorem faucibus bibendum quis ac dui. Donec ut diam sit amet nisi tempus maximus. Suspendisse quis nisl dui. Nulla sollicitudin urna neque, pellentesque sollicitudin neque facilisis eu. Pellentesque congue varius massa, eget viverra augue egestas ut. Curabitur hendrerit blandit neque, pulvinar porttitor metus dapibus sit amet. Cras maximus malesuada velit. Mauris nec finibus leo. Nullam mollis dolor in ex porta maximus. Nulla ut ornare mi. Maecenas non magna viverra, tempor ex vitae, imperdiet erat. In dictum ac sapien sit amet elementum. Mauris commodo lacus et consectetur elementum.
+                Fusce dictum, est at elementum mollis, nibh tortor accumsan nisi, ut maximus ante sem sit amet tortor. Quisque est lacus, interdum eleifend nisl ut, suscipit aliquam dolor. Praesent ac efficitur nunc, ut vulputate lacus. Donec aliquam nisi velit, vitae sagittis urna hendrerit et. Morbi lorem sapien, feugiat vitae pellentesque ut, venenatis eget enim. Nulla in accumsan diam, eget aliquam nibh. Nulla tincidunt mauris a metus bibendum, eu laoreet augue imperdiet. Donec malesuada, mauris quis elementum tristique, nibh orci bibendum velit, at consectetur mi lectus ut massa. Nam a magna vestibulum leo accumsan posuere. Proin elementum non diam id posuere. Pellentesque nisi velit, varius ac sapien non, feugiat porta massa. Curabitur porta dui vitae sem pharetra convallis. Mauris non accumsan elit.
+            </div>
+        </div>
+
+</body>
