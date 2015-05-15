@@ -207,7 +207,7 @@ function renderPdfTemplate($voucher, $compiled_template, $req, $res)
 
               fs.readFile(folder + filename, "base64", function(a_error, data) {
                 LOG.d(TAG, "Read file: " + folder + filename);
-                LOG.d(TAG, "Error: " + JSON.stringify(a_error));
+                //LOG.d(TAG, "Error: " + JSON.stringify(a_error));
 
                 ju.send($req, $res, {
                   "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
@@ -317,7 +317,7 @@ function convertToVoucherReportParams($dossier, $voucher_id, $type, $token) {
   try {
     var $params = {
       "allotment_name"      : $dossier.allotment_name,
-      "voucher_number"      : $voucher.voucher_number,
+      "voucher_number"      : 'B'+$voucher.voucher_number,
       "call_number"         : $dossier.call_number,
       "timeframe_name"      : $dossier.timeframe_name,
       "timeframe_id"        : $dossier.timeframe_id,
