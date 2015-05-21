@@ -18,7 +18,8 @@ var mysql = {
 }
 
 var fs = {
-  tmp : "/tmp/"
+  tmp : "/tmp/",
+  invoice_store : "/tmp/invoices/"
 }
 
 var smtpTransportSettings = {

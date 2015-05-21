@@ -157,29 +157,32 @@
     <div class="page">
         <div class="cf">
             <div id="info_from">
-                <div class="from_company">Depannage la France</div>
-                <div class="from_street">Tweemondstraat 310</div>
-                <div class="from_city">B2100 Deurne</div>
+                <div class="from_company"><%=company.name%></div>
+                <div class="from_street"><%=company.street%> <%=company.street_number %></div>
+                <div class="from_city"><%=company.zip%> <%=company.city%></div>
                 <div class="from_country">België</div>
-                <div><label>BTW: </label> BE 0123.456.789</div>
+                <div><label class="bold">BTW: </label><%=company.vat %></div>
                 </br></br>
-                <div><label>Tel: </label> 0032 3 666 67 88</div>
-                <div><label>Fax: </label> 0032 3 666 67 89</div>
-                </br></br>
-                <div><label>Email: </label> info@lafrance.be</div>
-                </br></br>
-                <div><label>Iban: </label> BE 0123.456.789</div>
-                <div><label>Bic: </label> 123456789</div>
+                <div><label class="bold">Tel: </label><%=company.phone%></div>
+                <div><label class="bold">Fax: </label><%=company.fax%></div>
+                <div><label class="bold">Email: </label><%=company.email%></div>
+                </br>
+                <div><label class="bold">BNP Parisbas Fortis IBAN:</label> BE60 2200 3624 2670</div>
+                <div><label class="bold">BNP Parisbas Forsts BIC:</label> GEBABEBB</div>
+                <br/>
+                <div><label class="bold">ING IBAN:</label> BE72 3200 5535 2516</div>
+                <div><label class="bold">ING BIC:</label> BBRUBEBB</div>
             </div>
             <div id="info_to">
                 <div id="info_to_block">
-                    <div>Acuzio BVBA</div>
-                    <div>tav. Kris Vandermast</div>
+                    <div><%= (invoice.customer.company_name != null ?  invoice.customer.company_name : '&nbsp;' ) %></div>
+                    <div><%= (invoice.customer.company_vat != null ?  invoice.customer.company_vat : '&nbsp;' ) %></div>
+                    <div>tav. <%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
                     </br></br>
-                    <div>Voorspoedstraat 8</div>
-                    <div>B2910 Essen</div>
+                    <div><%= invoice.customer.street%> <%= invoice.customer.street_number%> <%=(invoice.customer.street_pobox != null && invoice.customer.street_pobox != '' ? '/' + invoice.customer.street_pobox : '') %></div>
+                    <div><%= invoice.customer.zip%> <%= invoice.customer.city%></div>
                     </br></br>
-                    <div>België</div>
+                    <div><%= invoice.customer.country%></div>
                 </div>
             </div>
         </div>
@@ -190,12 +193,12 @@
 
         <div class="cf">
             <div id="info_invoice">
-                <div class="bold info_padded"><label>Factuur: </label>2015/0000001</div>
-                <div class="bold info_padded"><label>Datum: </label>23/02/2015</div>
+                <div class="bold info_padded"><label>Factuur: </label><%=invoice.invoice_number_display%></div>
+                <div class="bold info_padded"><label>Datum: </label><%=invoice_date%></div>
             </div>
             <div id="info_key">
-                <div class="bold info_padded"><label>Uw Kenmerk: </label>BE0123.456.789</div>
-                <div class="bold info_padded"><label>Betalingskenmerk: </label>+++012/345678/92+++</div>
+                <div class="bold info_padded"><label>Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
+                <div class="bold info_padded"><label>Betalingskenmerk: </label><%=invoice.invoice_structured_reference%></div>
             </div>
         </div>
 
@@ -214,27 +217,22 @@
                         <th>Totaal/Item (excl BTW)</th>
                     </thead>
                     <tbody>
-                        <tr class="odd">
-                            <td>1</td>
-                            <td>Signalisatie</td>
-                            <td>1</td>
-                            <td class="text-right">€100</td>
-                            <td class="text-right">€100</td>
-                        </tr>
-                        <tr class="even">
-                            <td>2</td>
-                            <td>Ongeval</td>
-                            <td>1</td>
-                            <td class="text-right">€100</td>
-                            <td class="text-right">€100</td>
-                        </tr>
-                        <tr class="odd">
-                            <td>3</td>
-                            <td>Stallingskost</td>
-                            <td>1</td>
-                            <td class="text-right">€100</td>
-                            <td class="text-right">€100</td>
-                        </tr>
+                        <% var $i = 0;
+
+                           invoice.invoice_lines.forEach(function(invoice_line)
+                           {
+                             $i++;
+                              %>
+                                <tr class="<%= ($i % 2 == 0 ? 'even' : 'odd') %>">
+                                  <td><%=$i%></td>
+                                  <td><%=invoice_line.item%></td>
+                                  <td><%=invoice_line.item_amount.toFixed(2)%></td>
+                                  <td class="text-right">&euro; <%=invoice_line.item_price_excl_vat.toFixed(2) %></td>
+                                  <td class="text-right">&euro; <%=invoice_line.item_total_excl_vat.toFixed(2) %></td>
+                                </tr>
+                              <%
+                           });
+                        %>
                     </tbody>
                 </table>
             </div>
@@ -242,11 +240,18 @@
 
         <div class="cf">
             <div id="total">
-                <div class="bold info_padded"><label>Totaal (excl. BTW): </label><span>€300.00</span></div>
-                <div class="bold info_padded"><label>BTW (21%): </label><span>€69.00</span></div>
-                <div class="cf">
-                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span>€369.00</span></div>
-                </div>
+                <div class="bold info_padded"><label>Maatstaf van heffing: </label><span>&euro; <%=invoice.invoice_total_excl_vat.toFixed(2)%></span></div>
+                <% if (!invoice.vat_foreign_country) { %>
+                  <div class="bold info_padded"><label>BTW (<%=invoice.invoice_vat_percentage*100%>%): </label><span>&euro; <%=invoice.invoice_total_vat.toFixed(2) %></span></div>
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span>&euro; <%=invoice.invoice_total_incl_vat.toFixed(2)%></span></div>
+                  </div>
+                <% } else { %>
+                  <div class="bold info_padded"><label>BTW verlegd, art. 5 , ontwerp KB nr. 1</label><span>&nbsp;</span></div>
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal</label><span>&euro; <%=invoice.invoice_total_excl_vat.toFixed(2)%></span></div>
+                  </div>
+                <% } %>
             </div>
         </div>
 
