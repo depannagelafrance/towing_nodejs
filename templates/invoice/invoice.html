@@ -65,7 +65,7 @@
         #info_key{
             float: left;
             width: 50%;
-            padding: 25px 40px;
+            padding: 10px 40px;
         }
 
         #info_key{
@@ -168,7 +168,7 @@
                 <div><label class="bold">Email: </label><%=company.email%></div>
                 </br>
                 <div><label class="bold">BNP Parisbas Fortis IBAN:</label> BE60 2200 3624 2670</div>
-                <div><label class="bold">BNP Parisbas Forsts BIC:</label> GEBABEBB</div>
+                <div><label class="bold">BNP Parisbas Fortis BIC:</label> GEBABEBB</div>
                 <br/>
                 <div><label class="bold">ING IBAN:</label> BE72 3200 5535 2516</div>
                 <div><label class="bold">ING BIC:</label> BBRUBEBB</div>
@@ -176,13 +176,13 @@
             <div id="info_to">
                 <div id="info_to_block">
                     <div><%= (invoice.customer.company_name != null ?  invoice.customer.company_name : '&nbsp;' ) %></div>
-                    <div><%= (invoice.customer.company_vat != null ?  invoice.customer.company_vat : '&nbsp;' ) %></div>
-                    <div>tav. <%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
-                    </br></br>
+                    <div><%= (invoice.customer.company_name != null ?  'tav. ' : '&nbsp;' ) %><%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
+                    <br /><br />
                     <div><%= invoice.customer.street%> <%= invoice.customer.street_number%> <%=(invoice.customer.street_pobox != null && invoice.customer.street_pobox != '' ? '/' + invoice.customer.street_pobox : '') %></div>
                     <div><%= invoice.customer.zip%> <%= invoice.customer.city%></div>
-                    </br></br>
                     <div><%= invoice.customer.country%></div>
+                    <br /><br />
+                    <div><%= (invoice.customer.company_vat != null ?  invoice.customer.company_vat : '&nbsp;' ) %></div>
                 </div>
             </div>
         </div>
@@ -193,18 +193,35 @@
 
         <div class="cf">
             <div id="info_invoice">
-                <div class="bold info_padded"><label>Factuur: </label><%=invoice.invoice_number_display%></div>
-                <div class="bold info_padded"><label>Datum: </label><%=invoice_date%></div>
+                <div class="info_padded"><label class="bold">Factuur: </label><%=invoice.invoice_number_display%></div>
+                <div class="info_padded"><label class="bold">Datum: </label><%=invoice_date%></div>
+                <div class="info_padded"><label class="bold">Te betalen voor:</label> <%=invoice_due_date %></div>
             </div>
             <div id="info_key">
-                <div class="bold info_padded"><label>Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
-                <div class="bold info_padded"><label>Betalingskenmerk: </label><%=invoice.invoice_structured_reference%></div>
+                <div class="info_padded"><label class="bold">Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
+                <div class="info_padded"><label class="bold">Betalingskenmerk: </label><%=invoice.invoice_structured_reference%></div>
             </div>
         </div>
 
         <div class="seperation_wrap">
             <div class="seperation"></div>
         </div>
+
+        <div class="cf">
+            <div id="info_invoice">
+                <div class="info_padded"><label class="bold">PA Nummer: </label><%=call_number%></div>
+                <div class="info_padded"><label class="bold">Datum oproep: </label><%=call_date%></div>
+            </div>
+            <div id="info_key">
+                <div class="info_padded"><label class="bold">Voertuig: </label><%=vehicle%></div>
+                <div class="info_padded"><label class="bold">Nummerplaat: </label><%=vehicle_licenceplate%></div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
 
         <div class="cf">
             <div class="table_wrap">
@@ -257,8 +274,18 @@
 
         <div class="cf">
             <div id="closer">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum feugiat posuere. In fringilla mauris non libero pulvinar, vitae ultrices lectus ullamcorper. Curabitur eu mi ac lorem faucibus bibendum quis ac dui. Donec ut diam sit amet nisi tempus maximus. Suspendisse quis nisl dui. Nulla sollicitudin urna neque, pellentesque sollicitudin neque facilisis eu. Pellentesque congue varius massa, eget viverra augue egestas ut. Curabitur hendrerit blandit neque, pulvinar porttitor metus dapibus sit amet. Cras maximus malesuada velit. Mauris nec finibus leo. Nullam mollis dolor in ex porta maximus. Nulla ut ornare mi. Maecenas non magna viverra, tempor ex vitae, imperdiet erat. In dictum ac sapien sit amet elementum. Mauris commodo lacus et consectetur elementum.
-                Fusce dictum, est at elementum mollis, nibh tortor accumsan nisi, ut maximus ante sem sit amet tortor. Quisque est lacus, interdum eleifend nisl ut, suscipit aliquam dolor. Praesent ac efficitur nunc, ut vulputate lacus. Donec aliquam nisi velit, vitae sagittis urna hendrerit et. Morbi lorem sapien, feugiat vitae pellentesque ut, venenatis eget enim. Nulla in accumsan diam, eget aliquam nibh. Nulla tincidunt mauris a metus bibendum, eu laoreet augue imperdiet. Donec malesuada, mauris quis elementum tristique, nibh orci bibendum velit, at consectetur mi lectus ut massa. Nam a magna vestibulum leo accumsan posuere. Proin elementum non diam id posuere. Pellentesque nisi velit, varius ac sapien non, feugiat porta massa. Curabitur porta dui vitae sem pharetra convallis. Mauris non accumsan elit.
+                <p>
+                  Deze takeling werd uitgevoerd in het kader van F.A.S.T., een overheidsopdracht van de Vlaamse Overheid en de Federale Wegpolitie.
+                  De overheid zal de factuur controleren en u schriftelijk inlichten binnen de 30 dagen.
+                </p>
+                <p>
+                  Ce dépannage a été exécuté dans le cadre de F.A.S.T., un marché public de l’autorité flamande et de la police fédérale de la route.
+                  Les autorités contrôleront la facture et vous informeront par écrit dans les 30 jours.
+                </p>
+                <p>
+                  This breakdown service was provided in accordance with the F.A.S.T. program, a government contract of the Flemish Government and the Federal Traffic Police.
+                  The government will control the invoice and inform you in writing within 30 days.
+              </p>
             </div>
         </div>
 

@@ -497,10 +497,7 @@ router.put('/depot_agency/:depot_id/:voucher/:token', function($req, $res) {
 
   var $params = [$depot_id, $voucher_id, $token];
 
-  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields){
-    console.log($error);
-    console.log($result);
-    
+  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields) {    
     if($result.id) {
       db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
         ju.send($req, $res, $result);
