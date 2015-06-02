@@ -42,6 +42,7 @@ const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
                                                + "?);"; //token
 const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VOUCHER(?,?); ";
 const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?); ";
+const SQL_INVOICE_ATT_LINK_WITH_VOUCHER    = "CALL R_INVOICE_ATT_LINK_WITH_VOUCHER(?,?,?); ";
 
 
 const PAGESETTINGS = {
@@ -201,30 +202,20 @@ router.post('/batch/:token', function($req, $res) {
                               }
                               else
                               {
-                                LOG.d(TAG, "PDF GENERATED : " + status);
-
-                                fs.readFile(folder + filename, "base64", function(a_error, data)
+                                  fs.readFile(folder + filename, "base64", function(a_error, data)
                                 {
                                   LOG.d(TAG, "Read file: " + folder + filename);
 
-                                  db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $result, $fields) {
-                                    //fire and forget
+                                  db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+                                    db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
                                   });
-
-                                  //LOG.d(TAG, "Error: " + JSON.stringify(a_error));
-
-                                  // ju.send($req, $res, {
-                                  //   "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                                  //   "content_type" : "application/pdf",
-                                  //   "data" : data
-                                  // });
 
                                   // delete the file
                                   fs.unlink(folder + filename, function (err) {
                                     if (err) {
                                       LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
                                     } else {
-                                      LOG.d(TAG, 'successfully deleted /tmp/' + filename);
+                                      LOG.d(TAG, 'successfully deleted ' + folder + filename);
                                     }
                                   });
 
@@ -236,14 +227,6 @@ router.post('/batch/:token', function($req, $res) {
                             //ph.exit();
                           }
                         }); //end ph.create
-
-
-
-                        //store the invoice pdf in the documents folder of the towing voucher
-
-                        //add the invoice pdf to a zip file for this batch
-
-                        //store the invoice batch zip on disk
                       });
                     });
                   });
@@ -353,23 +336,11 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
                               }
                               else
                               {
-                                LOG.d(TAG, "PDF GENERATED : " + status);
-
                                 fs.readFile(folder + filename, "base64", function(a_error, data)
                                 {
-                                  LOG.d(TAG, "Read file: " + folder + filename);
-
-                                  db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $result, $fields) {
-                                    //fire and forget
+                                  db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+                                    db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
                                   });
-
-                                  //LOG.d(TAG, "Error: " + JSON.stringify(a_error));
-
-                                  // ju.send($req, $res, {
-                                  //   "filename" : "voucher_" + $voucher.voucher_number + ".pdf",
-                                  //   "content_type" : "application/pdf",
-                                  //   "data" : data
-                                  // });
 
                                   // delete the file
                                   fs.unlink(folder + filename, function (err) {
