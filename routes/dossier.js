@@ -37,6 +37,7 @@ const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
                                                   + "?," //p_voucher_id
                                                   + "?," //p_insurance_id
                                                   + "?," //p_insurance_dossier_nr
+                                                  + "?," //p_insurance_invoice_number
                                                   + "?," //p_warranty_holder
                                                   + "?," //p_collector_id
                                                   + "?," //p_vehicule
@@ -127,6 +128,7 @@ const STATUS_IN_PROGRESS        = "IN PROGRESS";
 const STATUS_COMPLETED          = "COMPLETED";
 const STATUS_TO_CHECK           = "TO CHECK";
 const STATUS_READY_FOR_INVOICE  = "READY FOR INVOICE";
+const STATUS_INVOICED           = "INVOICED";
 const STATUS_NOT_COLLECTED      = "NOT COLLECTED";
 const STATUS_AGENCY             = "AGENCY";
 
@@ -165,6 +167,10 @@ router.get('/list/check/:token', function($req, $res) {
 
 router.get('/list/invoice/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_READY_FOR_INVOICE);
+});
+
+router.get('/list/invoiced/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_INVOICED);
 });
 
 router.get('/list/done/:token', function($req, $res) {
@@ -497,7 +503,7 @@ router.put('/depot_agency/:depot_id/:voucher/:token', function($req, $res) {
 
   var $params = [$depot_id, $voucher_id, $token];
 
-  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields) {    
+  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields) {
     if($result.id) {
       db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
         ju.send($req, $res, $result);
@@ -752,6 +758,7 @@ router.put('/:dossier/:token', function($req, $res) {
           var $voucher_id               = $voucher.id;
           var $insurance_id             = _.isNaN(parseFloat($voucher.insurance_id)) ? null : $voucher.insurance_id;
           var $insurance_dossier_nr     = $voucher.insurance_dossiernr;
+          var $insurance_invoice_number = $voucher.insurance_invoice_number;
           var $warranty_holder          = $voucher.insurance_warranty_held_by;
           var $collector_id             = _.isNaN(parseFloat($voucher.collector_id)) ? null : $voucher.collector_id;
           var $police_signature_date    = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
@@ -887,7 +894,7 @@ router.put('/:dossier/:token', function($req, $res) {
           // -------------------------------------------------------------------
           $cic = $cic == '' ? null : $cic;
 
-          var $params3 = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
+          var $params3 = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr, $insurance_invoice_number,
                          $warranty_holder, $collector_id,
                          $vehicule, $vehicule_type, $vehicule_color, $vehicule_keys_present, $vehicule_licence_plate, $vehicule_country,
                          $vehicule_impact_remarks,

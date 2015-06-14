@@ -244,8 +244,8 @@
                                   <td><%=$i%></td>
                                   <td><%=invoice_line.item%></td>
                                   <td><%=invoice_line.item_amount.toFixed(2)%></td>
-                                  <td class="text-right">&euro; <%=invoice_line.item_price_excl_vat.toFixed(2) %></td>
-                                  <td class="text-right">&euro; <%=invoice_line.item_total_excl_vat.toFixed(2) %></td>
+                                  <td class="text-right"><%=invoice_line.item_price_excl_vat.toFixed(2) %> &euro;</td>
+                                  <td class="text-right"><%=invoice_line.item_total_excl_vat.toFixed(2) %> &euro;</td>
                                 </tr>
                               <%
                            });
@@ -257,20 +257,38 @@
 
         <div class="cf">
             <div id="total">
-                <div class="bold info_padded"><label>Maatstaf van heffing: </label><span>&euro; <%=invoice.invoice_total_excl_vat.toFixed(2)%></span></div>
+                <div class="bold info_padded"><label>Maatstaf van heffing: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
                 <% if (!invoice.vat_foreign_country) { %>
-                  <div class="bold info_padded"><label>BTW (<%=invoice.invoice_vat_percentage*100%>%): </label><span>&euro; <%=invoice.invoice_total_vat.toFixed(2) %></span></div>
+                  <div class="bold info_padded"><label>BTW (<%=invoice.invoice_vat_percentage*100%>%): </label><span><%=invoice.invoice_total_vat.toFixed(2) %> &euro;</span></div>
                   <div class="cf">
-                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span>&euro; <%=invoice.invoice_total_incl_vat.toFixed(2)%></span></div>
+                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span><%=invoice.invoice_total_incl_vat.toFixed(2)%> &euro;</span></div>
                   </div>
                 <% } else { %>
                   <div class="bold info_padded"><label>BTW verlegd, art. 5 , ontwerp KB nr. 1</label><span>&nbsp;</span></div>
                   <div class="cf">
-                    <div class="full-total bold info_padded"><label>Totaal</label><span>&euro; <%=invoice.invoice_total_excl_vat.toFixed(2)%></span></div>
+                    <div class="full-total bold info_padded"><label>Totaal: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
                   </div>
                 <% } %>
+
+                  <% if (invoice.paid_in_cash > 0)         {%><div class="bold info_padded"><label>Voldaan (cash): </label><span><%=invoice.paid_in_cash.toFixed(2)%> &euro;</span></div><%} %>
+                  <% if (invoice.paid_by_bank_deposit > 0) {%><div class="bold info_padded"><label>Voldaan (overschrijving): </label><span><%=invoice.paid_by_bank_deposit.toFixed(2)%> &euro;</span></div><%} %>
+                  <% if (invoice.paid_by_debit_card > 0)   {%><div class="bold info_padded"><label>Voldaan (maestro): </label><span><%=invoice.paid_by_debit_card.toFixed(2)%> &euro;</span></div><%} %>
+                  <% if (invoice.paid_by_credit_card > 0)  {%><div class="bold info_padded"><label>Voldaan (creditcard): </label><span><%=invoice.paid_by_credit_card.toFixed(2)%> &euro;</span></div><%} %>
+
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.cal_amount_unpaid.toFixed(2)%> &euro;</span></div>
+                  </div>
+
             </div>
         </div>
+
+        <% if(default_depot == 1 && vehicule_collected == null) {%>
+          <div class="cf">
+            <div class="table_wrap">
+              De stalling van uw voertuig kost 5.00 EURO (excl. BTW) per dag, vanaf de 4de kalenderdag na de takeling.  Deze kost kan pas bepaald worden als u het voertuig afhaalt.
+            </div>
+          </div>
+        <% } %>
 
         <div class="cf">
             <div id="closer">

@@ -42,6 +42,7 @@ const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
                                                + "?);"; //token
 const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VOUCHER(?,?); ";
 const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?); ";
+const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
 const SQL_INVOICE_ATT_LINK_WITH_VOUCHER    = "CALL R_INVOICE_ATT_LINK_WITH_VOUCHER(?,?,?); ";
 
 
@@ -248,133 +249,168 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
   var $token        = ju.requires('token', $req.params);
   var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
 
-  db.one(SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $token], function($error, $result, $fields) {
-    if($result && $result.invoice_batch_id)
+  db.one(SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $token], function($error, $batch_result, $fields) {
+    if($batch_result && $batch_result.invoice_batch_id)
     {
-      var $invoice_batch_id = $result.invoice_batch_id;
+      var $invoice_batch_id = $batch_result.invoice_batch_id;
 
       company.findCurrentCompany($token, function($_company)
       {
         //start a new invoice batch
-        db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $invoice_batch_id, $token], function($error, $result, $fields)
-        {
-          $call_date            = $result.call_date;
-          $call_number          = $result.call_number;
-          $vehicle              = $result.vehicule + ' ' + $result.vehicule_type;
-          $vehicle_licenceplate = $result.vehicule_licenceplate;
-          $invoice_due_date     = $result.invoice_due_date;
-
-          //when the batch is complated, fetch the invoices from the batch
-          //open the template
-            var $filename='./templates/invoice/invoice.html';
-
-            fs.readFile($filename, 'utf8', function($err, $data)
-            {
-              if($err)
-              { 
-                LOG.d(TAG, JSON.stringify($err));
-                throw $err;
-              }
-
-              //compile the template
-              var folder = settings.fs.invoice_store;
-
-              phantom.create(function (error, ph)
-              {
-                db.many(SQL_FETCH_BATCH_INVOICES, [$invoice_batch_id], function($error, $result, $fields)
-                {
-                  $result.forEach(function($invoice)
-                  {
-                    //fetch the invoice customer
-                    db.one(SQL_FETCH_BATCH_INVOICE_CUSTOMER, [$invoice.id, $invoice_batch_id], function($error, $invoice_customer, $fields)
-                    {
-                      //fetch the invoice lines for each fetched invoice
-                      var $_invoice = $invoice;
-                      $_invoice.customer = $invoice_customer;
-
-                      db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice_batch_id], function($error, $invoice_lines, $fields)
-                      {
-                        $_invoice.invoice_lines = $invoice_lines;
-
-                        // console.log($invoice);
-
-                        //create a new invoice pdf
-                        var $template = _.template($data);
-
-                        var $compiled_template = $template({
-                          'company'           : $_company,
-                          'invoice'           : $_invoice,
-                          'invoice_date'      : convertUnixTStoDateFormat($_invoice.invoice_date, "dd/mm/yyyy"),
-                          'invoice_due_date'  : convertUnixTStoDateFormat($invoice_due_date, "dd/mm/yyyy"),
-                          'call_date'         : convertUnixTStoDateFormat($call_date, "dd/mm/yyyy"),
-                          'call_number'       : $call_number,
-                          'vehicle'           : $vehicle,
-                          'vehicle_licenceplate' : $vehicle_licenceplate
-                        });
-
-                        var filename = 'invoice_' + $_invoice.invoice_number + ".pdf";
-
-                        ph.createPage(function (error, page)
-                        {
-                          page.settings = PAGESETTINGS.general;
-                          page.set('viewportSize', PAGESETTINGS.viewport);
-                          page.set('paperSize', PAGESETTINGS.paper);
-                          page.set('content', $compiled_template, function (error) {
-                            if (error) {
-                              LOG.e(TAG, 'Error setting content: ' + error);
-                            }
-                          });
-
-                          page.onLoadFinished = function (status)
-                          {
-
-                            page.render(folder + filename, function (error)
-                            {
-                              if (error)
-                              {
-                                LOG.e(TAG, 'Error rendering PDF: ' + error);
-                              }
-                              else
-                              {
-                                fs.readFile(folder + filename, "base64", function(a_error, data)
-                                {
-                                  db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
-                                    db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
-                                  });
-
-                                  // delete the file
-                                  fs.unlink(folder + filename, function (err) {
-                                    if (err) {
-                                      LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                                    } else {
-                                      LOG.d(TAG, 'successfully deleted ' + filename);
-                                    }
-                                  });
-
-                                  // ph.exit();
-                                });
-                              }
-                            });
-
-                            //ph.exit();
-                          }
-                        }); //end ph.create
-
-                      });
-                    });
-                  });
-                });
-              });
-          });
+        db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $invoice_batch_id, $token], function($error, $result, $fields) {
+          processInvoiceData($result, $batch_result, $_company, $token, $req, $res);
         });
       });
-
-      ju.send($req, $res, {"result": "ok", "invoice_batch_id": $result.invoice_batch_id});
     }
   });
 });
 
 
+//
+//-- CREATE A NEW STORAGE INVOICE FOR A VOUCHER
+//
+router.post('/storage/:voucher_id/:token', function($req, $res) {
+  var $token        = ju.requires('token', $req.params);
+  var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
+
+  db.one(SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $token], function($error, $batch_result, $fields) {
+    if($batch_result && $batch_result.invoice_batch_id)
+    {
+      var $invoice_batch_id = $batch_result.invoice_batch_id;
+
+      company.findCurrentCompany($token, function($_company)
+      {
+        //start a new invoice batch
+        db.one(SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER, [$voucher_id, $invoice_batch_id, $token], function($error, $result, $fields) {
+          processInvoiceData($result, $batch_result, $_company, $token, $req, $res)
+        });
+      });
+    }
+  });
+});
+
+
+function processInvoiceData($result, $batch_result, $_company, $token, $req, $res)
+{
+  if($result.result && $result.result == 'VALIDATION_ERRORS') {
+    ju.send($req, $res, {"result": "validation_errors"});
+  } else {
+    ju.send($req, $res, {"result": "ok", "invoice_batch_id": $batch_result.invoice_batch_id});
+
+    var $invoice_batch_id     = $batch_result.invoice_batch_id;
+    var $call_date            = $result.call_date;
+    var $call_number          = $result.call_number;
+    var $vehicle              = $result.vehicule + ' ' + $result.vehicule_type;
+    var $vehicle_licenceplate = $result.vehicule_licenceplate;
+    var $invoice_due_date     = $result.invoice_due_date;
+    var $default_depot        = $result.default_depot;
+    var $vehicule_collected   = $result.vehicule_collected;
+
+    //when the batch is complated, fetch the invoices from the batch
+    //open the template
+      var $filename='./templates/invoice/invoice.html';
+
+      fs.readFile($filename, 'utf8', function($err, $data)
+      {
+        if($err)
+        { 
+          LOG.d(TAG, JSON.stringify($err));
+          throw $err;
+        }
+
+        //compile the template
+        var folder = settings.fs.invoice_store;
+
+        phantom.create(function (error, ph)
+        {
+          db.many(SQL_FETCH_BATCH_INVOICES, [$invoice_batch_id], function($error, $result, $fields)
+          {
+            $result.forEach(function($invoice)
+            {
+              //fetch the invoice customer
+              db.one(SQL_FETCH_BATCH_INVOICE_CUSTOMER, [$invoice.id, $invoice_batch_id], function($error, $invoice_customer, $fields)
+              {
+                //fetch the invoice lines for each fetched invoice
+                var $_invoice = $invoice;
+                $_invoice.customer = $invoice_customer;
+
+                db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice_batch_id], function($error, $invoice_lines, $fields)
+                {
+                  $_invoice.invoice_lines = $invoice_lines;
+
+                  // console.log($invoice);
+
+                  //create a new invoice pdf
+                  var $template = _.template($data);
+
+                  var $compiled_template = $template({
+                    'company'           : $_company,
+                    'invoice'           : $_invoice,
+                    'invoice_date'      : convertUnixTStoDateFormat($_invoice.invoice_date, "dd/mm/yyyy"),
+                    'invoice_due_date'  : convertUnixTStoDateFormat($invoice_due_date, "dd/mm/yyyy"),
+                    'call_date'         : convertUnixTStoDateFormat($call_date, "dd/mm/yyyy"),
+                    'call_number'       : $call_number,
+                    'vehicle'           : $vehicle,
+                    'vehicle_licenceplate' : $vehicle_licenceplate,
+                    'default_depot'     : $default_depot,
+                    'vehicule_collected': $vehicule_collected
+                  });
+
+                  var filename = 'invoice_' + $_invoice.invoice_number + ".pdf";
+
+                  ph.createPage(function (error, page)
+                  {
+                    page.settings = PAGESETTINGS.general;
+                    page.set('viewportSize', PAGESETTINGS.viewport);
+                    page.set('paperSize', PAGESETTINGS.paper);
+                    page.set('content', $compiled_template, function (error) {
+                      if (error) {
+                        LOG.e(TAG, 'Error setting content: ' + error);
+                      }
+                    });
+
+                    page.onLoadFinished = function (status)
+                    {
+
+                      page.render(folder + filename, function (error)
+                      {
+                        if (error)
+                        {
+                          LOG.e(TAG, 'Error rendering PDF: ' + error);
+                        }
+                        else
+                        {
+                          fs.readFile(folder + filename, "base64", function(a_error, data)
+                          {
+                            db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+                              db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
+                            });
+
+                            // delete the file
+                            fs.unlink(folder + filename, function (err) {
+                              if (err) {
+                                LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                              } else {
+                                LOG.d(TAG, 'successfully deleted ' + filename);
+                              }
+                            });
+
+                            // ph.exit();
+                          });
+                        }
+                      });
+
+                      //ph.exit();
+                    }
+                  }); //end ph.create
+                });
+              });
+            });
+          });
+        });
+    });
+  }
+}
 
 function convertUnixTStoDateFormat($unix_ts)
 {
