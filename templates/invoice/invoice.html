@@ -176,7 +176,9 @@
             <div id="info_to">
                 <div id="info_to_block">
                     <div><%= (invoice.customer.company_name != null ?  invoice.customer.company_name : '&nbsp;' ) %></div>
-                    <div><%= (invoice.customer.company_name != null && invoice.customer.company_name != '' ?  'tav. ' : '&nbsp;' ) %><%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
+                    <div><%= (invoice.customer.company_name != null
+                                && invoice.customer.company_name != ''
+                                && (invoice.customer.first_name != '' || invoice.customer.last_name != '') ?  'tav. ' : '&nbsp;' ) %><%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
                     <br /><br />
                     <div><%= invoice.customer.street%> <%= invoice.customer.street_number%> <%=(invoice.customer.street_pobox != null && invoice.customer.street_pobox != '' ? '/' + invoice.customer.street_pobox : '') %></div>
                     <div><%= invoice.customer.zip%> <%= invoice.customer.city%></div>
@@ -195,7 +197,9 @@
             <div id="info_invoice">
                 <div class="info_padded"><label class="bold">Factuur: </label><%=invoice.invoice_number_display%></div>
                 <div class="info_padded"><label class="bold">Datum: </label><%=invoice_date%></div>
+                <% if (invoice.cal_amount_unpaid > 0) { %>
                 <div class="info_padded"><label class="bold">Te betalen voor:</label> <%=invoice_due_date %></div>
+                <% } %>
             </div>
             <div id="info_key">
                 <div class="info_padded"><label class="bold">Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
@@ -286,6 +290,15 @@
           <div class="cf">
             <div class="table_wrap">
               De stalling van uw voertuig kost 5.00 EURO (excl. BTW) per dag, vanaf de 4de kalenderdag na de takeling.  Deze kost kan pas bepaald worden als u het voertuig afhaalt.
+            </div>
+          </div>
+        <% } %>
+
+        <% if(invoice.invoice_message != null && invoice.invoice_message != '') { %>
+          <div class="cf">
+            <div class="table_wrap">
+              <strong>Opmerking:</strong><br />
+              <%=invoice.invoice_message%>
             </div>
           </div>
         <% } %>

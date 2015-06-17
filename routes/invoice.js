@@ -10,6 +10,7 @@ var phantom     = require('node-phantom-simple');
 var dateFormat  = require('dateformat');
 var crypto      = require('crypto');
 var jszip       = require('jszip');
+var xmlbuilder  = require('xmlbuilder');
 
 var db          = require('../util/database.js');
 var ju          = require('../util/json.js');
@@ -41,7 +42,7 @@ const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
                                                + "?," //content
                                                + "?);"; //token
 const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VOUCHER(?,?); ";
-const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?); ";
+const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?); ";
 const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
 const SQL_INVOICE_ATT_LINK_WITH_VOUCHER    = "CALL R_INVOICE_ATT_LINK_WITH_VOUCHER(?,?,?); ";
 
@@ -90,18 +91,58 @@ router.get('/batch/:token', function($req, $res) {
 //
 // -- PREPARE THE EXPORT FOR EXPERT-M
 //
-router.post('/invoice/export/expertm/:token', function($req, $res) {
-  var $selected_ids = ju.requires('ids', $req.body);
+router.post('/export/expertm/:token', function($req, $res) {
+  var $selected_ids = ju.requires('invoices', $req.body);
   var $token        = ju.requires('token', $req.params);
   var $i = 0;
 
+  var $invoice_builder = xmlbuilder.create('ImportExpMPlus');
+  var $customer_builder = xmlbuilder.create('ImportExpMPlus');
+
+
+  var $sales = $invoice_builder.e('Sales');
+  var $customers = $customer_builder.e('Customers');
+
+
   $selected_ids.forEach(function($invoice_id) {
+      $i = $i+1;
+
       //fetch the invoice
       db.one(SQL_FETCH_COMPANY_INVOICE, [$invoice_id, $token], function($error, $invoice, $fields)
       {
+        var $sale = $sales.e('Sale')
+        $sale.e('Year_Alfa').r(2008) ;// 2008
+        $sale.e('DocNumber').r($invoice.invoice_number);
+        $sale.e('AccountingPeriod').r(1);
+        $sale.e('VATMonth').r($invoice.invoice_date); // 200801
+        $sale.e('DocDate').r($invoice.invoice_date);  // 10/01/2018
+        $sale.e('DueDate').r($invoice.invoice_date);  // 10/02/2018
+        $sale.e('OurRef').r($invoice.invoice_number);   //
+        $sale.e('YourRef').r('');  //
+        $sale.e('Amount').r($invoice.invoice_total_excl_vat);  //
+        $sale.e('CurrencyCode').r('EUR'); //
+        $sale.e('VATAmount').r($invoice.invoice_total_vat);
+
         //fetch the invoice customer
         db.one(SQL_FETCH_BATCH_INVOICE_CUSTOMER, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_customer, $fields)
         {
+          var $customer = $customers.e('Customer');
+          $customer.e('Prime').r($invoice_customer.customer_number); //customer_number
+          $customer.e('Name').r($invoice_customer.company_name);
+          $customer.e('Country').r($invoice_customer.country);
+          $customer.e('Street').r($invoice_customer.street);
+          $customer.e('HouseNumber').r($invoice_customer.street_number);
+          $customer.e('MailboxNumber').r($invoice_customer.street_pobox);
+          $customer.e('ZipCode').r($invoice_customer.zip);
+          $customer.e('City').r($invoice_customer.city);
+          $customer.e('Language').r(2);
+          $customer.e('CurrencyCode').r('EUR');
+          $customer.e('CountryVATNumber').r('BE');
+          $customer.e('VATNumber').r($invoice_customer.company_vat);
+
+          $sale.e('Customer_Prime').r($invoice_customer.customer_number);
+
+
           //fetch the invoice lines
           db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_lines, $fields)
           {
@@ -111,6 +152,10 @@ router.post('/invoice/export/expertm/:token', function($req, $res) {
               //put the XML file in the zip file
               //send the zip back as base64
               ju.send($req, $res, {"result": "ok"});
+
+
+              LOG.d(TAG, $invoice_builder.end({pretty: true}));
+              LOG.d(TAG, $customer_builder.end({pretty: true}));
             }
           });
         });
@@ -248,6 +293,7 @@ router.post('/batch/:token', function($req, $res) {
 router.post('/voucher/:voucher_id/:token', function($req, $res) {
   var $token        = ju.requires('token', $req.params);
   var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
+  var $message      = ju.valueOf('message', $req.body);
 
   db.one(SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $token], function($error, $batch_result, $fields) {
     if($batch_result && $batch_result.invoice_batch_id)
@@ -257,7 +303,7 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
       company.findCurrentCompany($token, function($_company)
       {
         //start a new invoice batch
-        db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $invoice_batch_id, $token], function($error, $result, $fields) {
+        db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $invoice_batch_id, $message, $token], function($error, $result, $fields) {
           processInvoiceData($result, $batch_result, $_company, $token, $req, $res);
         });
       });

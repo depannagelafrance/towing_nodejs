@@ -26,6 +26,7 @@
     "phantomjs": "^1.9.15",
     "send-data": "^6.0.0",
     "soap": "^0.8.0",
-    "underscore": "^1.8.1"
+    "underscore": "^1.8.1",
+    "xmlbuilder": "^2.6.4"
   }
 }

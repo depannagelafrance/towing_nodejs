@@ -28,6 +28,7 @@ var router = express.Router();
 //-- DEFINE CONSTANST
 const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
+const SQL_UPDATE_VOUCHER_COLLECTION_INFO    = "CALL R_UPDATE_VOUCHER_COLLECTION_INFO(?,?,from_unixtime(?),?); ";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
 const SQL_MARK_VOUCHER_AS_IDLE              = "CALL R_MARK_VOUCHER_AS_IDLE(?,?); ";
@@ -700,6 +701,20 @@ router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) 
   }
 });
 
+// --
+router.put('/collector/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $voucher_number = ju.requiresInt('voucher_number', $req.body);
+  var $collector_id = ju.requiresInt('collector_id', $req.body);
+  var $vehicule_collected = ju.requiresInt('vehicule_collected', $req.body);
+
+  var $params = [$voucher_number, $collector_id, $vehicule_collected, $token];
+console.log($params);
+
+  db.one(SQL_UPDATE_VOUCHER_COLLECTION_INFO, $params, function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
 
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
