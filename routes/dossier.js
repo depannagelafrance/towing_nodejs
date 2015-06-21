@@ -5,6 +5,11 @@ var _           = require('underscore');
 var express     = require('express');
 var util        = require('util');
 var nodemailer  = require('nodemailer');
+var fs          = require('fs');
+var path        = require('path');
+var phantom     = require('node-phantom-simple');
+var dateFormat  = require('dateformat');
+
 
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
@@ -17,6 +22,7 @@ var vocab     = require('../model/vocab.js');
 var company   = require('../model/company.js');
 
 var settings  = require('../settings/settings.js');
+
 
 
 var TAG = 'dossier.js';
@@ -32,6 +38,7 @@ const SQL_UPDATE_VOUCHER_COLLECTION_INFO    = "CALL R_UPDATE_VOUCHER_COLLECTION_
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
 const SQL_MARK_VOUCHER_AS_IDLE              = "CALL R_MARK_VOUCHER_AS_IDLE(?,?); ";
+const SQL_APPROVE_VOUCHER                   = "CALL R_APPROVE_VOUCHER(?,?); ";
 
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
                                                   + "?," //p_dossier_id
@@ -119,19 +126,50 @@ const SQL_FETCH_ALL_EMAIL_RECIPIENTS              = "CALL R_FETCH_ALL_DOSSIER_CO
 const SQL_ADD_DOSSIER_COMMUNICATION               = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
 const SQL_ADD_DOSSIER_COMM_RECIPIENT              = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
 
+const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
+                                               + "?," //voucher_id
+                                               + "?," //filename
+                                               + "?," //content type
+                                               + "?," //file size
+                                               + "?," //content
+                                               + "?);"; //token
+
 const SQL_FETCH_USER_BY_ID                        = "CALL R_FETCH_USER_BY_ID(?,?);";
 
 const SQL_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES   = "CALL R_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES(?,?);";
 
-const STATUS_ALL                = "ALL";
-const STATUS_NEW                = "NEW";
-const STATUS_IN_PROGRESS        = "IN PROGRESS";
-const STATUS_COMPLETED          = "COMPLETED";
-const STATUS_TO_CHECK           = "TO CHECK";
-const STATUS_READY_FOR_INVOICE  = "READY FOR INVOICE";
-const STATUS_INVOICED           = "INVOICED";
-const STATUS_NOT_COLLECTED      = "NOT COLLECTED";
-const STATUS_AGENCY             = "AGENCY";
+const SQL_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT = "CALL R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT(?); ";
+const SQL_FETCH_VOUCHER_APPROVED_BY_AWV              = "CALL R_FETCH_VOUCHERS_APPROVED_BY_AWV(?); ";
+
+const STATUS_ALL                    = "ALL";
+const STATUS_NEW                    = "NEW";
+const STATUS_IN_PROGRESS            = "IN PROGRESS";
+const STATUS_COMPLETED              = "COMPLETED";
+const STATUS_TO_CHECK               = "TO CHECK";
+const STATUS_READY_FOR_INVOICE      = "READY FOR INVOICE";
+const STATUS_INVOICED               = "INVOICED";
+const STATUS_NOT_COLLECTED          = "NOT COLLECTED";
+const STATUS_AGENCY                 = "AGENCY";
+const STATUS_AWAITING_AWV_APPROVAL  = "AWAITING_AWV_APPROVAL"
+const STATUS_AWV_APPROVED           = "AWV_APPROVED";
+
+
+const PAGESETTINGS = {
+  general: {
+    loadImages: true,
+    localToRemoteUrlAccessEnabled: false,
+    javascriptEnabled: false,
+    loadPlugins: false,
+    quality: 75
+  },
+  viewport: {
+    width: 800,
+    height: 600
+  },
+  paper: {
+    format: 'A4', orientation: 'portrait', border: '0.5cm'
+  }
+};
 
 
 var listDossiers = function($req, $res, $status) {
@@ -172,6 +210,14 @@ router.get('/list/invoice/:token', function($req, $res) {
 
 router.get('/list/invoiced/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_INVOICED);
+});
+
+router.get('/list/awaiting_awv_approval/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_AWAITING_AWV_APPROVAL);
+});
+
+router.get('/list/awv_approved/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_AWV_APPROVED);
 });
 
 router.get('/list/done/:token', function($req, $res) {
@@ -373,6 +419,15 @@ router.post('/voucher/idle/:voucher_id/:token', function($req, $res) {
   var $token      = ju.requires('token', $req.params);
 
   db.one(SQL_MARK_VOUCHER_AS_IDLE, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  })
+});
+
+router.post('/voucher/approve/:voucher_id/:token', function($req, $res) {
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  db.one(SQL_APPROVE_VOUCHER, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   })
 });
@@ -709,7 +764,6 @@ router.put('/collector/:token', function($req, $res) {
   var $vehicule_collected = ju.requiresInt('vehicule_collected', $req.body);
 
   var $params = [$voucher_number, $collector_id, $vehicule_collected, $token];
-console.log($params);
 
   db.one(SQL_UPDATE_VOUCHER_COLLECTION_INFO, $params, function($error, $result, $fields) {
     ju.send($req, $res, $result);
@@ -1117,6 +1171,153 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
 
   ju.send($req, $res, {'result': 'ok'});
 });
+
+
+router.post('/export/vouchersAwaitingApproval/:token', function($req, $res) {
+  var $token      = ju.requires('token', $req.params);
+
+  var xlsx = require('node-xlsx');
+  var data = [];
+
+  db.many(SQL_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT, [$token], function($error, $result, $fields) {
+    if(data.length == 0) {
+      var $headers = [];
+
+      for(var $i = 0; $i < $fields[0].length; $i++) {
+        var $field = $fields[0][$i];
+
+        if($field)
+          $headers.push($field.name);
+      }
+
+      data.push($headers);
+    }
+
+    for(var $j = 0; $j < $result.length; $j++) {
+      var $row = [];
+
+      var $r = $result[$j];
+
+      for(var $i = 0; $i < $fields[0].length; $i++) {
+        var $field = $fields[0][$i];
+
+        if($field)
+          $row.push($r[$field.name]);
+      }
+
+      data.push($row);
+    }
+
+    var buffer = xlsx.build([{name: "Takelbonnen", data: data}]); // returns a buffer
+
+    ju.send($req, $res, {
+      'base64': buffer.toString('base64')
+    });
+  });
+});
+
+router.post('/render/awv_letter/:token', function($req, $res) {
+  var $token      = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_VOUCHER_APPROVED_BY_AWV, [$token], function($error, $result, $fields)
+  {
+    $result.forEach(function($invoice) {
+      processSingleLetter($invoice, true);
+    });
+
+    processLettersInBatch($result, false);
+  });
+
+  ju.send($req, $res, {
+    'result': 'ok'
+  });
+});
+
+function processSingleLetter($result, $persist)
+{
+  processLettersInBatch([$result], $persist);
+}
+
+
+function processLettersInBatch($invoices, $persist)
+{
+  var $filename='./templates/awv/towing_letter.html';
+
+  fs.readFile($filename, 'utf8', function($err, $data)
+  {
+    if($err)
+    { 
+      LOG.d(TAG, JSON.stringify($err));
+      throw $err;
+    }
+
+    //compile the template
+    var folder = settings.fs.tmp;
+
+    var $today = new Date().getTime();
+
+    phantom.create(function (error, ph)
+    {
+        //create a new invoice pdf
+        var $template = _.template($data);
+
+        var $compiled_template = $template({
+          'invoices'       : $invoices,
+          'render_date'    : dateFormat($today, "dd/mm/yyyy")
+        });
+
+        var filename = 'letter_fast_towing.pdf';
+
+        ph.createPage(function (error, page)
+        {
+          page.settings = PAGESETTINGS.general;
+          page.set('viewportSize', PAGESETTINGS.viewport);
+          page.set('paperSize', PAGESETTINGS.paper);
+          page.set('content', $compiled_template, function (error) {
+            if (error) {
+              LOG.e(TAG, 'Error setting content: ' + error);
+            }
+          });
+
+          page.onLoadFinished = function (status)
+          {
+
+            page.render(folder + filename, function (error)
+            {
+              if (error)
+              {
+                LOG.e(TAG, 'Error rendering PDF: ' + error);
+              }
+              else
+              {
+                fs.readFile(folder + filename, "base64", function(a_error, data)
+                {
+                  // db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$invoice.id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+                  //   db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
+                  // });
+
+                  // delete the file
+                  // fs.unlink(folder + filename, function (err) {
+                  //   if (err) {
+                  //     LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                  //   } else {
+                  //     LOG.d(TAG, 'successfully deleted ' + filename);
+                  //   }
+                  // });
+
+                  // ph.exit();
+                });
+              }
+            });
+
+            //ph.exit();
+          }
+        }); //end ph.create
+    });
+  });
+}
+
+
 
 
 module.exports = router;

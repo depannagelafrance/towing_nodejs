@@ -203,6 +203,9 @@
             </div>
             <div id="info_key">
                 <div class="info_padded"><label class="bold">Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
+                <% if(invoice.insurance_dossiernr != null && invoice.insurance_dossiernr != '') { %>
+                <div class="info_padded"><label class="bold">Dossiernummer: </label><%=invoice.insurance_dossiernr%></div>
+                <% } %>
                 <div class="info_padded"><label class="bold">Betalingskenmerk: </label><%=invoice.invoice_structured_reference%></div>
             </div>
         </div>
