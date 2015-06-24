@@ -105,7 +105,12 @@ var requiresInt = function($key, $jsonData) {
 }
 
 var send = function($req, $res, $result) {
-  $res.setHeader('Content-Type', 'application/json');
+  try {
+    $res.setHeader('Content-Type', 'application/json');
+  } catch(ex) {
+    //ignore
+  }
+
 
   if($result && $result !== "undefined" && !_.isUndefined($result)) {
     if(_.has($result, 'error') || _.has($result, 'statusCode')

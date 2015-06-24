@@ -9,7 +9,7 @@ var fs          = require('fs');
 var path        = require('path');
 var phantom     = require('node-phantom-simple');
 var dateFormat  = require('dateformat');
-
+var uuid        = require('node-uuid');
 
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
@@ -38,6 +38,7 @@ const SQL_UPDATE_VOUCHER_COLLECTION_INFO    = "CALL R_UPDATE_VOUCHER_COLLECTION_
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
 const SQL_MARK_VOUCHER_AS_IDLE              = "CALL R_MARK_VOUCHER_AS_IDLE(?,?); ";
+const SQL_MARK_VOUCHER_AS_CLOSED            = "CALL R_MARK_VOUCHER_AS_CLOSED(?,?); ";
 const SQL_APPROVE_VOUCHER                   = "CALL R_APPROVE_VOUCHER(?,?); ";
 
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
@@ -112,13 +113,18 @@ const SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_UPDATE_TOWING_ADDI
 const SQL_REMOVE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_REMOVE_TOWING_ADDITIONAL_COST(?, ?, ?); ";
 const SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS = "CALL R_FETCH_ALL_TOWING_ADDITIONAL_COSTS(?, ?); ";
 
-const SQL_ADD_COLLECTOR_SIGNATURE       = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_CAUSER_SIGNATURE          = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_POLICE_SIGNATURE          = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_INSURANCE_DOCUMENT        = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
-const SQL_ADD_ANY_DOCUMENT              = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
-const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT   = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
-const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
+const SQL_ADD_BLOB                            = "CALL R_ADD_BLOB(?,?,?,?,?); ";
+const SQL_ADD_COLLECTOR_SIGNATURE             = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_CAUSER_SIGNATURE                = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_POLICE_SIGNATURE                = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_INSURANCE_DOCUMENT              = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
+const SQL_ADD_ANY_DOCUMENT                    = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
+const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT         = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
+const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS       = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
+
+const SQL_LINK_AWV_LETTER_BATCH_WITH_VOUCHER  = "CALL R_LINK_AWV_LETTER_BATCH_WITH_VOUCHER(?,?,?); ";
+const SQL_ADD_AWV_LETTER_BATCH                = "CALL R_ADD_AWV_LETTER_BATCH(?,?); ";
+const SQL_FETCH_ALL_AWV_DOCUMENTS             = "CALL R_FETCH_ALL_AWV_DOCUMENTS(?); ";
 
 const SQL_FETCH_ALL_INTERNAL_COMMUNICATION        = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
 const SQL_FETCH_ALL_EMAIL_COMMUNICATION           = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS(?,?,?); ";
@@ -144,7 +150,7 @@ const SQL_FETCH_VOUCHER_APPROVED_BY_AWV              = "CALL R_FETCH_VOUCHERS_AP
 const STATUS_ALL                    = "ALL";
 const STATUS_NEW                    = "NEW";
 const STATUS_IN_PROGRESS            = "IN PROGRESS";
-const STATUS_COMPLETED              = "COMPLETED";
+const STATUS_COMPLETED              = "CLOSED";
 const STATUS_TO_CHECK               = "TO CHECK";
 const STATUS_READY_FOR_INVOICE      = "READY FOR INVOICE";
 const STATUS_INVOICED               = "INVOICED";
@@ -353,6 +359,14 @@ router.get('/list/traffic_lanes/:dossier_id/:token', function($req, $res) {
   var $token = ju.requires('token', $req.params);
 
   db.many(SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES, [$dossier_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.get('/list/awv/letter/batches/:token', function($req,$res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_AWV_DOCUMENTS, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
 });
@@ -1222,10 +1236,10 @@ router.post('/render/awv_letter/:token', function($req, $res) {
   db.many(SQL_FETCH_VOUCHER_APPROVED_BY_AWV, [$token], function($error, $result, $fields)
   {
     $result.forEach(function($invoice) {
-      processSingleLetter($invoice, true);
+      processSingleLetter($invoice, true, $token);
     });
 
-    processLettersInBatch($result, false);
+    processLettersInBatch($result, false, $token);
   });
 
   ju.send($req, $res, {
@@ -1233,13 +1247,13 @@ router.post('/render/awv_letter/:token', function($req, $res) {
   });
 });
 
-function processSingleLetter($result, $persist)
+function processSingleLetter($result, $persist, $token)
 {
-  processLettersInBatch([$result], $persist);
+  processLettersInBatch([$result], $persist, $token);
 }
 
 
-function processLettersInBatch($invoices, $persist)
+function processLettersInBatch($invoices, $persist, $token)
 {
   var $filename='./templates/awv/towing_letter.html';
 
@@ -1266,7 +1280,7 @@ function processLettersInBatch($invoices, $persist)
           'render_date'    : dateFormat($today, "dd/mm/yyyy")
         });
 
-        var filename = 'letter_fast_towing.pdf';
+        var filename = 'letter_fast_towing_' + uuid.v4() + '.pdf';
 
         ph.createPage(function (error, page)
         {
@@ -1281,7 +1295,6 @@ function processLettersInBatch($invoices, $persist)
 
           page.onLoadFinished = function (status)
           {
-
             page.render(folder + filename, function (error)
             {
               if (error)
@@ -1292,18 +1305,44 @@ function processLettersInBatch($invoices, $persist)
               {
                 fs.readFile(folder + filename, "base64", function(a_error, data)
                 {
-                  // db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$invoice.id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
-                  //   db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
-                  // });
+                  if($persist) //letter for one customer
+                  {
+                    $invoice = $invoices[0];
+
+                    db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$invoice.towing_voucher_id, 'Brief FAST Takeling ' + dateFormat($today, "dd/mm/yyyy") + '.pdf',
+                                                           "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+                       //mark voucher as closed
+                      db.one(SQL_MARK_VOUCHER_AS_CLOSED, [$invoice.towing_voucher_id, $token], function($error, $result, $fields) {
+                        //fire and forget
+                      });
+                    });
+
+                  } else { //batch letter
+                    //store pdf in blob table
+                    db.one(SQL_ADD_BLOB, ['Geconsolideerde brieven - FAST Takeling ' + dateFormat($today, "dd/mm/yyyy") + '.pdf',
+                                          "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+
+                        db.one(SQL_ADD_AWV_LETTER_BATCH, [$att.document_id, $token], function($error, $result, $fields) {
+                          //fire and forget
+                        });
+
+                        $invoices.forEach(function($invoice)
+                        {
+                          db.one(SQL_LINK_AWV_LETTER_BATCH_WITH_VOUCHER, [$invoice.towing_voucher_id, $att.document_id, $token], function($error, $result, $fields) {
+                            //fire and forget
+                          })
+                        });
+                    });
+                  }
 
                   // delete the file
-                  // fs.unlink(folder + filename, function (err) {
-                  //   if (err) {
-                  //     LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                  //   } else {
-                  //     LOG.d(TAG, 'successfully deleted ' + filename);
-                  //   }
-                  // });
+                  fs.unlink(folder + filename, function (err) {
+                    if (err) {
+                      LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                    } else {
+                      LOG.d(TAG, 'successfully deleted ' + filename);
+                    }
+                  });
 
                   // ph.exit();
                 });

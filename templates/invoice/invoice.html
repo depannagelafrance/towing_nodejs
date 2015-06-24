@@ -197,7 +197,7 @@
             <div id="info_invoice">
                 <div class="info_padded"><label class="bold">Factuur: </label><%=invoice.invoice_number_display%></div>
                 <div class="info_padded"><label class="bold">Datum: </label><%=invoice_date%></div>
-                <% if (invoice.cal_amount_unpaid > 0) { %>
+                <% if (invoice.cal_amount_unpaid > 0 || invoice.invoice_type == 'INSURANCE') { %>
                 <div class="info_padded"><label class="bold">Te betalen voor:</label> <%=invoice_due_date %></div>
                 <% } %>
             </div>
@@ -276,15 +276,20 @@
                     <div class="full-total bold info_padded"><label>Totaal: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
                   </div>
                 <% } %>
+                  <% if (invoice.invoice_type != 'INSURANCE') { %>
+                    <% if (invoice.paid_in_cash > 0)         {%><div class="bold info_padded"><label>Voldaan (cash): </label><span><%=invoice.paid_in_cash.toFixed(2)%> &euro;</span></div><%} %>
+                    <% if (invoice.paid_by_bank_deposit > 0) {%><div class="bold info_padded"><label>Voldaan (overschrijving): </label><span><%=invoice.paid_by_bank_deposit.toFixed(2)%> &euro;</span></div><%} %>
+                    <% if (invoice.paid_by_debit_card > 0)   {%><div class="bold info_padded"><label>Voldaan (maestro): </label><span><%=invoice.paid_by_debit_card.toFixed(2)%> &euro;</span></div><%} %>
+                    <% if (invoice.paid_by_credit_card > 0)  {%><div class="bold info_padded"><label>Voldaan (creditcard): </label><span><%=invoice.paid_by_credit_card.toFixed(2)%> &euro;</span></div><%} %>
 
-                  <% if (invoice.paid_in_cash > 0)         {%><div class="bold info_padded"><label>Voldaan (cash): </label><span><%=invoice.paid_in_cash.toFixed(2)%> &euro;</span></div><%} %>
-                  <% if (invoice.paid_by_bank_deposit > 0) {%><div class="bold info_padded"><label>Voldaan (overschrijving): </label><span><%=invoice.paid_by_bank_deposit.toFixed(2)%> &euro;</span></div><%} %>
-                  <% if (invoice.paid_by_debit_card > 0)   {%><div class="bold info_padded"><label>Voldaan (maestro): </label><span><%=invoice.paid_by_debit_card.toFixed(2)%> &euro;</span></div><%} %>
-                  <% if (invoice.paid_by_credit_card > 0)  {%><div class="bold info_padded"><label>Voldaan (creditcard): </label><span><%=invoice.paid_by_credit_card.toFixed(2)%> &euro;</span></div><%} %>
-
-                  <div class="cf">
-                    <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.cal_amount_unpaid.toFixed(2)%> &euro;</span></div>
-                  </div>
+                    <div class="cf">
+                      <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.cal_amount_unpaid.toFixed(2)%> &euro;</span></div>
+                    </div>
+                  <% } else { %>
+                    <div class="cf">
+                      <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.amount_guaranteed_by_insurance.toFixed(2)%> &euro;</span></div>
+                    </div>
+                  <% } %>
 
             </div>
         </div>
