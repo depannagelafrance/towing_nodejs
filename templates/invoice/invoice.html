@@ -175,9 +175,9 @@
             </div>
             <div id="info_to">
                 <div id="info_to_block">
-                    <div><%= (invoice.customer.company_name != null ?  invoice.customer.company_name : '&nbsp;' ) %></div>
+                    <div><%= (invoice.customer.company_name != null && invoice.customer.company_name.trim() != '' ?  invoice.customer.company_name : '&nbsp;' ) %></div>
                     <div><%= (invoice.customer.company_name != null
-                                && invoice.customer.company_name != ''
+                                && invoice.customer.company_name.trim() != ''
                                 && (invoice.customer.first_name != '' || invoice.customer.last_name != '') ?  'tav. ' : '&nbsp;' ) %><%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
                     <br /><br />
                     <div><%= invoice.customer.street%> <%= invoice.customer.street_number%> <%=(invoice.customer.street_pobox != null && invoice.customer.street_pobox != '' ? '/' + invoice.customer.street_pobox : '') %></div>

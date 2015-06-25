@@ -426,8 +426,8 @@ router.delete('/insurance/:id/:token', function($req, $res) {
 
 const SQL_ALL_COLLECTORS    = "CALL R_FETCH_ALL_COLLECTORS(?);";
 const SQL_COLLECTOR_BY_ID   = "CALL R_FETCH_COLLECTOR_BY_ID(?,?);";
-const SQL_CREATE_COLLECTOR  = "CALL R_ADD_COLLECTOR(?,?,?,?,?,?,?,?,?,?);";
-const SQL_UPDATE_COLLECTOR  = "CALL R_UPDATE_COLLECTOR(?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_CREATE_COLLECTOR  = "CALL R_ADD_COLLECTOR(?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_COLLECTOR  = "CALL R_UPDATE_COLLECTOR(?,?,?,?,?,?,?,?,?,?,?,?);";
 const SQL_DELETE_COLLECTOR  = "CALL R_DELETE_COLLECTOR(?,?);";
 
 router.get('/collector/:token', function($req, $res) {
@@ -459,8 +459,9 @@ router.post('/collector/:token', function($req, $res) {
   var $zip            = ju.valueOf('zip', $req.body);
   var $country        = ju.valueOf('country', $req.body);
   var $customer_number = ju.valueOf('customer_nummber', $req.body);
+  var $type           = ju.valueOf('type', $req.body);
 
-  db.one(SQL_CREATE_COLLECTOR, [$name, $vat, $street, $street_number, $street_pobox, $city, $zip, $country, $customer_number, $token], function($error, $result, $fields) {
+  db.one(SQL_CREATE_COLLECTOR, [$name, $vat, $street, $street_number, $street_pobox, $city, $zip, $country, $customer_number, $type, $token], function($error, $result, $fields) {
     if('error' in $result) {
       ju.send($req, $res, $result);
     } else {
@@ -485,8 +486,9 @@ router.put('/collector/:id/:token', function($req, $res) {
   var $zip            = ju.valueOf('zip', $req.body);
   var $country        = ju.valueOf('country', $req.body);
   var $customer_number = ju.valueOf('customer_number', $req.body);
+  var $type           = ju.valueOf('type', $req.body);
 
-  db.one(SQL_UPDATE_COLLECTOR, [$id, $name, $vat, $street, $street_number, $street_pobox, $city, $zip, $country, $customer_number, $token], function($error, $result, $fields) {
+  db.one(SQL_UPDATE_COLLECTOR, [$id, $name, $vat, $street, $street_number, $street_pobox, $city, $zip, $country, $customer_number, $type, $token], function($error, $result, $fields) {
     if(!$result && 'error' in $result) {
       ju.send($req, $res, $result);
     } else {
