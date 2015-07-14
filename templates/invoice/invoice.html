@@ -36,7 +36,6 @@
             height: 29.7cm;
             display: block;
             margin: 0 auto;
-            page-break-before: always;
         }
 
         .container{
@@ -48,6 +47,7 @@
             float: left;
             width: 50%;
             padding: 25px 40px;
+            min-height: 250px;
         }
         #info_to_block{
             border: 1px solid #CCC;
@@ -156,23 +156,7 @@
 <div class="container" style="width: 720px;">
     <div class="page">
         <div class="cf">
-            <div id="info_from">
-                <div class="from_company"><%=company.name%></div>
-                <div class="from_street"><%=company.street%> <%=company.street_number %></div>
-                <div class="from_city"><%=company.zip%> <%=company.city%></div>
-                <div class="from_country">België</div>
-                <div><label class="bold">BTW: </label><%=company.vat %></div>
-                </br></br>
-                <div><label class="bold">Tel: </label><%=company.phone%></div>
-                <div><label class="bold">Fax: </label><%=company.fax%></div>
-                <div><label class="bold">Email: </label><%=company.email%></div>
-                </br>
-                <div><label class="bold">BNP Parisbas Fortis IBAN:</label> BE60 2200 3624 2670</div>
-                <div><label class="bold">BNP Parisbas Fortis BIC:</label> GEBABEBB</div>
-                <br/>
-                <div><label class="bold">ING IBAN:</label> BE72 3200 5535 2516</div>
-                <div><label class="bold">ING BIC:</label> BBRUBEBB</div>
-            </div>
+            <div id="info_from"></div>
             <div id="info_to">
                 <div id="info_to_block">
                     <div><%= (invoice.customer.company_name != null && invoice.customer.company_name.trim() != '' ?  invoice.customer.company_name : '&nbsp;' ) %></div>
