@@ -5,6 +5,11 @@ var _           = require('underscore');
 var express     = require('express');
 var util        = require('util');
 var nodemailer  = require('nodemailer');
+var fs          = require('fs');
+var path        = require('path');
+var phantom     = require('node-phantom-simple');
+var dateFormat  = require('dateformat');
+var uuid        = require('node-uuid');
 
 var db        = require('../util/database.js');
 var ju        = require('../util/json.js');
@@ -19,6 +24,7 @@ var company   = require('../model/company.js');
 var settings  = require('../settings/settings.js');
 
 
+
 var TAG = 'dossier.js';
 
 // -- CONFIGURE ROUTING
@@ -28,15 +34,19 @@ var router = express.Router();
 //-- DEFINE CONSTANST
 const SQL_CREATE_DOSSIER                    = "CALL R_CREATE_DOSSIER(?);";
 const SQL_UPDATE_DOSSIER                    = "CALL R_UPDATE_DOSSIER(?, ?, ?, ?, ?, ?, ?, ?, ?);";
+const SQL_UPDATE_VOUCHER_COLLECTION_INFO    = "CALL R_UPDATE_VOUCHER_COLLECTION_INFO(?,?,from_unixtime(?),?); ";
 
 const SQL_CREATE_TOWING_VOUCHER             = "CALL R_CREATE_TOWING_VOUCHER(?, ?); ";
 const SQL_MARK_VOUCHER_AS_IDLE              = "CALL R_MARK_VOUCHER_AS_IDLE(?,?); ";
+const SQL_MARK_VOUCHER_AS_CLOSED            = "CALL R_MARK_VOUCHER_AS_CLOSED(?,?); ";
+const SQL_APPROVE_VOUCHER                   = "CALL R_APPROVE_VOUCHER(?,?); ";
 
 const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
                                                   + "?," //p_dossier_id
                                                   + "?," //p_voucher_id
                                                   + "?," //p_insurance_id
                                                   + "?," //p_insurance_dossier_nr
+                                                  + "?," //p_insurance_invoice_number
                                                   + "?," //p_warranty_holder
                                                   + "?," //p_collector_id
                                                   + "?," //p_vehicule
@@ -103,13 +113,18 @@ const SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_UPDATE_TOWING_ADDI
 const SQL_REMOVE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_REMOVE_TOWING_ADDITIONAL_COST(?, ?, ?); ";
 const SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS = "CALL R_FETCH_ALL_TOWING_ADDITIONAL_COSTS(?, ?); ";
 
-const SQL_ADD_COLLECTOR_SIGNATURE       = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_CAUSER_SIGNATURE          = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_POLICE_SIGNATURE          = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
-const SQL_ADD_INSURANCE_DOCUMENT        = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
-const SQL_ADD_ANY_DOCUMENT              = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
-const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT   = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
-const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
+const SQL_ADD_BLOB                            = "CALL R_ADD_BLOB(?,?,?,?,?); ";
+const SQL_ADD_COLLECTOR_SIGNATURE             = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_CAUSER_SIGNATURE                = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_POLICE_SIGNATURE                = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_INSURANCE_DOCUMENT              = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
+const SQL_ADD_ANY_DOCUMENT                    = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
+const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT         = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
+const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS       = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
+
+const SQL_LINK_AWV_LETTER_BATCH_WITH_VOUCHER  = "CALL R_LINK_AWV_LETTER_BATCH_WITH_VOUCHER(?,?,?); ";
+const SQL_ADD_AWV_LETTER_BATCH                = "CALL R_ADD_AWV_LETTER_BATCH(?,?); ";
+const SQL_FETCH_ALL_AWV_DOCUMENTS             = "CALL R_FETCH_ALL_AWV_DOCUMENTS(?); ";
 
 const SQL_FETCH_ALL_INTERNAL_COMMUNICATION        = "CALL R_FETCH_ALL_INTERNAL_COMMUNICATIONS(?,?,?); ";
 const SQL_FETCH_ALL_EMAIL_COMMUNICATION           = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS(?,?,?); ";
@@ -117,18 +132,50 @@ const SQL_FETCH_ALL_EMAIL_RECIPIENTS              = "CALL R_FETCH_ALL_DOSSIER_CO
 const SQL_ADD_DOSSIER_COMMUNICATION               = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
 const SQL_ADD_DOSSIER_COMM_RECIPIENT              = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
 
+const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
+                                               + "?," //voucher_id
+                                               + "?," //filename
+                                               + "?," //content type
+                                               + "?," //file size
+                                               + "?," //content
+                                               + "?);"; //token
+
 const SQL_FETCH_USER_BY_ID                        = "CALL R_FETCH_USER_BY_ID(?,?);";
 
 const SQL_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES   = "CALL R_FETCH_ALL_VOUCHER_VALIDATION_MESSAGES(?,?);";
 
-const STATUS_ALL                = "ALL";
-const STATUS_NEW                = "NEW";
-const STATUS_IN_PROGRESS        = "IN PROGRESS";
-const STATUS_COMPLETED          = "COMPLETED";
-const STATUS_TO_CHECK           = "TO CHECK";
-const STATUS_READY_FOR_INVOICE  = "READY FOR INVOICE";
-const STATUS_NOT_COLLECTED      = "NOT COLLECTED";
-const STATUS_AGENCY             = "AGENCY";
+const SQL_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT = "CALL R_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT(?); ";
+const SQL_FETCH_VOUCHER_APPROVED_BY_AWV              = "CALL R_FETCH_VOUCHERS_APPROVED_BY_AWV(?); ";
+
+const STATUS_ALL                    = "ALL";
+const STATUS_NEW                    = "NEW";
+const STATUS_IN_PROGRESS            = "IN PROGRESS";
+const STATUS_COMPLETED              = "CLOSED";
+const STATUS_TO_CHECK               = "TO CHECK";
+const STATUS_READY_FOR_INVOICE      = "READY FOR INVOICE";
+const STATUS_INVOICED               = "INVOICED";
+const STATUS_NOT_COLLECTED          = "NOT COLLECTED";
+const STATUS_AGENCY                 = "AGENCY";
+const STATUS_AWAITING_AWV_APPROVAL  = "AWAITING_AWV_APPROVAL"
+const STATUS_AWV_APPROVED           = "AWV_APPROVED";
+
+
+const PAGESETTINGS = {
+  general: {
+    loadImages: true,
+    localToRemoteUrlAccessEnabled: false,
+    javascriptEnabled: false,
+    loadPlugins: false,
+    quality: 75
+  },
+  viewport: {
+    width: 800,
+    height: 600
+  },
+  paper: {
+    format: 'A4', orientation: 'portrait', border: '0.5cm'
+  }
+};
 
 
 var listDossiers = function($req, $res, $status) {
@@ -165,6 +212,18 @@ router.get('/list/check/:token', function($req, $res) {
 
 router.get('/list/invoice/:token', function($req, $res) {
   listDossiers($req, $res, STATUS_READY_FOR_INVOICE);
+});
+
+router.get('/list/invoiced/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_INVOICED);
+});
+
+router.get('/list/awaiting_awv_approval/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_AWAITING_AWV_APPROVAL);
+});
+
+router.get('/list/awv_approved/:token', function($req, $res) {
+  listDossiers($req, $res, STATUS_AWV_APPROVED);
 });
 
 router.get('/list/done/:token', function($req, $res) {
@@ -304,6 +363,14 @@ router.get('/list/traffic_lanes/:dossier_id/:token', function($req, $res) {
   });
 });
 
+router.get('/list/awv/letter/batches/:token', function($req,$res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_ALL_AWV_DOCUMENTS, [$token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
 
 // -- GET A DOSSIER BY ID
 function fetchDossierById($req, $res, $dossier_id, $token) {
@@ -366,6 +433,15 @@ router.post('/voucher/idle/:voucher_id/:token', function($req, $res) {
   var $token      = ju.requires('token', $req.params);
 
   db.one(SQL_MARK_VOUCHER_AS_IDLE, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  })
+});
+
+router.post('/voucher/approve/:voucher_id/:token', function($req, $res) {
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  db.one(SQL_APPROVE_VOUCHER, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   })
 });
@@ -497,10 +573,7 @@ router.put('/depot_agency/:depot_id/:voucher/:token', function($req, $res) {
 
   var $params = [$depot_id, $voucher_id, $token];
 
-  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields){
-    console.log($error);
-    console.log($result);
-    
+  db.one(SQL_UPDATE_TOWING_DEPOT_TO_AGENCY, $params, function($error, $result, $fields) {
     if($result.id) {
       db.one(SQL_FETCH_TOWING_DEPOT, [$voucher_id, $token], function($error, $result, $fields) {
         ju.send($req, $res, $result);
@@ -697,6 +770,19 @@ router.put('/voucher/activities/:dossier/:voucher/:token', function($req, $res) 
   }
 });
 
+// --
+router.put('/collector/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $voucher_number = ju.requiresInt('voucher_number', $req.body);
+  var $collector_id = ju.requiresInt('collector_id', $req.body);
+  var $vehicule_collected = ju.requiresInt('vehicule_collected', $req.body);
+
+  var $params = [$voucher_number, $collector_id, $vehicule_collected, $token];
+
+  db.one(SQL_UPDATE_VOUCHER_COLLECTION_INFO, $params, function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
 
 // -- UPDATE DOSSIER RELATED INFORMATION
 router.put('/:dossier/:token', function($req, $res) {
@@ -755,6 +841,7 @@ router.put('/:dossier/:token', function($req, $res) {
           var $voucher_id               = $voucher.id;
           var $insurance_id             = _.isNaN(parseFloat($voucher.insurance_id)) ? null : $voucher.insurance_id;
           var $insurance_dossier_nr     = $voucher.insurance_dossiernr;
+          var $insurance_invoice_number = $voucher.insurance_invoice_number;
           var $warranty_holder          = $voucher.insurance_warranty_held_by;
           var $collector_id             = _.isNaN(parseFloat($voucher.collector_id)) ? null : $voucher.collector_id;
           var $police_signature_date    = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
@@ -890,7 +977,7 @@ router.put('/:dossier/:token', function($req, $res) {
           // -------------------------------------------------------------------
           $cic = $cic == '' ? null : $cic;
 
-          var $params3 = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr,
+          var $params3 = [$dossier_id, $voucher_id, $insurance_id, $insurance_dossier_nr, $insurance_invoice_number,
                          $warranty_holder, $collector_id,
                          $vehicule, $vehicule_type, $vehicule_color, $vehicule_keys_present, $vehicule_licence_plate, $vehicule_country,
                          $vehicule_impact_remarks,
@@ -1098,6 +1185,178 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
 
   ju.send($req, $res, {'result': 'ok'});
 });
+
+
+router.post('/export/vouchersAwaitingApproval/:token', function($req, $res) {
+  var $token      = ju.requires('token', $req.params);
+
+  var xlsx = require('node-xlsx');
+  var data = [];
+
+  db.many(SQL_FETCH_VOUCHER_AWAITING_APPROVAL_FOR_EXPORT, [$token], function($error, $result, $fields) {
+    if(data.length == 0) {
+      var $headers = [];
+
+      for(var $i = 0; $i < $fields[0].length; $i++) {
+        var $field = $fields[0][$i];
+
+        if($field)
+          $headers.push($field.name);
+      }
+
+      data.push($headers);
+    }
+
+    for(var $j = 0; $j < $result.length; $j++) {
+      var $row = [];
+
+      var $r = $result[$j];
+
+      for(var $i = 0; $i < $fields[0].length; $i++) {
+        var $field = $fields[0][$i];
+
+        if($field)
+          $row.push($r[$field.name]);
+      }
+
+      data.push($row);
+    }
+
+    var buffer = xlsx.build([{name: "Takelbonnen", data: data}]); // returns a buffer
+
+    ju.send($req, $res, {
+      'base64': buffer.toString('base64')
+    });
+  });
+});
+
+router.post('/render/awv_letter/:token', function($req, $res) {
+  var $token      = ju.requires('token', $req.params);
+
+  db.many(SQL_FETCH_VOUCHER_APPROVED_BY_AWV, [$token], function($error, $result, $fields)
+  {
+    $result.forEach(function($invoice) {
+      processSingleLetter($invoice, true, $token);
+    });
+
+    processLettersInBatch($result, false, $token);
+  });
+
+  ju.send($req, $res, {
+    'result': 'ok'
+  });
+});
+
+function processSingleLetter($result, $persist, $token)
+{
+  processLettersInBatch([$result], $persist, $token);
+}
+
+
+function processLettersInBatch($invoices, $persist, $token)
+{
+  var $filename='./templates/awv/towing_letter.html';
+
+  fs.readFile($filename, 'utf8', function($err, $data)
+  {
+    if($err)
+    { 
+      LOG.d(TAG, JSON.stringify($err));
+      throw $err;
+    }
+
+    //compile the template
+    var folder = settings.fs.tmp;
+
+    var $today = new Date().getTime();
+
+    phantom.create(function (error, ph)
+    {
+        //create a new invoice pdf
+        var $template = _.template($data);
+
+        var $compiled_template = $template({
+          'invoices'       : $invoices,
+          'render_date'    : dateFormat($today, "dd/mm/yyyy")
+        });
+
+        var filename = 'letter_fast_towing_' + uuid.v4() + '.pdf';
+
+        ph.createPage(function (error, page)
+        {
+          page.settings = PAGESETTINGS.general;
+          page.set('viewportSize', PAGESETTINGS.viewport);
+          page.set('paperSize', PAGESETTINGS.paper);
+          page.set('content', $compiled_template, function (error) {
+            if (error) {
+              LOG.e(TAG, 'Error setting content: ' + error);
+            }
+          });
+
+          page.onLoadFinished = function (status)
+          {
+            page.render(folder + filename, function (error)
+            {
+              if (error)
+              {
+                LOG.e(TAG, 'Error rendering PDF: ' + error);
+              }
+              else
+              {
+                fs.readFile(folder + filename, "base64", function(a_error, data)
+                {
+                  if($persist) //letter for one customer
+                  {
+                    $invoice = $invoices[0];
+
+                    db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$invoice.towing_voucher_id, 'Brief FAST Takeling ' + dateFormat($today, "dd/mm/yyyy") + '.pdf',
+                                                           "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+                       //mark voucher as closed
+                      db.one(SQL_MARK_VOUCHER_AS_CLOSED, [$invoice.towing_voucher_id, $token], function($error, $result, $fields) {
+                        //fire and forget
+                      });
+                    });
+
+                  } else { //batch letter
+                    //store pdf in blob table
+                    db.one(SQL_ADD_BLOB, ['Geconsolideerde brieven - FAST Takeling ' + dateFormat($today, "dd/mm/yyyy") + '.pdf',
+                                          "application/pdf", data.length, data, $token], function($error, $att, $fields) {
+
+                        db.one(SQL_ADD_AWV_LETTER_BATCH, [$att.document_id, $token], function($error, $result, $fields) {
+                          //fire and forget
+                        });
+
+                        $invoices.forEach(function($invoice)
+                        {
+                          db.one(SQL_LINK_AWV_LETTER_BATCH_WITH_VOUCHER, [$invoice.towing_voucher_id, $att.document_id, $token], function($error, $result, $fields) {
+                            //fire and forget
+                          })
+                        });
+                    });
+                  }
+
+                  // delete the file
+                  fs.unlink(folder + filename, function (err) {
+                    if (err) {
+                      LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                    } else {
+                      LOG.d(TAG, 'successfully deleted ' + filename);
+                    }
+                  });
+
+                  // ph.exit();
+                });
+              }
+            });
+
+            //ph.exit();
+          }
+        }); //end ph.create
+    });
+  });
+}
+
+
 
 
 module.exports = router;

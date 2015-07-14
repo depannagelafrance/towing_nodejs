@@ -43,6 +43,8 @@ var vocab     = require('./routes/vocab.js');
 var doc       = require('./routes/document.js');
 var profile   = require('./routes/profile.js');
 var util      = require('./routes/util.js');
+var invoice   = require('./routes/invoice.js');
+
 
 app.use('/',          index);
 app.use('/vocab',     vocab);
@@ -54,6 +56,7 @@ app.use('/search',    search);
 app.use('/document',  doc);
 app.use('/me',        profile);
 app.use('/util',      util);
+app.use('/invoice',   invoice);
 
 
 

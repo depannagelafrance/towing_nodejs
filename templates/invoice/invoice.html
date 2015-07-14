@@ -36,6 +36,7 @@
             height: 29.7cm;
             display: block;
             margin: 0 auto;
+            page-break-before: always;
         }
 
         .container{
@@ -47,7 +48,6 @@
             float: left;
             width: 50%;
             padding: 25px 40px;
-            min-height: 250px;
         }
         #info_to_block{
             border: 1px solid #CCC;
@@ -65,7 +65,7 @@
         #info_key{
             float: left;
             width: 50%;
-            padding: 25px 40px;
+            padding: 10px 40px;
         }
 
         #info_key{
@@ -156,16 +156,35 @@
 <div class="container" style="width: 720px;">
     <div class="page">
         <div class="cf">
-            <div id="info_from"></div>
+            <div id="info_from">
+                <div class="from_company"><%=company.name%></div>
+                <div class="from_street"><%=company.street%> <%=company.street_number %></div>
+                <div class="from_city"><%=company.zip%> <%=company.city%></div>
+                <div class="from_country">België</div>
+                <div><label class="bold">BTW: </label><%=company.vat %></div>
+                </br></br>
+                <div><label class="bold">Tel: </label><%=company.phone%></div>
+                <div><label class="bold">Fax: </label><%=company.fax%></div>
+                <div><label class="bold">Email: </label><%=company.email%></div>
+                </br>
+                <div><label class="bold">BNP Parisbas Fortis IBAN:</label> BE60 2200 3624 2670</div>
+                <div><label class="bold">BNP Parisbas Fortis BIC:</label> GEBABEBB</div>
+                <br/>
+                <div><label class="bold">ING IBAN:</label> BE72 3200 5535 2516</div>
+                <div><label class="bold">ING BIC:</label> BBRUBEBB</div>
+            </div>
             <div id="info_to">
                 <div id="info_to_block">
-                    <div>Acuzio BVBA</div>
-                    <div>tav. Kris Vandermast</div>
-                    </br></br>
-                    <div>Voorspoedstraat 8</div>
-                    <div>B2910 Essen</div>
-                    </br></br>
-                    <div>België</div>
+                    <div><%= (invoice.customer.company_name != null && invoice.customer.company_name.trim() != '' ?  invoice.customer.company_name : '&nbsp;' ) %></div>
+                    <div><%= (invoice.customer.company_name != null
+                                && invoice.customer.company_name.trim() != ''
+                                && (invoice.customer.first_name != '' || invoice.customer.last_name != '') ?  'tav. ' : '&nbsp;' ) %><%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
+                    <br /><br />
+                    <div><%= invoice.customer.street%> <%= invoice.customer.street_number%> <%=(invoice.customer.street_pobox != null && invoice.customer.street_pobox != '' ? '/' + invoice.customer.street_pobox : '') %></div>
+                    <div><%= invoice.customer.zip%> <%= invoice.customer.city%></div>
+                    <div><%= invoice.customer.country%></div>
+                    <br /><br />
+                    <div><%= (invoice.customer.company_vat != null ?  invoice.customer.company_vat : '&nbsp;' ) %></div>
                 </div>
             </div>
         </div>
@@ -176,18 +195,40 @@
 
         <div class="cf">
             <div id="info_invoice">
-                <div class="bold info_padded"><label>Factuur: </label>2015/0000001</div>
-                <div class="bold info_padded"><label>Datum: </label>23/02/2015</div>
+                <div class="info_padded"><label class="bold">Factuur: </label><%=invoice.invoice_number_display%></div>
+                <div class="info_padded"><label class="bold">Datum: </label><%=invoice_date%></div>
+                <% if (invoice.cal_amount_unpaid > 0 || invoice.invoice_type == 'INSURANCE') { %>
+                <div class="info_padded"><label class="bold">Te betalen voor:</label> <%=invoice_due_date %></div>
+                <% } %>
             </div>
             <div id="info_key">
-                <div class="bold info_padded"><label>Uw Kenmerk: </label>BE0123.456.789</div>
-                <div class="bold info_padded"><label>Betalingskenmerk: </label>+++012/345678/92+++</div>
+                <div class="info_padded"><label class="bold">Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
+                <% if(invoice.insurance_dossiernr != null && invoice.insurance_dossiernr != '') { %>
+                <div class="info_padded"><label class="bold">Dossiernummer: </label><%=invoice.insurance_dossiernr%></div>
+                <% } %>
+                <div class="info_padded"><label class="bold">Betalingskenmerk: </label><%=invoice.invoice_structured_reference%></div>
             </div>
         </div>
 
         <div class="seperation_wrap">
             <div class="seperation"></div>
         </div>
+
+        <div class="cf">
+            <div id="info_invoice">
+                <div class="info_padded"><label class="bold">PA Nummer: </label><%=call_number%></div>
+                <div class="info_padded"><label class="bold">Datum oproep: </label><%=call_date%></div>
+            </div>
+            <div id="info_key">
+                <div class="info_padded"><label class="bold">Voertuig: </label><%=vehicle%></div>
+                <div class="info_padded"><label class="bold">Nummerplaat: </label><%=vehicle_licenceplate%></div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
 
         <div class="cf">
             <div class="table_wrap">
@@ -200,27 +241,22 @@
                         <th>Totaal/Item (excl BTW)</th>
                     </thead>
                     <tbody>
-                        <tr class="odd">
-                            <td>1</td>
-                            <td>Signalisatie</td>
-                            <td>1</td>
-                            <td class="text-right">€100</td>
-                            <td class="text-right">€100</td>
-                        </tr>
-                        <tr class="even">
-                            <td>2</td>
-                            <td>Ongeval</td>
-                            <td>1</td>
-                            <td class="text-right">€100</td>
-                            <td class="text-right">€100</td>
-                        </tr>
-                        <tr class="odd">
-                            <td>3</td>
-                            <td>Stallingskost</td>
-                            <td>1</td>
-                            <td class="text-right">€100</td>
-                            <td class="text-right">€100</td>
-                        </tr>
+                        <% var $i = 0;
+
+                           invoice.invoice_lines.forEach(function(invoice_line)
+                           {
+                             $i++;
+                              %>
+                                <tr class="<%= ($i % 2 == 0 ? 'even' : 'odd') %>">
+                                  <td><%=$i%></td>
+                                  <td><%=invoice_line.item%></td>
+                                  <td><%=invoice_line.item_amount.toFixed(2)%></td>
+                                  <td class="text-right"><%=invoice_line.item_price_excl_vat.toFixed(2) %> &euro;</td>
+                                  <td class="text-right"><%=invoice_line.item_total_excl_vat.toFixed(2) %> &euro;</td>
+                                </tr>
+                              <%
+                           });
+                        %>
                     </tbody>
                 </table>
             </div>
@@ -228,18 +264,67 @@
 
         <div class="cf">
             <div id="total">
-                <div class="bold info_padded"><label>Totaal (excl. BTW): </label><span>€300.00</span></div>
-                <div class="bold info_padded"><label>BTW (21%): </label><span>€69.00</span></div>
-                <div class="cf">
-                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span>€369.00</span></div>
-                </div>
+                <div class="bold info_padded"><label>Maatstaf van heffing: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
+                <% if (!invoice.vat_foreign_country) { %>
+                  <div class="bold info_padded"><label>BTW (<%=invoice.invoice_vat_percentage*100%>%): </label><span><%=invoice.invoice_total_vat.toFixed(2) %> &euro;</span></div>
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span><%=invoice.invoice_total_incl_vat.toFixed(2)%> &euro;</span></div>
+                  </div>
+                <% } else { %>
+                  <div class="bold info_padded"><label>BTW verlegd, art. 5 , ontwerp KB nr. 1</label><span>&nbsp;</span></div>
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
+                  </div>
+                <% } %>
+                  <% if (invoice.invoice_type != 'INSURANCE') { %>
+                    <% if (invoice.paid_in_cash > 0)         {%><div class="bold info_padded"><label>Voldaan (cash): </label><span><%=invoice.paid_in_cash.toFixed(2)%> &euro;</span></div><%} %>
+                    <% if (invoice.paid_by_bank_deposit > 0) {%><div class="bold info_padded"><label>Voldaan (overschrijving): </label><span><%=invoice.paid_by_bank_deposit.toFixed(2)%> &euro;</span></div><%} %>
+                    <% if (invoice.paid_by_debit_card > 0)   {%><div class="bold info_padded"><label>Voldaan (maestro): </label><span><%=invoice.paid_by_debit_card.toFixed(2)%> &euro;</span></div><%} %>
+                    <% if (invoice.paid_by_credit_card > 0)  {%><div class="bold info_padded"><label>Voldaan (creditcard): </label><span><%=invoice.paid_by_credit_card.toFixed(2)%> &euro;</span></div><%} %>
+
+                    <div class="cf">
+                      <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.cal_amount_unpaid.toFixed(2)%> &euro;</span></div>
+                    </div>
+                  <% } else { %>
+                    <div class="cf">
+                      <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.amount_guaranteed_by_insurance.toFixed(2)%> &euro;</span></div>
+                    </div>
+                  <% } %>
+
             </div>
         </div>
 
+        <% if(default_depot == 1 && vehicule_collected == null) {%>
+          <div class="cf">
+            <div class="table_wrap">
+              De stalling van uw voertuig kost 5.00 EURO (excl. BTW) per dag, vanaf de 4de kalenderdag na de takeling.  Deze kost kan pas bepaald worden als u het voertuig afhaalt.
+            </div>
+          </div>
+        <% } %>
+
+        <% if(invoice.invoice_message != null && invoice.invoice_message != '') { %>
+          <div class="cf">
+            <div class="table_wrap">
+              <strong>Opmerking:</strong><br />
+              <%=invoice.invoice_message%>
+            </div>
+          </div>
+        <% } %>
+
         <div class="cf">
             <div id="closer">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum feugiat posuere. In fringilla mauris non libero pulvinar, vitae ultrices lectus ullamcorper. Curabitur eu mi ac lorem faucibus bibendum quis ac dui. Donec ut diam sit amet nisi tempus maximus. Suspendisse quis nisl dui. Nulla sollicitudin urna neque, pellentesque sollicitudin neque facilisis eu. Pellentesque congue varius massa, eget viverra augue egestas ut. Curabitur hendrerit blandit neque, pulvinar porttitor metus dapibus sit amet. Cras maximus malesuada velit. Mauris nec finibus leo. Nullam mollis dolor in ex porta maximus. Nulla ut ornare mi. Maecenas non magna viverra, tempor ex vitae, imperdiet erat. In dictum ac sapien sit amet elementum. Mauris commodo lacus et consectetur elementum.
-                Fusce dictum, est at elementum mollis, nibh tortor accumsan nisi, ut maximus ante sem sit amet tortor. Quisque est lacus, interdum eleifend nisl ut, suscipit aliquam dolor. Praesent ac efficitur nunc, ut vulputate lacus. Donec aliquam nisi velit, vitae sagittis urna hendrerit et. Morbi lorem sapien, feugiat vitae pellentesque ut, venenatis eget enim. Nulla in accumsan diam, eget aliquam nibh. Nulla tincidunt mauris a metus bibendum, eu laoreet augue imperdiet. Donec malesuada, mauris quis elementum tristique, nibh orci bibendum velit, at consectetur mi lectus ut massa. Nam a magna vestibulum leo accumsan posuere. Proin elementum non diam id posuere. Pellentesque nisi velit, varius ac sapien non, feugiat porta massa. Curabitur porta dui vitae sem pharetra convallis. Mauris non accumsan elit.
+                <p>
+                  Deze takeling werd uitgevoerd in het kader van F.A.S.T., een overheidsopdracht van de Vlaamse Overheid en de Federale Wegpolitie.
+                  De overheid zal de factuur controleren en u schriftelijk inlichten binnen de 30 dagen.
+                </p>
+                <p>
+                  Ce dépannage a été exécuté dans le cadre de F.A.S.T., un marché public de l’autorité flamande et de la police fédérale de la route.
+                  Les autorités contrôleront la facture et vous informeront par écrit dans les 30 jours.
+                </p>
+                <p>
+                  This breakdown service was provided in accordance with the F.A.S.T. program, a government contract of the Flemish Government and the Federal Traffic Police.
+                  The government will control the invoice and inform you in writing within 30 days.
+              </p>
             </div>
         </div>
 
