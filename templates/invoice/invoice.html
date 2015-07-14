@@ -36,7 +36,6 @@
             height: 29.7cm;
             display: block;
             margin: 0 auto;
-            page-break-before: always;
         }
 
         .container{
@@ -48,6 +47,7 @@
             float: left;
             width: 50%;
             padding: 25px 40px;
+            min-height: 250px;
         }
         #info_to_block{
             border: 1px solid #CCC;
@@ -156,21 +156,7 @@
 <div class="container" style="width: 720px;">
     <div class="page">
         <div class="cf">
-            <div id="info_from">
-                <div class="from_company">Depannage la France</div>
-                <div class="from_street">Tweemondstraat 310</div>
-                <div class="from_city">B2100 Deurne</div>
-                <div class="from_country">België</div>
-                <div><label>BTW: </label> BE 0123.456.789</div>
-                </br></br>
-                <div><label>Tel: </label> 0032 3 666 67 88</div>
-                <div><label>Fax: </label> 0032 3 666 67 89</div>
-                </br></br>
-                <div><label>Email: </label> info@lafrance.be</div>
-                </br></br>
-                <div><label>Iban: </label> BE 0123.456.789</div>
-                <div><label>Bic: </label> 123456789</div>
-            </div>
+            <div id="info_from"></div>
             <div id="info_to">
                 <div id="info_to_block">
                     <div>Acuzio BVBA</div>
