@@ -114,7 +114,7 @@ const SQL_REMOVE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_REMOVE_TOWING_ADDI
 const SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS = "CALL R_FETCH_ALL_TOWING_ADDITIONAL_COSTS(?, ?); ";
 
 const SQL_ADD_BLOB                            = "CALL R_ADD_BLOB(?,?,?,?,?); ";
-const SQL_ADD_COLLECTOR_SIGNATURE             = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?);";
+const SQL_ADD_COLLECTOR_SIGNATURE             = "CALL R_ADD_COLLECTOR_SIGNATURE(?,?,?,?,?,?);";
 const SQL_ADD_CAUSER_SIGNATURE                = "CALL R_ADD_CAUSER_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_POLICE_SIGNATURE                = "CALL R_ADD_POLICE_SIGNATURE(?,?,?,?,?);";
 const SQL_ADD_INSURANCE_DOCUMENT              = "CALL R_ADD_INSURANCE_DOCUMENT(?,?,?,?,?,?);";
@@ -162,11 +162,11 @@ const STATUS_AWV_APPROVED           = "AWV_APPROVED";
 
 const PAGESETTINGS = {
   general: {
-    loadImages: true,
+    loadImages: false,
     localToRemoteUrlAccessEnabled: false,
     javascriptEnabled: false,
     loadPlugins: false,
-    quality: 75
+    quality: 10
   },
   viewport: {
     width: 800,
@@ -452,6 +452,7 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
   var $token      = ju.requires('token', $req.params);
   var $category   = ju.requires('category', $req.params);
   var $file_name  = "";
+  var $name       = "";
 
   var $sql = "";
 
@@ -460,7 +461,9 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
     case 'signature_police':
       $sql = SQL_ADD_POLICE_SIGNATURE; break;
     case 'signature_collector':
-      $sql = SQL_ADD_COLLECTOR_SIGNATURE; break;
+      $sql = SQL_ADD_COLLECTOR_SIGNATURE;
+      $name = ju.requires('name', $req.body);
+      break;
     case 'signature_causer':
       $sql = SQL_ADD_CAUSER_SIGNATURE; break;
     case 'insurance_document':
@@ -488,6 +491,10 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
 
   if($file_name && $file_name != "" && ($category == 'insurance_document' || $category == 'any' || $category == 'vehicle_damage')) {
     $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $token];
+  }
+
+  if($category == 'signature_collector') {
+    $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $name, $token];
   }
 
   //insert object
@@ -1295,7 +1302,7 @@ function processLettersInBatch($invoices, $persist, $token)
 
           page.onLoadFinished = function (status)
           {
-            page.render(folder + filename, function (error)
+            page.render(folder + filename, {format: 'pdf', quality: '10'}, function (error)
             {
               if (error)
               {
