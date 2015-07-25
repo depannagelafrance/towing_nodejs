@@ -11,6 +11,7 @@ var dateFormat  = require('dateformat');
 var crypto      = require('crypto');
 var JSZip       = require('jszip');
 var xmlbuilder  = require('xmlbuilder');
+var nodemailer  = require('nodemailer');
 
 var db          = require('../util/database.js');
 var ju          = require('../util/json.js');
@@ -18,6 +19,7 @@ var LOG         = require('../util/logger.js');
 var settings    = require('../settings/settings.js');
 
 var company     = require('../model/company.js');
+var dossier     = require('../model/dossier.js');
 
 
 var TAG = 'invoice.js';
@@ -365,7 +367,10 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
     var $default_depot        = $result.default_depot;
     var $vehicule_collected   = $result.vehicule_collected;
 
-    //when the batch is complated, fetch the invoices from the batch
+    // create reusable transporter object using SMTP transport
+    var transporter = nodemailer.createTransport(settings.smtp.transport);
+
+    //when the batch is completed, fetch the invoices from the batch
     //open the template
       var $filename='./templates/invoice/invoice.html';
 
@@ -415,7 +420,7 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
                     'vehicule_collected': $vehicule_collected
                   });
 
-                  var filename = 'invoice_' + $_invoice.invoice_number + ".pdf";
+                  var filename = $_invoice.filename; //'invoice_' + $_invoice.invoice_number + ".pdf";
 
                   ph.createPage(function (error, page)
                   {
@@ -445,12 +450,60 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
                               db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
                             });
 
+                            //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
+                            dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $res, $res, function($towing_voucher_filename, $towing_voucher_base64)
+                            {
+                              // setup e-mail data with unicode symbols
+                              var mailOptions = {
+                                  from: $_company.email, // sender address
+                                  to: settings.awv.receivers, // list of receivers
+                                  subject: 'Towing.be - ' + $_company.code + ' - Takelbon ' + $_invoice.voucher_number + ' en Factuur ' + $_invoice.invoice_number_display, // Subject line
+                                  html: 'Beste, <br /><br />'
+                                      + 'In bijlage sturen wij graag de informatie met betrekking tot volgende F.A.S.T. takeling:'
+                                      + '<ul>'
+                                      + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
+                                      + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
+                                      + '<li><strong>Factuur nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
+                                      + '<li><strong>Datum oproep: </strong>' + convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
+                                      + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
+                                      + '</ul>'
+                                      + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
+                                      + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
+                                      + '<br /><br /><br />'
+                                      + '<strong>Bijlagen:</strong><br /><ol>'
+                                      + '<li>Factuur:  ' + $_invoice.filename + '</li>'
+                                      + '<li>Takelbon: ' + $towing_voucher_filename + '</li>'
+                                      + '</ol><br/><br/><br/>',
+                                  attachments: [
+                                    {   // base64 buffer as an attachment
+                                        filename: $_invoice.filename,
+                                        content: data,
+                                        encoding: "base64"
+                                    },
+                                    {   // base64 buffer as an attachment
+                                        filename: $towing_voucher_filename,
+                                        content: $towing_voucher_base64,
+                                        encoding: "base64"
+                                    }
+                                  ]
+                              };
+
+                              // send mail with defined transport object
+                              transporter.sendMail(mailOptions, function(error, info){
+                                  if(error){
+                                      LOG.e(TAG, error);
+                                  }else{
+                                      LOG.d(TAG, "E-mail verzonden naar: " + settings.awv.receivers);
+                                  }
+                              });
+                            });
+
                             // delete the file
                             fs.unlink(folder + filename, function (err) {
                               if (err) {
                                 LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
                               } else {
-                                LOG.d(TAG, 'successfully deleted ' + filename);
+                                LOG.d(TAG, 'successfully deleted ' + folder + filename);
                               }
                             });
 
@@ -478,6 +531,18 @@ function convertUnixTStoDateFormat($unix_ts)
     $_date = new Date($unix_ts * 1000);
 
     return dateFormat($_date, "dd/mm/yyyy");
+  }
+
+  return "";
+}
+
+function convertUnixTStoDateTimeFormat($unix_ts)
+{
+  if($unix_ts)
+  {
+    $_date = new Date($unix_ts * 1000);
+
+    return dateFormat($_date, "dd/mm/yyyy HH:MM");
   }
 
   return "";

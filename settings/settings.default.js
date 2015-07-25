@@ -39,7 +39,6 @@ var apns = {
     sandbox: true
 }
 
-
 /*var smtpTransportSettings = {
   host: '10.3.66.133',
   port: '25', //587
@@ -58,8 +57,15 @@ var vies = {
 }
 
 
+var awv = {
+  receivers: 'kvandermast@gmail.com'
+}
+
+
+
 exports.mysql = mysql;
 exports.fs = fs;
 exports.smtp = smtp;
 exports.apns = apns;
 exports.vies = vies;
+exports.awv = awv;
