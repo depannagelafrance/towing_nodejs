@@ -20,6 +20,7 @@ const SQL_FETCH_USER_ROLES          = "CALL R_FETCH_USER_ROLES(?); ";
 const SQL_FETCH_COMPANY_DEPOT       = "CALL R_FETCH_COMPANY_DEPOT(?);";
 const SQL_FETCH_USER_COMPANY        = "CALL R_FETCH_USER_COMPANY(?);";
 const SQL_FETCH_COMPANY_ALLOTMENTS  = "CALL R_FETCH_COMPANY_ALLOTMENTS(?); ";
+const SQL_UPDATE_PASSWORD           = "CALL R_UPDATE_USER_PASSWORD(?,?,?); ";
 
 // -- ONLY POSTS ARE ALLOWED
 router.get('/', function($req, $res) {
@@ -46,7 +47,7 @@ router.post('/', function($req, $res) {
       db.one(SQL_FETCH_USER_COMPANY, [$result.token], function($error, $company, $fields) {
         $result.company = $company;
         $result.company.allotments = [];
-        
+
         db.many(SQL_FETCH_COMPANY_ALLOTMENTS, [$result.token], function($error, $allotments, $fields) {
           $result.company.allotments = $allotments;
         });
@@ -68,6 +69,27 @@ router.post('/', function($req, $res) {
         });
       });
 
+    } else {
+      ju.send($req, $res, $result);
+    }
+  });
+});
+
+// -- PROCESS REQUEST FOR PWD CHANGE
+router.post('/change_password', function($req, $res) {
+  $jsonData = $req.body;
+
+  $login   = ju.requires('login', $jsonData);
+  $pwd     = ju.requires('password', $jsonData);
+  $new_pwd = ju.requires('new_password', $jsonData);
+
+  db.one(SQL_PROCESS_LOGIN, [$login,$pwd], function($error, $result, $fields) {
+    if($result && 'token' in $result) {
+      $token = $result.token;
+
+      db.one(SQL_UPDATE_PASSWORD, [$login, $new_pwd, $token], function($error, $result, $fields) {
+        ju.send($req, $res, $result);
+      });
     } else {
       ju.send($req, $res, $result);
     }
