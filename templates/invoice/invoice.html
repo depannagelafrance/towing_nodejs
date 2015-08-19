@@ -268,11 +268,11 @@
                         case 'CASH': $_payment_type = 'cash'; break;
                         case 'BANKDEPOSIT': $_payment_type = 'overschrijving'; break;
                         case 'MAESTRO': $_payment_type = 'maestro'; break;
-                        case 'VISA': $_payment_type = 'creditcard'; break
+                        case 'VISA': $_payment_type = 'creditcard'; break;
                       }
                   } %>
 
-                  <div class="bold info_padded"><label>Voldaan <%=$_payment_type != '(' + $_payment_type + ')' ? : '' %>: </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
+                  <div class="bold info_padded"><label>Voldaan <%= ($_payment_type != '' ? '(' + $_payment_type + ')' : '') %>: </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
 
                   <div class="cf">
                     <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.cal_amount_unpaid.toFixed(2)%> &euro;</span></div>

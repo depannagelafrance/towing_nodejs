@@ -29,7 +29,6 @@ var router = express.Router();
 
 //-- DEFINE CONSTANST
 const SQL_CREATE_INVOICE_BATCH            = "CALL R_INVOICE_CREATE_BATCH(?); ";
-const SQL_START_INVOICE_BATCH             = "CALL R_INVOICE_START_BATCH(?); ";
 const SQL_FETCH_COMPANY_INVOICES          = "CALL R_INVOICE_FETCH_COMPANY_INVOICES(?); ";
 const SQL_FETCH_BATCH_RUNS                = "CALL R_INVOICE_FETCH_ALL_BATCH_RUNS(?); ";
 const SQL_FETCH_BATCH_INVOICES            = "CALL R_INVOICE_FETCH_BATCH_INVOICES(?); ";
@@ -44,7 +43,7 @@ const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
                                                + "?," //content
                                                + "?);"; //token
 const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VOUCHER(?,?); ";
-const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?); ";
+const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?,?,?,?,?,?,?); ";
 const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
 const SQL_INVOICE_ATT_LINK_WITH_VOUCHER    = "CALL R_INVOICE_ATT_LINK_WITH_VOUCHER(?,?,?); ";
 
@@ -178,129 +177,6 @@ router.post('/export/expertm/:token', function($req, $res) {
   }
 });
 
-//
-//-- CREATE A NEW BATCH (on purpose fault)
-//
-router.post('/batch/:token', function($req, $res) {
-  var $token        = ju.requires('token', $req.params);
-  var $hash         = ju.requires('hash', $req.params); //done on purpose
-
-  //create a new invoice batch and fetch the batch_id from the result
-  db.one(SQL_CREATE_INVOICE_BATCH, [$token], function($error, $result, $fields) {
-    if($result && $result.invoice_batch_id)
-    {
-      var $invoice_batch_id = $result.invoice_batch_id;
-
-      company.findCurrentCompany($token, function($_company)
-      {
-        //start a new invoice batch
-        db.many(SQL_START_INVOICE_BATCH, [$invoice_batch_id], function($error, $result, $fields)
-        {
-          //when the batch is complated, fetch the invoices from the batch
-          //open the template
-            var $filename='./templates/invoice/invoice.html';
-
-            fs.readFile($filename, 'utf8', function($err, $data)
-            {
-              if($err)
-              { 
-                LOG.d(TAG, JSON.stringify($err));
-                throw $err;
-              }
-
-              //compile the template
-              var folder = settings.fs.invoice_store;
-
-              phantom.create(function (error, ph)
-              {
-                db.many(SQL_FETCH_BATCH_INVOICES, [$invoice_batch_id], function($error, $result, $fields)
-                {
-                  $result.forEach(function($invoice)
-                  {
-                    //fetch the invoice customer
-                    db.one(SQL_FETCH_BATCH_INVOICE_CUSTOMER, [$invoice.id, $invoice_batch_id], function($error, $invoice_customer, $fields)
-                    {
-                      //fetch the invoice lines for each fetched invoice
-                      var $_invoice = $invoice;
-                      $_invoice.customer = $invoice_customer;
-
-                      db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice_batch_id], function($error, $invoice_lines, $fields)
-                      {
-                        $_invoice.invoice_lines = $invoice_lines;
-
-                        // console.log($invoice);
-
-                        //create a new invoice pdf
-                        var $template = _.template($data);
-
-                        var $compiled_template = $template({
-                          'company'      : $_company,
-                          'invoice'      : $_invoice,
-                          'invoice_date' :  convertUnixTStoDateFormat($_invoice.invoice_date, "dd/mm/yyyy")
-                        });
-
-                        var filename = 'invoice_' + $_invoice.invoice_number + ".pdf";
-
-                        ph.createPage(function (error, page)
-                        {
-                          page.settings = PAGESETTINGS.general;
-                          page.set('viewportSize', PAGESETTINGS.viewport);
-                          page.set('paperSize', PAGESETTINGS.paper);
-                          page.set('content', $compiled_template, function (error) {
-                            if (error) {
-                              LOG.e(TAG, 'Error setting content: ' + error);
-                            }
-                          });
-
-                          page.onLoadFinished = function (status)
-                          {
-
-                            page.render(folder + filename, function (error)
-                            {
-                              if (error)
-                              {
-                                LOG.e(TAG, 'Error rendering PDF: ' + error);
-                              }
-                              else
-                              {
-                                  fs.readFile(folder + filename, "base64", function(a_error, data)
-                                {
-                                  LOG.d(TAG, "Read file: " + folder + filename);
-
-                                  db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
-                                    db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
-                                  });
-
-                                  // delete the file
-                                  fs.unlink(folder + filename, function (err) {
-                                    if (err) {
-                                      LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                                    } else {
-                                      LOG.d(TAG, 'successfully deleted ' + folder + filename);
-                                    }
-                                  });
-
-                                  // ph.exit();
-                                });
-                              }
-                            });
-
-                            //ph.exit();
-                          }
-                        }); //end ph.create
-                      });
-                    });
-                  });
-                });
-              });
-          });
-        });
-      });
-
-      ju.send($req, $res, {"result": "ok", "invoice_batch_id": $result.invoice_batch_id});
-    }
-  });
-});
 
 //
 //-- CREATE A NEW INVOICE FOR A VOUCHER
@@ -310,6 +186,16 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
   var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
   var $message      = ju.valueOf('message', $req.body);
 
+  var $customer_amount = ju.valueOf('customer_amount', $req.body);
+  var $customer_ptype = ju.valueOf('customer_ptype', $req.body);
+
+  var $collector_amount = ju.valueOf('collector_amount', $req.body);
+  var $collector_ptype = ju.valueOf('collector_ptype', $req.body);
+
+  var $assurance_amount = ju.valueOf('assurance_amount', $req.body);
+  var $assurance_ptype = ju.valueOf('assurance_ptype', $req.body);
+
+
   db.one(SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $token], function($error, $batch_result, $fields) {
     if($batch_result && $batch_result.invoice_batch_id)
     {
@@ -318,7 +204,16 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
       company.findCurrentCompany($token, function($_company)
       {
         //start a new invoice batch
-        db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $invoice_batch_id, $message, $token], function($error, $result, $fields) {
+        var $batch_params = [
+          $voucher_id, $invoice_batch_id,
+          $customer_amount, $customer_ptype,
+          $collector_amount, $collector_ptype,
+          $assurance_amount, $assurance_ptype,
+          $message,
+          $token
+        ];
+
+        db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, $batch_params, function($error, $result, $fields) {
           processInvoiceData($result, $batch_result, $_company, $token, $req, $res);
         });
       });
