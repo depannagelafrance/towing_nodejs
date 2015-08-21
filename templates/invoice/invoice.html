@@ -260,23 +260,48 @@
                     <div class="full-total bold info_padded"><label>Totaal: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
                   </div>
                 <% } %>
-                  <% if (invoice.invoice_amount_paid != null && invoice.invoice_amount_paid > 0) {
-                      var $_payment_type = '';
+                  <%
+                      var $_invoice_open = invoice.cal_amount_unpaid;
 
-                      //'OTHER', 'CASH', 'BANKDEPOSIT', 'MAESTRO', 'VISA'
-                      switch(invoice.invoice_payment_type) {
-                        case 'CASH': $_payment_type = 'cash'; break;
-                        case 'BANKDEPOSIT': $_payment_type = 'overschrijving'; break;
-                        case 'MAESTRO': $_payment_type = 'maestro'; break;
-                        case 'VISA': $_payment_type = 'creditcard'; break;
+                      if (invoice.invoice_amount_paid != null && invoice.invoice_amount_paid > 0)
+                      {
+                        var $_payment_type = '';
+
+                        //'OTHER', 'CASH', 'BANKDEPOSIT', 'MAESTRO', 'VISA'
+                        switch(invoice.invoice_payment_type)
+                        {
+                          case 'CASH': $_payment_type = 'cash'; break;
+                          case 'BANKDEPOSIT': $_payment_type = 'overschrijving'; break;
+                          case 'MAESTRO': $_payment_type = 'maestro'; break;
+                          case 'VISA': $_payment_type = 'creditcard'; break;
+                        }
+
+                        $_invoice_open -= parseFloat(invoice.invoice_amount_paid);
+
+                        if($_invoice_open < 0) {
+                          $_invoice_open = 0.0;
+                        }
+
+                        if($_payment_type !== '')
+                        {
+                          %>
+                          <div class="bold info_padded"><label>Voldaan (<%=  $_payment_type %>): </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
+                          <div class="cf">
+                            <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=$_invoice_open.toFixed(2)%> &euro;</span></div>
+                          </div>
+                          <%
+                        }
+                        else
+                        {
+                          %>
+                          <div class="cf">
+                            <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
+                          </div>
+                          <%
+                        }
                       }
-                  } %>
+                  %>
 
-                  <div class="bold info_padded"><label>Voldaan <%= ($_payment_type != '' ? '(' + $_payment_type + ')' : '') %>: </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
-
-                  <div class="cf">
-                    <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.cal_amount_unpaid.toFixed(2)%> &euro;</span></div>
-                  </div>
             </div>
         </div>
 

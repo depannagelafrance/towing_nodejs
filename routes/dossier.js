@@ -1193,7 +1193,6 @@ router.post('/signature/:type/:dossier/:voucher/:token', function($req,$res) {
   ju.send($req, $res, {'result': 'ok'});
 });
 
-
 router.post('/export/vouchersAwaitingApproval/:token', function($req, $res) {
   var $token      = ju.requires('token', $req.params);
 

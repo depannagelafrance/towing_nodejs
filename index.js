@@ -44,6 +44,7 @@ var doc       = require('./routes/document.js');
 var profile   = require('./routes/profile.js');
 var util      = require('./routes/util.js');
 var invoice   = require('./routes/invoice.js');
+var cron      = require('./routes/cron.js');
 
 
 app.use('/',          index);
@@ -57,6 +58,7 @@ app.use('/document',  doc);
 app.use('/me',        profile);
 app.use('/util',      util);
 app.use('/invoice',   invoice);
+app.use('/cron',      cron);
 
 
 
