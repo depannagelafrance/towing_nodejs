@@ -494,7 +494,7 @@ router.post('/voucher/attachment/:category/:voucher_id/:token', function($req, $
   }
 
   if($category == 'signature_collector') {
-    $params = [$voucher_id, $file_name, $content_type, $file_size, $content, $name, $token];
+    $params = [$voucher_id /*, $file_name*/, $content_type, $file_size, $content, $name, $token];
   }
 
   //insert object
