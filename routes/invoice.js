@@ -16,6 +16,8 @@ var nodemailer  = require('nodemailer');
 var db          = require('../util/database.js');
 var ju          = require('../util/json.js');
 var LOG         = require('../util/logger.js');
+var dateutil    = require('../util/date.js');
+
 var settings    = require('../settings/settings.js');
 
 var company     = require('../model/company.js');
@@ -359,7 +361,7 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
                                       + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
                                       + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
                                       + '<li><strong>Factuur nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
-                                      + '<li><strong>Datum oproep: </strong>' + convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
+                                      + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
                                       + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
                                       + '</ul>'
                                       + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
@@ -431,16 +433,5 @@ function convertUnixTStoDateFormat($unix_ts)
   return "";
 }
 
-function convertUnixTStoDateTimeFormat($unix_ts)
-{
-  if($unix_ts)
-  {
-    $_date = new Date($unix_ts * 1000);
-
-    return dateFormat($_date, "dd/mm/yyyy HH:MM");
-  }
-
-  return "";
-}
 
 module.exports = router;

@@ -12,6 +12,8 @@ var LOG       = require('../util/logger.js');
 var common    = require('../util/common.js');
 var ju        = require('../util/json.js');
 var common    = require('../util/common.js');
+var dateutil  = require('../util/date.js');
+
 var settings  = require('../settings/settings.js');
 var vocab     = require('../model/vocab.js');
 
@@ -250,7 +252,7 @@ var createTowingVoucherReport = function($dossier_id, $voucher_id, $type, $token
 
                                   $compiled_template = $template($vars);
 
-                                  renderPdfTemplate($voucher, $compiled_template, $req, $res, cb);
+                                  renderPdfTemplate($dossier, $voucher, $compiled_template, $req, $res, cb);
 
                                 });//end db.one(SQL_FETCH_INSURANCE_BY_ID)
                             }
@@ -258,7 +260,7 @@ var createTowingVoucherReport = function($dossier_id, $voucher_id, $type, $token
                             {
                               $compiled_template = $template($vars);
 
-                              renderPdfTemplate($voucher, $compiled_template, $req, $res, cb);
+                              renderPdfTemplate($dossier, $voucher, $compiled_template, $req, $res, cb);
                             } //end if ($voucher.insurance_id)
                           }); //db.one(fetch signa signature)
                         }); //end db.one(police signature)
@@ -274,7 +276,7 @@ var createTowingVoucherReport = function($dossier_id, $voucher_id, $type, $token
   });
 };
 
-function renderPdfTemplate($voucher, $compiled_template, $req, $res, cb)
+function renderPdfTemplate($dossier, $voucher, $compiled_template, $req, $res, cb)
 {
     phantom.create(function (error, ph) {
       var filename = $voucher.towing_voucher_filename; //crypto.randomBytes(64).toString('hex') + ".pdf";
@@ -326,7 +328,7 @@ function renderPdfTemplate($voucher, $compiled_template, $req, $res, cb)
                 LOG.d(TAG, "Read file: " + folder + filename);
                 //LOG.d(TAG, "Error: " + JSON.stringify(a_error));
 
-                cb(filename, data);
+                cb(filename, data, $dossier, $voucher);
 
                 // delete the file
                 fs.unlink(folder + filename, function (err) {

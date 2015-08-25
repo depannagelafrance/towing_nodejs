@@ -16,10 +16,11 @@ var ju        = require('../util/json.js');
 var LOG       = require('../util/logger.js');
 var agent     = require('../util/push.js');
 var vies      = require('../util/vies.js');
+var dateutil  = require('../util/date.js');
 
+var company   = require('../model/company.js');
 var dossier   = require('../model/dossier.js');
 var vocab     = require('../model/vocab.js');
-var company   = require('../model/company.js');
 
 var settings  = require('../settings/settings.js');
 
@@ -1106,10 +1107,10 @@ router.post('/communication/:type/:token', function($req, $res) {
 
   var $dossier_id = ju.requiresInt('dossier_id', $req.body);
   var $voucher_id = ju.intValueOf('voucher_id', $req.body);
-  var $message    = ju.requires('message', $req.body);
 
   switch($type) {
     case 'email':
+      var $message    = ju.requires('message', $req.body);
       var $subject    = ju.requires('subject', $req.body);
       var $recipients = ju.requires('recipients', $req.body);
 
@@ -1150,12 +1151,63 @@ router.post('/communication/:type/:token', function($req, $res) {
 
       break;
     case 'internal':
+      var $message    = ju.requires('message', $req.body);
       var $params = [$dossier_id, $voucher_id, 'INTERNAL', null, $message, $token];
 
       db.one(SQL_ADD_DOSSIER_COMMUNICATION, $params, function($error, $result, $fields) {
           ju.send($req, $res, $result);
       });
 
+      break;
+    case 'awv_voucher_email':
+        company.findCurrentCompany($token, function($_company)
+        {
+          //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
+          dossier.createTowingVoucherReport($dossier_id, $voucher_id, 'towing', $token, $res, $res, function($towing_voucher_filename, $towing_voucher_base64, $dossier, $voucher)
+          {
+            // setup e-mail data with unicode symbols
+            var mailOptions = {
+                from: $_company.email, // sender address
+                to: settings.awv.receivers, // list of receivers
+                subject: 'Towing.be - ' + $_company.code + ' - Takelbon ' + $voucher.voucher_number, // Subject line
+                html: 'Beste, <br /><br />'
+                    + 'In bijlage sturen wij graag de informatie met betrekking tot volgende F.A.S.T. takeling:'
+                    + '<ul>'
+                    + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
+                    + '<li><strong>Takelbon: </strong>' + $voucher.voucher_number + '</li>'
+                    + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($dossier.call_date_ts) + '</li>'
+                    + '<li><strong>Oproepnummer: </strong>' + $dossier.call_number + '</li>'
+                    + '</ul>'
+                    + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
+                    + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
+                    + '<br /><br /><br />'
+                    + '<strong>Bijlagen:</strong><br /><ol>'
+                    + '<li>Takelbon: ' + $towing_voucher_filename + '</li>'
+                    + '</ol><br/><br/><br/>',
+                attachments: [
+                  {   // base64 buffer as an attachment
+                      filename: $towing_voucher_filename,
+                      content: $towing_voucher_base64,
+                      encoding: "base64"
+                  }
+                ]
+            };
+
+            // create reusable transporter object using SMTP transport
+            var transporter = nodemailer.createTransport(settings.smtp.transport);
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, function(error, info){
+                if(error){
+                    LOG.e(TAG, error);
+                }else{
+                    LOG.d(TAG, "E-mail verzonden naar: " + settings.awv.receivers);
+                }
+            });
+          });
+        });
+
+        ju.send($req, $res, {'result': 'ok'});
       break;
     default:
       throw new common.InvalidRequest();
