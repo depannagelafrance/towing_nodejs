@@ -49,6 +49,13 @@ const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOU
 const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
 const SQL_INVOICE_ATT_LINK_WITH_VOUCHER    = "CALL R_INVOICE_ATT_LINK_WITH_VOUCHER(?,?,?); ";
 
+const SQL_FETCH_INVOICE_BY_ID             = "CALL R_INVOICE_FETCH_COMPANY_INVOICE(?,?);";
+const SQL_FETCH_INVOICE_CUSTOMER          = "CALL R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER(?,?); ";
+const SQL_FETCH_INVOICE_LINES_BY_INVOICE  = "CALL R_INVOICE_FETCH_COMPANY_INVOICE_LINES(?,?);";
+
+const SQL_UPDATE_COMPANY_INVOICE          = "CALL R_INVOICE_UPDATE_INVOICE(?,?,?,?,?,?,?); ";
+const SQL_UPDATE_COMPANY_INVOICE_CUSTOMER = "CALL R_INVOICE_UPDATE_INVOICE_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_COMPANY_INVOICE_LINE     = "CALL R_INVOICE_UPDATE_INVOICE_LINE(?,?,?,?,?,?,?);";
 
 const PAGESETTINGS = {
   general: {
@@ -76,6 +83,104 @@ router.get('/:token', function($req, $res) {
 
   db.many(SQL_FETCH_COMPANY_INVOICES, [$token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
+  });
+});
+
+router.get('/:invoice_id/:token', function($req, $res) {
+  var $token        = ju.requires('token', $req.params);
+  var $invoice_id   = ju.requiresInt('invoice_id', $req.params);
+
+  db.one(SQL_FETCH_COMPANY_INVOICE, [$invoice_id, $token], function($error, $result, $fields) {
+    if($result && $result.id)
+    {
+      var $_invoice = $result;
+      $_invoice.invoice_customer = {};
+      $_invoice.invoice_lines = {};
+
+      db.one(SQL_FETCH_INVOICE_CUSTOMER, [$invoice_id, $token], function($error, $result, $fields) {
+        $_invoice.invoice_customer = $result;
+
+        db.many(SQL_FETCH_INVOICE_LINES_BY_INVOICE, [$invoice_id, $token], function($error, $result, $fields) {
+          $_invoice.invoice_lines = $result;
+
+          ju.send($req, $res, $_invoice);
+        });
+      });
+    }
+    else
+    {
+      throw new common.InvalidRequest();
+    }
+
+  });
+});
+
+
+// update the invoice information
+router.put('/:invoice_id/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $invoice_id = ju.requiresInt('invoice_id', $req.params);
+  var $invoice = ju.requires('invoice', $req.body);
+
+  var $invoice_params = [
+      $invoice_id, //IN p_id BIGINT,
+    	$invoice.invoice_structured_reference, //IN p_ref VARCHAR(20),
+      $invoice.insurance_dossiernr, // IN p_insurance_dossiernr VARCHAR(45),
+      $invoice.invoice_amount_paid, //IN p_paid DOUBLE(5,2),
+      $invoice.invoice_payment_type, //IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),
+      $invoice.invoice_message, //IN p_message TEXT,
+    	$token //IN p_token VARCHAR(255)
+  ];
+
+  db.one(SQL_UPDATE_COMPANY_INVOICE, $invoice_params, function($error, $result, $fields) {
+    var $ic = $invoice.invoice_customer;
+
+    var $customer_params = [
+       $ic.id, //IN p_id 				BIGINT,
+		   $ic.customer_number, //IN p_cust_number 	VARCHAR(45),
+		   $ic.company_name, //IN p_company_name 	VARCHAR(255),
+		   $ic.company_vat, //IN p_company_vat 	VARCHAR(45),
+		   $ic.first_name, //IN p_first_name		VARCHAR(45),
+       $ic.last_name, //IN p_last_name		VARCHAR(45),
+       $ic.street, //IN p_street			VARCHAR(255),
+       $ic.street_number, //IN p_street_nr		VARCHAR(45),
+       $ic.street_pobox, //IN p_street_pobox	VARCHAR(45),
+       $ic.zip, //IN p_zip				VARCHAR(45),
+       $ic.city, //IN p_city			VARCHAR(45),
+       $ic.country, //IN p_country			VARCHAR(255)
+       $token
+    ];
+
+    db.one(SQL_UPDATE_COMPANY_INVOICE_CUSTOMER, $customer_params, function($error, $result, $fields) {
+      var $i = 0;
+
+      if($invoice.invoice_lines.length > 0)
+      {
+        $invoice.invoice_lines.forEach(function($item) {
+          var $il_params = [
+            $item.id, //IN p_id BIGINT,
+            $invoice_id, //IN p_invoice_id BIGINT,
+            $item.item, //IN p_item VARCHAR(255),
+            $item.item_amount, //IN p_amount DOUBLE(5,2),
+            $item.item_price_excl_vat, //IN p_price_excl_vat DOUBLE(5,2),
+            $item.item_price_incl_vat, //IN p_price_incl_vat DOUBLE(5,2)
+            $token
+          ];
+
+          db.one(SQL_UPDATE_COMPANY_INVOICE_LINE, $il_params, function($error, $result, $fields) {
+            $i++;
+
+            if($i >= $invoice.invoice_lines.length) {
+              ju.send($req, $res, 'ok');
+            }
+          });
+        });
+      }
+      else
+      {
+        ju.send($req, $res, 'ok');
+      }
+    });
   });
 });
 
@@ -216,7 +321,12 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
         ];
 
         db.one(SQL_START_INVOICE_BATCH_FOR_VOUCHER, $batch_params, function($error, $result, $fields) {
-          processInvoiceData($result, $batch_result, $_company, $token, $req, $res);
+          // processInvoiceData($result, $batch_result, $_company, $token, $req, $res);
+          if($result.result && $result.result == 'VALIDATION_ERRORS') {
+            ju.send($req, $res, {"result": "validation_errors"});
+          } else {
+            ju.send($req, $res, {"result": "ok", "invoice_batch_id": $batch_result.invoice_batch_id});
+          }
         });
       });
     }
@@ -250,10 +360,10 @@ router.post('/storage/:voucher_id/:token', function($req, $res) {
 
 function processInvoiceData($result, $batch_result, $_company, $token, $req, $res)
 {
-  if($result.result && $result.result == 'VALIDATION_ERRORS') {
-    ju.send($req, $res, {"result": "validation_errors"});
-  } else {
-    ju.send($req, $res, {"result": "ok", "invoice_batch_id": $batch_result.invoice_batch_id});
+  // if($result.result && $result.result == 'VALIDATION_ERRORS') {
+  //   ju.send($req, $res, {"result": "validation_errors"});
+  // } else {
+  //   ju.send($req, $res, {"result": "ok", "invoice_batch_id": $batch_result.invoice_batch_id});
 
     var $invoice_batch_id     = $batch_result.invoice_batch_id;
     var $call_date            = $result.call_date;
@@ -418,7 +528,7 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
           });
         });
     });
-  }
+  // }
 }
 
 function convertUnixTStoDateFormat($unix_ts)
