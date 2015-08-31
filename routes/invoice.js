@@ -56,6 +56,8 @@ const SQL_FETCH_INVOICE_LINES_BY_INVOICE  = "CALL R_INVOICE_FETCH_COMPANY_INVOIC
 const SQL_UPDATE_COMPANY_INVOICE          = "CALL R_INVOICE_UPDATE_INVOICE(?,?,?,?,?,?,?); ";
 const SQL_UPDATE_COMPANY_INVOICE_CUSTOMER = "CALL R_INVOICE_UPDATE_INVOICE_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
 const SQL_UPDATE_COMPANY_INVOICE_LINE     = "CALL R_INVOICE_UPDATE_INVOICE_LINE(?,?,?,?,?,?,?);";
+const SQL_INVOICE_DELETE_INVOICE_LINE     = "CALL R_INVOICE_DELETE_INVOICE_LINE(?,?,?);";
+const SQL_CREATE_COMPANY_INVOICE_LINE     = "CALL R_INVOICE_CREATE_INVOICE_LINE(?,?,?,?,?,?);";
 
 const PAGESETTINGS = {
   general: {
@@ -167,7 +169,17 @@ router.put('/:invoice_id/:token', function($req, $res) {
             $token
           ];
 
-          db.one(SQL_UPDATE_COMPANY_INVOICE_LINE, $il_params, function($error, $result, $fields) {
+          $sql = SQL_UPDATE_COMPANY_INVOICE_LINE;
+
+
+          //it's a new one
+          if($item.id == null || $item.id == '') {
+            $sql = SQL_CREATE_COMPANY_INVOICE_LINE;
+
+            $il_params.shift();
+          }
+
+          db.one($sql, $il_params, function($error, $result, $fields) {
             $i++;
 
             if($i >= $invoice.invoice_lines.length) {
@@ -181,6 +193,16 @@ router.put('/:invoice_id/:token', function($req, $res) {
         ju.send($req, $res, 'ok');
       }
     });
+  });
+});
+
+router.delete('/:invoice_id/item/:item_id/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+  var $invoice_id = ju.requiresInt('invoice_id', $req.params);
+  var $item_id = ju.requiresInt('item_id', $req.params);
+
+  db.one(SQL_INVOICE_DELETE_INVOICE_LINE, [$invoice_id, $item_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
   });
 });
 
