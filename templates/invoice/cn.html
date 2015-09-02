@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang=en-us>
+<head>
+    <title></title>
+    <meta charset=utf-8>
+
+    <style type="text/css">
+
+        /* Reset */
+        html {
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+            font-family: 'arial narrow', arial, sans serif;
+        }
+
+        .cf:before,
+        .cf:after {
+            content: " "; /* 1 */
+            display: table; /* 2 */
+        }
+
+        .cf:after {
+            clear: both;
+        }
+
+        .text-right{
+            text-align: right;
+        }
+
+        .page{
+            background: white;
+            width: 21cm;
+            height: 29.7cm;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .container{
+            font-size: 14px;
+        }
+
+        #info_from,
+        #info_to{
+            float: left;
+            width: 50%;
+            padding: 25px 40px;
+            min-height: 250px;
+        }
+        #info_to_block{
+            border: 1px solid #CCC;
+            padding: 25px;
+            margin-top: 45px;
+        }
+
+        .from_company{
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #info_invoice,
+        #info_key{
+            float: left;
+            width: 50%;
+            padding: 10px 40px;
+        }
+
+        #info_key{
+            text-align: right;
+        }
+
+        .info_padded{
+            padding: 2px 0px;
+        }
+
+        .table_wrap{
+            padding: 25px 40px;
+        }
+
+        table{
+            width: 100%;
+            text-align: center;
+        }
+
+        table, th, td {
+            border: 1px solid #CCC;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+        }
+
+        th{
+            background: #EEE;
+            font-weight: bold;
+        }
+
+        td{
+            font-weight: 500;
+        }
+
+        .odd td{
+            background: #FFF;
+        }
+
+        .even td{
+            background: #F2F2F2;
+        }
+
+        .seperation{
+            height: 1px;
+            background: #EEE;
+            width: 100%;
+        }
+
+        .seperation_wrap{
+            padding: 0px 40px;
+        }
+
+        .bold{
+            font-weight: bold;
+        }
+
+        #total {
+            padding: 5px 50px;
+            text-align: right;
+            font-size: 16px;
+        }
+
+        #total span{
+            width: 150px;
+            display: inline-block;
+        }
+        .full-total{
+            margin-top: 15px;
+            border-top: 1px solid #CCC;
+            padding-top: 15px;
+            width: 45%;
+            float: right;
+        }
+
+        #closer{
+            padding: 10px 40px;
+            font-size: 12px;
+            margin-top: 40px;
+            font-style: italic;
+            color: #999;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container" style="width: 720px;">
+    <div class="page">
+        <div class="cf">
+            <div id="info_from"></div>
+            <div id="info_to">
+                <div id="info_to_block">
+                    <div><%= (invoice.customer.company_name != null && invoice.customer.company_name.trim() != '' ?  invoice.customer.company_name : '&nbsp;' ) %></div>
+                    <div><%= (invoice.customer.company_name != null
+                                && invoice.customer.company_name.trim() != ''
+                                && (invoice.customer.first_name != '' || invoice.customer.last_name != '') ?  'tav. ' : '&nbsp;' ) %><%= invoice.customer.first_name%> <%=invoice.customer.last_name%></div>
+                    <br /><br />
+                    <div><%= invoice.customer.street%> <%= invoice.customer.street_number%> <%=(invoice.customer.street_pobox != null && invoice.customer.street_pobox != '' ? '/' + invoice.customer.street_pobox : '') %></div>
+                    <div><%= invoice.customer.zip%> <%= invoice.customer.city%></div>
+                    <div><%= invoice.customer.country%></div>
+                    <br /><br />
+                    <div><%= (invoice.customer.company_vat != null ?  invoice.customer.company_vat : '&nbsp;' ) %></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
+        <div class="cf">
+            <div id="info_invoice">
+                <div class="info_padded"><label class="bold">Creditnota: </label>CN<%=invoice.invoice_number_display%></div>
+                <div class="info_padded"><label class="bold">Ref. Factuur: </label>F<%=invoice.invoice_number_display%></div>
+                <div class="info_padded"><label class="bold">Datum: </label><%=invoice_date%></div>
+
+            </div>
+            <div id="info_key">
+                <div class="info_padded"><label class="bold">Uw Kenmerk: </label><%=invoice.customer.customer_number%>/<%=invoice.voucher_number%></div>
+                <% if(invoice.insurance_dossiernr != null && invoice.insurance_dossiernr != '') { %>
+                <div class="info_padded"><label class="bold">Dossiernummer: </label><%=invoice.insurance_dossiernr%></div>
+                <% } %>
+                <div class="info_padded"><label class="bold">Betalingskenmerk: </label><%=invoice.invoice_structured_reference%></div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
+        <div class="cf">
+            <div id="info_invoice">
+                <div class="info_padded"><label class="bold">PA Nummer: </label><%=call_number%></div>
+                <div class="info_padded"><label class="bold">Datum oproep: </label><%=call_date%></div>
+            </div>
+            <div id="info_key">
+                <div class="info_padded"><label class="bold">Voertuig: </label><%=vehicle%></div>
+                <div class="info_padded"><label class="bold">Nummerplaat: </label><%=vehicle_licenceplate%></div>
+            </div>
+        </div>
+
+        <div class="seperation_wrap">
+            <div class="seperation"></div>
+        </div>
+
+
+        <div class="cf">
+            <div class="table_wrap">
+                <table>
+                    <thead>
+                        <th>Item</th>
+                        <th>Omschrijving</th>
+                        <th>Aantal</th>
+                        <th>EHP (excl BTW)</th>
+                        <th>Totaal/Item (excl BTW)</th>
+                    </thead>
+                    <tbody>
+                        <% var $i = 0;
+
+                           invoice.invoice_lines.forEach(function(invoice_line)
+                           {
+                             $i++;
+                              %>
+                                <tr class="<%= ($i % 2 == 0 ? 'even' : 'odd') %>">
+                                  <td><%=$i%></td>
+                                  <td><%=invoice_line.item%></td>
+                                  <td><%=invoice_line.item_amount.toFixed(2)%></td>
+                                  <td class="text-right"><%=invoice_line.item_price_excl_vat.toFixed(2) %> &euro;</td>
+                                  <td class="text-right"><%=invoice_line.item_total_excl_vat.toFixed(2) %> &euro;</td>
+                                </tr>
+                              <%
+                           });
+                        %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="cf">
+            <div id="total">
+                <div class="bold info_padded"><label>Maatstaf van heffing: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
+                <% if (!invoice.vat_foreign_country) { %>
+                  <div class="bold info_padded"><label>BTW (<%=invoice.invoice_vat_percentage*100%>%): </label><span><%=invoice.invoice_total_vat.toFixed(2) %> &euro;</span></div>
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal (incl. BTW): </label><span><%=invoice.invoice_total_incl_vat.toFixed(2)%> &euro;</span></div>
+                  </div>
+                <% } else { %>
+                  <div class="bold info_padded"><label>BTW verlegd, art. 5 , ontwerp KB nr. 1</label><span>&nbsp;</span></div>
+                  <div class="cf">
+                    <div class="full-total bold info_padded"><label>Totaal: </label><span><%=invoice.invoice_total_excl_vat.toFixed(2)%> &euro;</span></div>
+                  </div>
+                <% } %>
+                  <%
+                      var $_invoice_open = invoice.cal_amount_unpaid;
+
+                      if (invoice.invoice_amount_paid != null && invoice.invoice_amount_paid > 0)
+                      {
+                        var $_payment_type = '';
+
+                        //'OTHER', 'CASH', 'BANKDEPOSIT', 'MAESTRO', 'VISA'
+                        switch(invoice.invoice_payment_type)
+                        {
+                          case 'CASH': $_payment_type = 'cash'; break;
+                          case 'BANKDEPOSIT': $_payment_type = 'overschrijving'; break;
+                          case 'MAESTRO': $_payment_type = 'maestro'; break;
+                          case 'VISA': $_payment_type = 'creditcard'; break;
+                        }
+
+                        $_invoice_open -= parseFloat(invoice.invoice_amount_paid);
+
+                        if($_invoice_open < 0) {
+                          $_invoice_open = 0.0;
+                        }
+
+                        if($_payment_type !== '')
+                        {
+                          %>
+                          <div class="bold info_padded"><label>Voldaan (<%=  $_payment_type %>): </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
+                          <div class="cf">
+                            <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=$_invoice_open.toFixed(2)%> &euro;</span></div>
+                          </div>
+                          <%
+                        }
+                        else
+                        {
+                          %>
+                          <div class="cf">
+                            <div class="full-total bold info_padded"><label>Openstaand saldo: </label><span><%=invoice.invoice_amount_paid.toFixed(2)%> &euro;</span></div>
+                          </div>
+                          <%
+                        }
+                      }
+                  %>
+
+            </div>
+        </div>
+
+
+        <% if(invoice.invoice_message != null && invoice.invoice_message != '') { %>
+          <div class="cf">
+            <div class="table_wrap">
+              <strong>Opmerking:</strong><br />
+              <%=invoice.invoice_message%>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="cf">
+            <div id="closer">
+                <p>
+                  Deze takeling werd uitgevoerd in het kader van F.A.S.T., een overheidsopdracht van de Vlaamse Overheid en de Federale Wegpolitie.
+                  De overheid zal de factuur controleren en u schriftelijk inlichten binnen de 30 dagen.
+                </p>
+                <p>
+                  Ce dépannage a été exécuté dans le cadre de F.A.S.T., un marché public de l’autorité flamande et de la police fédérale de la route.
+                  Les autorités contrôleront la facture et vous informeront par écrit dans les 30 jours.
+                </p>
+                <p>
+                  This breakdown service was provided in accordance with the F.A.S.T. program, a government contract of the Flemish Government and the Federal Traffic Police.
+                  The government will control the invoice and inform you in writing within 30 days.
+              </p>
+            </div>
+        </div>
+
+</body>

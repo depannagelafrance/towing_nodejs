@@ -35,6 +35,8 @@ const SQL_FETCH_COMPANY_INVOICES          = "CALL R_INVOICE_FETCH_COMPANY_INVOIC
 const SQL_FETCH_BATCH_RUNS                = "CALL R_INVOICE_FETCH_ALL_BATCH_RUNS(?); ";
 const SQL_FETCH_BATCH_INVOICES            = "CALL R_INVOICE_FETCH_BATCH_INVOICES(?); ";
 const SQL_FETCH_BATCH_INVOICE_LINES       = "CALL R_INVOICE_FETCH_BATCH_INVOICE_LINES(?,?); ";
+const SQL_FETCH_INVOICE_BATCH_INFO        = "CALL R_FETCH_INVOICE_BATCH_INFO(?,?); ";
+
 const SQL_FETCH_COMPANY_INVOICE           = "CALL R_INVOICE_FETCH_COMPANY_INVOICE(?,?); ";
 const SQL_FETCH_BATCH_INVOICE_CUSTOMER    = "CALL R_INVOICE_FETCH_BATCH_INVOICE_CUSTOMER(?,?); ";
 const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
@@ -58,6 +60,8 @@ const SQL_UPDATE_COMPANY_INVOICE_CUSTOMER = "CALL R_INVOICE_UPDATE_INVOICE_CUSTO
 const SQL_UPDATE_COMPANY_INVOICE_LINE     = "CALL R_INVOICE_UPDATE_INVOICE_LINE(?,?,?,?,?,?,?);";
 const SQL_INVOICE_DELETE_INVOICE_LINE     = "CALL R_INVOICE_DELETE_INVOICE_LINE(?,?,?);";
 const SQL_CREATE_COMPANY_INVOICE_LINE     = "CALL R_INVOICE_CREATE_INVOICE_LINE(?,?,?,?,?,?);";
+const SQL_INVOICE_CREDIT_INVOICE          = "CALL R_INVOICE_CREDIT_INVOICE(?,?); ";
+
 
 const PAGESETTINGS = {
   general: {
@@ -173,7 +177,8 @@ router.put('/:invoice_id/:token', function($req, $res) {
 
 
           //it's a new one
-          if($item.id == null || $item.id == '') {
+          if($item.id == null || $item.id == '')
+          {
             $sql = SQL_CREATE_COMPANY_INVOICE_LINE;
 
             $il_params.shift();
@@ -217,6 +222,43 @@ router.get('/batch/:token', function($req, $res) {
   });
 });
 
+
+//
+// -- CREATE A NEW INVOICE  PDF
+//
+router.post('/render/:invoice_id/:token', function($req, $res) {
+  var $invoice_id = ju.requires('invoice_id', $req.params);
+  var $token = ju.requires('token', $req.params);
+
+  company.findCurrentCompany($token, function($_company)
+  {
+    //start a new invoice batch
+    db.one(SQL_FETCH_INVOICE_BATCH_INFO, [$invoice_id, $token], function($error, $result, $fields) {
+      processInvoiceData($result, {'invoice_batch_id' : $result.invoice_batch_run_id}, $_company, $token, $req, $res)
+    });
+  });
+
+  ju.send($req, $res, {'result': 'ok'});
+});
+
+//
+// -- CREDIT AN EXISTING INVOICE
+//
+router.post('/credit/:invoice_id/:token', function($req, $res) {
+  var $invoice_id = ju.requires('invoice_id', $req.params);
+  var $token = ju.requires('token', $req.params);
+
+  db.one(SQL_INVOICE_CREDIT_INVOICE, [$invoice_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+
+    company.findCurrentCompany($token, function($_company)
+    {
+      db.one(SQL_FETCH_INVOICE_BATCH_INFO, [$result.id, $token], function($error, $result, $fields) {
+        processInvoiceData($result, {'invoice_batch_id' : $result.invoice_batch_run_id}, $_company, $token, $req, $res)
+      });
+    });
+  });
+});
 
 //
 // -- PREPARE THE EXPORT FOR EXPERT-M
@@ -401,7 +443,13 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
 
     //when the batch is completed, fetch the invoices from the batch
     //open the template
-      var $filename='./templates/invoice/invoice.html';
+      var $filename='./templates/invoice/';
+
+      if($result.invoice_type == 'CN') {
+        $filename += 'cn.html';
+      } else {
+        $filename += 'invoice.html';
+      }
 
       fs.readFile($filename, 'utf8', function($err, $data)
       {
@@ -482,49 +530,54 @@ function processInvoiceData($result, $batch_result, $_company, $token, $req, $re
                             //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
                             dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $res, $res, function($towing_voucher_filename, $towing_voucher_base64)
                             {
-                              // setup e-mail data with unicode symbols
-                              var mailOptions = {
-                                  from: $_company.email, // sender address
-                                  to: settings.awv.receivers, // list of receivers
-                                  subject: 'Towing.be - ' + $_company.code + ' - Takelbon ' + $_invoice.voucher_number + ' en Factuur ' + $_invoice.invoice_number_display, // Subject line
-                                  html: 'Beste, <br /><br />'
-                                      + 'In bijlage sturen wij graag de informatie met betrekking tot volgende F.A.S.T. takeling:'
-                                      + '<ul>'
-                                      + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
-                                      + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
-                                      + '<li><strong>Factuur nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
-                                      + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
-                                      + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
-                                      + '</ul>'
-                                      + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
-                                      + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
-                                      + '<br /><br /><br />'
-                                      + '<strong>Bijlagen:</strong><br /><ol>'
-                                      + '<li>Factuur:  ' + $_invoice.filename + '</li>'
-                                      + '<li>Takelbon: ' + $towing_voucher_filename + '</li>'
-                                      + '</ol><br/><br/><br/>',
-                                  attachments: [
-                                    {   // base64 buffer as an attachment
-                                        filename: $_invoice.filename,
-                                        content: data,
-                                        encoding: "base64"
-                                    },
-                                    {   // base64 buffer as an attachment
-                                        filename: $towing_voucher_filename,
-                                        content: $towing_voucher_base64,
-                                        encoding: "base64"
-                                    }
-                                  ]
-                              };
+                              //send mail if linked to a towing voucher
+                              if($_invoice.towing_voucher_id != null)
+                              {
+                                  // setup e-mail data with unicode symbols
+                                  var mailOptions = {
+                                      from: $_company.email, // sender address
+                                      to: settings.awv.receivers, // list of receivers
+                                      subject: 'Towing.be - ' + $_company.code + ' - Takelbon ' + $_invoice.voucher_number + ' en Factuur ' + $_invoice.invoice_number_display, // Subject line
+                                      html: 'Beste, <br /><br />'
+                                          + 'In bijlage sturen wij graag de informatie met betrekking tot volgende F.A.S.T. takeling:'
+                                          + '<ul>'
+                                          + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
+                                          + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
+                                          + '<li><strong>Factuur nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
+                                          + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
+                                          + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
+                                          + '</ul>'
+                                          + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
+                                          + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
+                                          + '<br /><br /><br />'
+                                          + '<strong>Bijlagen:</strong><br /><ol>'
+                                          + '<li>Factuur:  ' + $_invoice.filename + '</li>'
+                                          + '<li>Takelbon: ' + $towing_voucher_filename + '</li>'
+                                          + '</ol><br/><br/><br/>',
+                                      attachments: [
+                                        {   // base64 buffer as an attachment
+                                            filename: $_invoice.filename,
+                                            content: data,
+                                            encoding: "base64"
+                                        },
+                                        {   // base64 buffer as an attachment
+                                            filename: $towing_voucher_filename,
+                                            content: $towing_voucher_base64,
+                                            encoding: "base64"
+                                        }
+                                      ]
+                                  };
 
-                              // send mail with defined transport object
-                              transporter.sendMail(mailOptions, function(error, info){
-                                  if(error){
-                                      LOG.e(TAG, error);
-                                  }else{
-                                      LOG.d(TAG, "E-mail verzonden naar: " + settings.awv.receivers);
-                                  }
-                              });
+                                  // send mail with defined transport object
+                                  transporter.sendMail(mailOptions, function(error, info)
+                                  {
+                                      if(error){
+                                          LOG.e(TAG, error);
+                                      }else{
+                                          LOG.d(TAG, "E-mail verzonden naar: " + settings.awv.receivers);
+                                      }
+                                  });
+                              }
                             });
 
                             // delete the file
