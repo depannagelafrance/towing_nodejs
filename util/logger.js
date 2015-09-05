@@ -29,7 +29,7 @@ var log = function($tag, $message, $level) {
       // console.log(
         new Date().toISOString()
         + " - "
-        + $message //($message.length > 500 ? $message.substring(0, 500) + '...' : $message)
+        + ($message.length > 500 ? $message.substring(0, 500) + '...' : $message)
       );
     } else {
       console.log(
@@ -39,7 +39,7 @@ var log = function($tag, $message, $level) {
         + " - "
         + LEVEL_LABELS[$level]
         + " - "
-        + $message //($message.length > 500 ? $message.substring(0, 500) + '...' : $message)
+        + ($message.length > 500 ? $message.substring(0, 500) + '...' : $message)
       );
     }
   }

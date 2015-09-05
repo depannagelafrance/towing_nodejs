@@ -49,7 +49,7 @@ const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
 const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VOUCHER(?,?); ";
 const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?,?,?,?,?,?,?); ";
 const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
-const SQL_INVOICE_ATT_LINK_WITH_VOUCHER    = "CALL R_INVOICE_ATT_LINK_WITH_VOUCHER(?,?,?); ";
+const SQL_INVOICE_ATT_LINK_WITH_DOCUMENT    = "CALL R_INVOICE_ATT_LINK_WITH_DOCUMENT(?,?,?); ";
 
 const SQL_FETCH_INVOICE_BY_ID             = "CALL R_INVOICE_FETCH_COMPANY_INVOICE(?,?);";
 const SQL_FETCH_INVOICE_CUSTOMER          = "CALL R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER(?,?); ";
@@ -108,8 +108,21 @@ router.get('/:invoice_id/:token', function($req, $res) {
 
         db.many(SQL_FETCH_INVOICE_LINES_BY_INVOICE, [$invoice_id, $token], function($error, $result, $fields) {
           $_invoice.invoice_lines = $result;
+          $_invoice.invoice_ref = null;
 
-          ju.send($req, $res, $_invoice);
+          // if the invoice is a CN, then fetch the related invoice
+          if($_invoice.invoice_type == 'CN')
+          {
+            db.one(SQL_FETCH_COMPANY_INVOICE, [$_invoice.invoice_ref_id, $token], function($error, $result, $fields) {
+              $_invoice.invoice_ref = $result;
+
+              ju.send($req, $res, $_invoice);
+            });
+          }
+          else
+          {
+            ju.send($req, $res, $_invoice);
+          }
         });
       });
     }
@@ -233,8 +246,8 @@ router.post('/render/:invoice_id/:token', function($req, $res) {
   company.findCurrentCompany($token, function($_company)
   {
     //start a new invoice batch
-    db.one(SQL_FETCH_INVOICE_BATCH_INFO, [$invoice_id, $token], function($error, $result, $fields) {
-      processInvoiceData($result, {'invoice_batch_id' : $result.invoice_batch_run_id}, $_company, $token, $req, $res)
+    db.one(SQL_FETCH_INVOICE_BY_ID, [$invoice_id, $token], function($error, $result, $fields) {
+      createPDFInvoice($result, $_company, $token, $req, $res);
     });
   });
 
@@ -253,8 +266,9 @@ router.post('/credit/:invoice_id/:token', function($req, $res) {
 
     company.findCurrentCompany($token, function($_company)
     {
-      db.one(SQL_FETCH_INVOICE_BATCH_INFO, [$result.id, $token], function($error, $result, $fields) {
-        processInvoiceData($result, {'invoice_batch_id' : $result.invoice_batch_run_id}, $_company, $token, $req, $res)
+      db.one(SQL_FETCH_INVOICE_BY_ID, [$result.id, $token], function($error, $result, $fields) {
+        createPDFInvoice($result, $_company, $token, $req, $res);
+        // processInvoiceData($result, {'invoice_batch_id' : $result.invoice_batch_run_id}, $_company, $token, $req, $res)
       });
     });
   });
@@ -424,186 +438,221 @@ router.post('/storage/:voucher_id/:token', function($req, $res) {
 
 function processInvoiceData($result, $batch_result, $_company, $token, $req, $res)
 {
-  // if($result.result && $result.result == 'VALIDATION_ERRORS') {
-  //   ju.send($req, $res, {"result": "validation_errors"});
-  // } else {
-  //   ju.send($req, $res, {"result": "ok", "invoice_batch_id": $batch_result.invoice_batch_id});
+  var $_invoice = $result;
+  $_invoice.invoice_batch_id = $batch_result.invoice_batch_id;
 
-    var $invoice_batch_id     = $batch_result.invoice_batch_id;
-    var $call_date            = $result.call_date;
-    var $call_number          = $result.call_number;
-    var $vehicle              = $result.vehicule + ' ' + $result.vehicule_type;
-    var $vehicle_licenceplate = $result.vehicule_licenceplate;
-    var $invoice_due_date     = $result.invoice_due_date;
-    var $default_depot        = $result.default_depot;
-    var $vehicule_collected   = $result.vehicule_collected;
+  createPDFInvoice($_invoice, $_company, $token, $req, $res);
+}
 
-    // create reusable transporter object using SMTP transport
-    var transporter = nodemailer.createTransport(settings.smtp.transport);
+function createPDFInvoice($invoice, $_company, $token, $req, $res)
+{
+    var $invoice_due_date     = $invoice.invoice_due_date;
+    var $invoice_id           = $invoice.id;
 
     //when the batch is completed, fetch the invoices from the batch
     //open the template
-      var $filename='./templates/invoice/';
+    var $filename='./templates/invoice/';
 
-      if($result.invoice_type == 'CN') {
-        $filename += 'cn.html';
-      } else {
-        $filename += 'invoice.html';
+    if($invoice.invoice_type == 'CN') {
+      $filename += 'cn.html';
+    } else {
+      $filename += 'invoice.html';
+    }
+
+    fs.readFile($filename, 'utf8', function($err, $data)
+    {
+      if($err)
+      { 
+        LOG.d(TAG, JSON.stringify($err));
+        throw $err;
       }
-
-      fs.readFile($filename, 'utf8', function($err, $data)
+      //fetch the invoice customer
+      db.one(SQL_FETCH_INVOICE_CUSTOMER, [$invoice_id, $token], function($error, $invoice_customer, $fields)
       {
-        if($err)
-        { 
-          LOG.d(TAG, JSON.stringify($err));
-          throw $err;
-        }
+        //fetch the invoice lines for each fetched invoice
+        var $_invoice = $invoice;
+        $_invoice.customer = $invoice_customer;
 
-        //compile the template
-        var folder = settings.fs.invoice_store;
-
-        phantom.create(function (error, ph)
+        db.many(SQL_FETCH_INVOICE_LINES_BY_INVOICE, [$invoice_id, $token], function($error, $invoice_lines, $fields)
         {
-          db.many(SQL_FETCH_BATCH_INVOICES, [$invoice_batch_id], function($error, $result, $fields)
+          $_invoice.invoice_lines = $invoice_lines;
+
+          // console.log($invoice);
+
+          //create a new invoice pdf
+          var $template = _.template($data);
+
+          var $template_vars = {
+            'company'           : $_company,
+            'invoice'           : $_invoice,
+            'invoice_date'      : convertUnixTStoDateFormat($_invoice.invoice_date, "dd/mm/yyyy"),
+            'invoice_due_date'  : convertUnixTStoDateFormat($_invoice.invoice_due_date, "dd/mm/yyyy")
+          };
+
+          if($invoice.towing_voucher_id)
           {
-            $result.forEach(function($invoice)
-            {
-              //fetch the invoice customer
-              db.one(SQL_FETCH_BATCH_INVOICE_CUSTOMER, [$invoice.id, $invoice_batch_id], function($error, $invoice_customer, $fields)
-              {
-                //fetch the invoice lines for each fetched invoice
-                var $_invoice = $invoice;
-                $_invoice.customer = $invoice_customer;
+            var $batch_info_params = [$invoice_id, $token];
 
-                db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice_batch_id], function($error, $invoice_lines, $fields)
-                {
-                  $_invoice.invoice_lines = $invoice_lines;
+            if($invoice.invoice_type == 'CN') {
+              $batch_info_params = [$invoice.invoice_ref_id, $token];
+            }
 
-                  // console.log($invoice);
+            db.one(SQL_FETCH_INVOICE_BATCH_INFO, $batch_info_params, function($error, $batch_info, $fields) {
+              $template_vars.call_date = $batch_info.call_date;
+              $template_vars.call_number = $batch_info.call_number;
+              $template_vars.vehicule = $batch_info.vehicule + ' ' + $batch_info.vehicule_type;
+              $template_vars.vehicule_licenceplate = $batch_info.vehicule_licenceplate;
+              $template_vars.default_depot = $batch_info.default_depot;
+              $template_vars.vehicule_collected = $batch_info.vehicule_collected;
 
-                  //create a new invoice pdf
-                  var $template = _.template($data);
+              $_invoice.dossier_id = $batch_info.dossier_id;
+              $_invoice.towing_voucher_id = $batch_info.towing_voucher_id;
 
-                  var $compiled_template = $template({
-                    'company'           : $_company,
-                    'invoice'           : $_invoice,
-                    'invoice_date'      : convertUnixTStoDateFormat($_invoice.invoice_date, "dd/mm/yyyy"),
-                    'invoice_due_date'  : convertUnixTStoDateFormat($invoice_due_date, "dd/mm/yyyy"),
-                    'call_date'         : convertUnixTStoDateFormat($call_date, "dd/mm/yyyy"),
-                    'call_number'       : $call_number,
-                    'vehicle'           : $vehicle,
-                    'vehicle_licenceplate' : $vehicle_licenceplate,
-                    'default_depot'     : $default_depot,
-                    'vehicule_collected': $vehicule_collected
-                  });
-
-                  var filename = $_invoice.filename; //'invoice_' + $_invoice.invoice_number + ".pdf";
-
-                  ph.createPage(function (error, page)
-                  {
-                    page.settings = PAGESETTINGS.general;
-                    page.set('viewportSize', PAGESETTINGS.viewport);
-                    page.set('paperSize', PAGESETTINGS.paper);
-                    page.set('content', $compiled_template, function (error) {
-                      if (error) {
-                        LOG.e(TAG, 'Error setting content: ' + error);
-                      }
-                    });
-
-                    page.onLoadFinished = function (status)
-                    {
-
-                      page.render(folder + filename, function (error)
-                      {
-                        if (error)
-                        {
-                          LOG.e(TAG, 'Error rendering PDF: ' + error);
-                        }
-                        else
-                        {
-                          fs.readFile(folder + filename, "base64", function(a_error, data)
-                          {
-                            db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields) {
-                              db.one(SQL_INVOICE_ATT_LINK_WITH_VOUCHER, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
-                            });
-
-                            //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
-                            dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $res, $res, function($towing_voucher_filename, $towing_voucher_base64)
-                            {
-                              //send mail if linked to a towing voucher
-                              if($_invoice.towing_voucher_id != null)
-                              {
-                                  // setup e-mail data with unicode symbols
-                                  var mailOptions = {
-                                      from: $_company.email, // sender address
-                                      to: settings.awv.receivers, // list of receivers
-                                      subject: 'Towing.be - ' + $_company.code + ' - Takelbon ' + $_invoice.voucher_number + ' en Factuur ' + $_invoice.invoice_number_display, // Subject line
-                                      html: 'Beste, <br /><br />'
-                                          + 'In bijlage sturen wij graag de informatie met betrekking tot volgende F.A.S.T. takeling:'
-                                          + '<ul>'
-                                          + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
-                                          + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
-                                          + '<li><strong>Factuur nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
-                                          + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
-                                          + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
-                                          + '</ul>'
-                                          + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
-                                          + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
-                                          + '<br /><br /><br />'
-                                          + '<strong>Bijlagen:</strong><br /><ol>'
-                                          + '<li>Factuur:  ' + $_invoice.filename + '</li>'
-                                          + '<li>Takelbon: ' + $towing_voucher_filename + '</li>'
-                                          + '</ol><br/><br/><br/>',
-                                      attachments: [
-                                        {   // base64 buffer as an attachment
-                                            filename: $_invoice.filename,
-                                            content: data,
-                                            encoding: "base64"
-                                        },
-                                        {   // base64 buffer as an attachment
-                                            filename: $towing_voucher_filename,
-                                            content: $towing_voucher_base64,
-                                            encoding: "base64"
-                                        }
-                                      ]
-                                  };
-
-                                  // send mail with defined transport object
-                                  transporter.sendMail(mailOptions, function(error, info)
-                                  {
-                                      if(error){
-                                          LOG.e(TAG, error);
-                                      }else{
-                                          LOG.d(TAG, "E-mail verzonden naar: " + settings.awv.receivers);
-                                      }
-                                  });
-                              }
-                            });
-
-                            // delete the file
-                            fs.unlink(folder + filename, function (err) {
-                              if (err) {
-                                LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
-                              } else {
-                                LOG.d(TAG, 'successfully deleted ' + folder + filename);
-                              }
-                            });
-
-                            // ph.exit();
-                          });
-                        }
-                      });
-
-                      //ph.exit();
-                    }
-                  }); //end ph.create
-                });
-              });
+              renderInvoicePdf($template, $template_vars, $_invoice, $_company, $token, $req, $res);
             });
-          });
+          }
+          else
+          {
+            renderInvoicePdf($template, $template_vars, $_invoice, $_company, $token, $req, $res);
+          }
         });
+      });
     });
   // }
+}
+
+function renderInvoicePdf($template, $template_vars, $_invoice, $_company, $token, $req, $res)
+{
+  var $compiled_template = $template($template_vars);
+
+  var filename = $_invoice.filename; //'invoice_' + $_invoice.invoice_number + ".pdf";
+  //compile the template
+  var folder = settings.fs.invoice_store;
+
+  LOG.d(TAG, 'Setting location to :' + folder + filename);
+
+  phantom.create(function (error, ph)
+  {
+    ph.createPage(function (error, page)
+    {
+      page.settings = PAGESETTINGS.general;
+      page.set('viewportSize', PAGESETTINGS.viewport);
+      page.set('paperSize', PAGESETTINGS.paper);
+      page.set('content', $compiled_template, function (error) {
+        if (error) {
+          LOG.e(TAG, 'Error setting content: ' + error);
+        }
+      });
+
+      page.onLoadFinished = function (status)
+      {
+
+        page.render(folder + filename, function (error)
+        {
+          if (error)
+          {
+            LOG.e(TAG, 'Error rendering PDF: ' + error);
+          }
+          else
+          {
+            fs.readFile(folder + filename, "base64", function(a_error, data)
+            {
+              if($_invoice.towing_voucher_id != null)
+              {
+                db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields)
+                {
+                  db.one(SQL_INVOICE_ATT_LINK_WITH_DOCUMENT, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
+                });
+
+                fetchTowingVoucherReportAndMail($_invoice, data, $_company, $token, $req, $res);
+              }
+
+              // delete the file
+              fs.unlink(folder + filename, function (err) {
+                if (err) {
+                  LOG.e(TAG, "Could not delete file: " + JSON.stringify(err));
+                } else {
+                  LOG.d(TAG, 'successfully deleted ' + folder + filename);
+                }
+              });
+
+              // ph.exit();
+            });
+          }
+        });
+        //ph.exit();
+      }
+    }); //end ph.create
+  });
+}
+
+function fetchTowingVoucherReportAndMail($_invoice, $_invoice_data, $_company, $token, $req, $res) {
+  // console.log($_invoice);
+
+  //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
+  dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $req, $res, function($towing_voucher_filename, $towing_voucher_base64)
+  {
+    //send mail if linked to a towing voucher
+    if($_invoice.towing_voucher_id != null)
+    {
+      sendEmailToAWV($_invoice, $_invoice_data, $_company, $towing_voucher_filename, $towing_voucher_base64)
+    }
+  });
+}
+
+function sendEmailToAWV($_invoice, $_invoice_data, $_company, $towing_voucher_filename, $towing_voucher_base64)
+{
+  var $_invoice_type = 'Factuur';
+  // create reusable transporter object using SMTP transport
+  var transporter = nodemailer.createTransport(settings.smtp.transport);
+
+  if($_invoice.invoice_type == 'CN') {
+    $_invoice_type = 'Creditnota';
+  }
+  // setup e-mail data with unicode symbols
+  var mailOptions = {
+      from: $_company.email, // sender address
+      to: settings.awv.receivers, // list of receivers
+      subject: 'Towing.be - ' + $_company.code + ' - Takelbon ' + $_invoice.voucher_number + ' en ' + $_invoice_type + ' ' + $_invoice.invoice_number_display, // Subject line
+      html: 'Beste, <br /><br />'
+          + 'In bijlage sturen wij graag de informatie met betrekking tot volgende F.A.S.T. takeling:'
+          + '<ul>'
+          + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
+          + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
+          + '<li><strong>' + $_invoice_type + ' nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
+          + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
+          + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
+          + '</ul>'
+          + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
+          + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
+          + '<br /><br /><br />'
+          + '<strong>Bijlagen:</strong><br /><ol>'
+          + '<li>' + $_invoice_type + ':  ' + $_invoice.filename + '</li>'
+          + '<li>Takelbon: ' + $towing_voucher_filename + '</li>'
+          + '</ol><br/><br/><br/>',
+      attachments: [
+        {   // base64 buffer as an attachment
+            filename: $_invoice.filename,
+            content: $_invoice_data,
+            encoding: "base64"
+        },
+        {   // base64 buffer as an attachment
+            filename: $towing_voucher_filename,
+            content: $towing_voucher_base64,
+            encoding: "base64"
+        }
+      ]
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function(error, info)
+  {
+      if(error){
+          LOG.e(TAG, error);
+      }else{
+          LOG.d(TAG, "E-mail verzonden naar: " + settings.awv.receivers);
+      }
+  });
 }
 
 function convertUnixTStoDateFormat($unix_ts)
