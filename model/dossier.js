@@ -252,7 +252,7 @@ var createTowingVoucherReport = function($dossier_id, $voucher_id, $type, $token
 
                                   $compiled_template = $template($vars);
 
-                                  renderPdfTemplate($dossier, $voucher, $compiled_template, $vars, $req, $res, cb);
+                                  renderPdfTemplate($dossier, $voucher, $compiled_template, $req, $res, cb);
 
                                 });//end db.one(SQL_FETCH_INSURANCE_BY_ID)
                             }
