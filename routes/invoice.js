@@ -590,17 +590,17 @@ function fetchTowingVoucherReportAndMail($_invoice, $_invoice_data, $_company, $
   // console.log($_invoice);
 
   //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
-  dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $req, $res, function($towing_voucher_filename, $towing_voucher_base64)
+  dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $req, $res, function($towing_voucher_filename, $towing_voucher_base64, $dossier)
   {
     //send mail if linked to a towing voucher
     if($_invoice.towing_voucher_id != null)
     {
-      sendEmailToAWV($_invoice, $_invoice_data, $_company, $towing_voucher_filename, $towing_voucher_base64)
+      sendEmailToAWV($_invoice, $_invoice_data, $_company, $dossier, $towing_voucher_filename, $towing_voucher_base64)
     }
   });
 }
 
-function sendEmailToAWV($_invoice, $_invoice_data, $_company, $towing_voucher_filename, $towing_voucher_base64)
+function sendEmailToAWV($_invoice, $_invoice_data, $_company, $dossier, $towing_voucher_filename, $towing_voucher_base64)
 {
   var $_invoice_type = 'Factuur';
   // create reusable transporter object using SMTP transport
@@ -609,6 +609,7 @@ function sendEmailToAWV($_invoice, $_invoice_data, $_company, $towing_voucher_fi
   if($_invoice.invoice_type == 'CN') {
     $_invoice_type = 'Creditnota';
   }
+
   // setup e-mail data with unicode symbols
   var mailOptions = {
       from: $_company.email, // sender address
@@ -620,8 +621,8 @@ function sendEmailToAWV($_invoice, $_invoice_data, $_company, $towing_voucher_fi
           + '<li><strong>F.A.S.T. takeldienst: </strong>' + $_company.name + ' (' + $_company.code + ')'
           + '<li><strong>Takelbon: </strong>' + $_invoice.voucher_number + '</li>'
           + '<li><strong>' + $_invoice_type + ' nummer: </strong>' + $_invoice.invoice_number_display + '</li>'
-          + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($_invoice.call_date) + '</li>'
-          + '<li><strong>Oproepnummer: </strong>' + $_invoice.call_number + '</li>'
+          + '<li><strong>Datum oproep: </strong>' + dateutil.convertUnixTStoDateTimeFormat($dossier.call_date_ts) + '</li>'
+          + '<li><strong>Oproepnummer: </strong>' + $dossier.call_number + '</li>'
           + '</ul>'
           + 'Bij verdere vragen kan u steeds contact opnemen met: ' + $_company.email
           + '<br /><br/><br />Vriendelijke groet,<br>- ' + $_company.name + ' (Administratie)'
