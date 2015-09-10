@@ -29,7 +29,8 @@ var TAG = 'invoice.js';
 // -- CONFIGURE ROUTING
 var router = express.Router();
 
-//-- DEFINE CONSTANST
+//-- DEFINE CONSTANTS
+const SQL_CREATE_EMPTY_INVOICE            = "CALL R_INVOICE_CREATE_EMPTY_INVOICE(?); ";
 const SQL_CREATE_INVOICE_BATCH            = "CALL R_INVOICE_CREATE_BATCH(?); ";
 const SQL_FETCH_COMPANY_INVOICES          = "CALL R_INVOICE_FETCH_COMPANY_INVOICES(?); ";
 const SQL_FETCH_BATCH_RUNS                = "CALL R_INVOICE_FETCH_ALL_BATCH_RUNS(?); ";
@@ -92,11 +93,10 @@ router.get('/:token', function($req, $res) {
   });
 });
 
-router.get('/:invoice_id/:token', function($req, $res) {
-  var $token        = ju.requires('token', $req.params);
-  var $invoice_id   = ju.requiresInt('invoice_id', $req.params);
-
-  db.one(SQL_FETCH_COMPANY_INVOICE, [$invoice_id, $token], function($error, $result, $fields) {
+function findInvoiceById($invoice_id, $token, cb)
+{
+  db.one(SQL_FETCH_COMPANY_INVOICE, [$invoice_id, $token], function($error, $result, $fields) 
+  {
     if($result && $result.id)
     {
       var $_invoice = $result;
@@ -116,12 +116,15 @@ router.get('/:invoice_id/:token', function($req, $res) {
             db.one(SQL_FETCH_COMPANY_INVOICE, [$_invoice.invoice_ref_id, $token], function($error, $result, $fields) {
               $_invoice.invoice_ref = $result;
 
-              ju.send($req, $res, $_invoice);
+              cb($_invoice);
+
+              // ju.send($req, $res, $_invoice);
             });
           }
           else
           {
-            ju.send($req, $res, $_invoice);
+            cb($_invoice);
+            // ju.send($req, $res, $_invoice);
           }
         });
       });
@@ -130,7 +133,15 @@ router.get('/:invoice_id/:token', function($req, $res) {
     {
       throw new common.InvalidRequest();
     }
+  });
+}
 
+router.get('/:invoice_id/:token', function($req, $res) {
+  var $token        = ju.requires('token', $req.params);
+  var $invoice_id   = ju.requiresInt('invoice_id', $req.params);
+
+  findInvoiceById($invoice_id, $token, function($invoice) {
+    ju.send($req, $res, $invoice);
   });
 });
 
@@ -237,6 +248,19 @@ router.get('/batch/:token', function($req, $res) {
 
 
 //
+// -- CREATE A NEW EMPTY INVOICE
+//
+router.post('/:token', function($req, $res) {
+  var $token = ju.requires('token', $req.params);
+
+  db.one(SQL_CREATE_EMPTY_INVOICE, [$token], function($error, $result, $fields) {
+    findInvoiceById($result.id, $token,function($invoice) {
+      ju.send($req, $res, $invoice);
+    });
+  });
+});
+
+//
 // -- CREATE A NEW INVOICE  PDF
 //
 router.post('/render/:invoice_id/:token', function($req, $res) {
@@ -274,6 +298,13 @@ router.post('/credit/:invoice_id/:token', function($req, $res) {
   });
 });
 
+function _raw($val) {
+  if($val == null)
+    return '';
+
+  return $val;
+}
+
 //
 // -- PREPARE THE EXPORT FOR EXPERT-M
 //
@@ -296,68 +327,129 @@ router.post('/export/expertm/:token', function($req, $res) {
   {
     var $invoice_id = $selected_ids[$i];
 
-    //fetch the invoice
-    db.one(SQL_FETCH_COMPANY_INVOICE, [$invoice_id, $token], function($error, $invoice, $fields)
-    {
-      var $sale = $sales.e('Sale')
-      $sale.e('Year_Alfa').r(2008) ;// 2008
-      $sale.e('DocNumber').r($invoice.invoice_number);
-      $sale.e('AccountingPeriod').r(1);
-      $sale.e('VATMonth').r($invoice.invoice_date); // 200801
-      $sale.e('DocDate').r($invoice.invoice_date);  // 10/01/2018
-      $sale.e('DueDate').r($invoice.invoice_date);  // 10/02/2018
-      $sale.e('OurRef').r($invoice.invoice_number);   //
+    findInvoiceById($invoice_id, $token,function($invoice) {
+      var $sale = $sales.e('Sale');
+      var $customer = $customers.e('Customer');
+      var $invoice_customer = $invoice.invoice_customer;
+
+      // console.log($invoice);
+
+      $j++;
+
+      // -- -------------
+      // -- SALES
+      // -- -------------
+      // $sale.e('Journal_Prime').r(_raw($invoice_customer.customer_number));
+      $sale.e('Year_Alfa').r(_raw(formatTimestamp($invoice.invoice_date, 'yyyy')));// 2008
+      //DocType
+      // 30: Creditnota
+      // 10: Factuur
+      $sale.e('DocType').r(_raw($invoice.invoice_type == 'CN' ? 30 : 10));
+      $sale.e('DocNumber').r(_raw($invoice.invoice_number));
+      // $sale.e('AccountingPeriod').r(1);
+      $sale.e('VATMonth').r(_raw(formatTimestamp($invoice.invoice_date, 'yyyymm'))); // 200801
+      $sale.e('DocDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_date)));  // 10/01/2018
+      $sale.e('DueDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_due_date)));  // 10/02/2018
+      $sale.e('OurRef').r(_raw($invoice.invoice_number));   //
       $sale.e('YourRef').r('');  //
-      $sale.e('Amount').r($invoice.invoice_total_excl_vat);  //
+      $sale.e('Amount').r(_raw($invoice.invoice_total_excl_vat));  //
       $sale.e('CurrencyCode').r('EUR'); //
-      $sale.e('VATAmount').r($invoice.invoice_total_vat);
+      $sale.e('VATAmount').r(_raw($invoice.invoice_total_vat));
+      $sale.e('Ventil').r(4); //4: 21%
 
-      //fetch the invoice customer
-      db.one(SQL_FETCH_BATCH_INVOICE_CUSTOMER, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_customer, $fields)
+
+      // -- -------------
+      // -- CUSTOMER
+      // -- -------------
+      $customer.e('Prime').r(_raw($invoice_customer.customer_number)); //customer_number
+      if($invoice_customer.company_name != null && $invoice_customer.company_name != "")
       {
-        $j++;
+        $customer.e('Alfa').r(_raw($invoice_customer.company_name.substring(0,1).toUpperCase())); //customer_number
+        $customer.e('Name').r(_raw($invoice_customer.company_name));
+      }
+      else
+      {
+        if($invoice_customer.last_name != null)
+        {
+          $customer.e('Alfa').r(_raw($invoice_customer.last_name.substring(0,1).toUpperCase())); //customer_number
+          $customer.e('Name').r(_raw($invoice_customer.last_name + ' ' + $invoice_customer.first_name));
+        }
+      }
 
-        var $customer = $customers.e('Customer');
-        $customer.e('Prime').r($invoice_customer.customer_number); //customer_number
-        $customer.e('Name').r($invoice_customer.company_name);
-        $customer.e('Country').r($invoice_customer.country == null ? '' : $invoice_customer.country);
-        $customer.e('Street').r($invoice_customer.street);
-        $customer.e('HouseNumber').r($invoice_customer.street_number);
-        $customer.e('MailboxNumber').r($invoice_customer.street_pobox == null ? '' : $invoice_customer.street_pobox);
-        $customer.e('ZipCode').r($invoice_customer.zip);
-        $customer.e('City').r($invoice_customer.city);
-        $customer.e('Language').r(2);
-        $customer.e('CurrencyCode').r('EUR');
-        $customer.e('CountryVATNumber').r('BE');
-        $customer.e('VATNumber').r($invoice_customer.company_vat);
+      $customer.e('Country').r(_raw($invoice_customer.country));
+      $customer.e('Street').r(_raw($invoice_customer.street));
+      $customer.e('HouseNumber').r(_raw($invoice_customer.street_number));
+      $customer.e('MailboxNumber').r(_raw($invoice_customer.street_pobox));
+      $customer.e('ZipCode').r(_raw($invoice_customer.zip));
+      $customer.e('City').r(_raw($invoice_customer.city));
+      $customer.e('Language').r(1); //1 = NL, 2 = FR, 3 = EN, 4 = DE
+      $customer.e('CurrencyCode').r('EUR');
 
-        $sale.e('Customer_Prime').r($invoice_customer.customer_number);
+      $customer.e('VATNumber').r(_raw($invoice_customer.company_vat));
+
+      if($invoice_customer.company_vat != null) {
+        $customer.e('CountryVATNumber').r($invoice_customer.company_vat.substring(0,2).toUpperCase());
+
+        //VATCode
+        // 0 : niet btw plichtig
+        // 1 : btw plichtig
+        // 2 : kleine onderneming
+        $customer.e('VATCode').r(_raw($invoice_customer.company_vat != null ? 1 : 0));
+        //VATStatus
+        // 0 : geen nummer
+        // 1 : ondernemingsnummer
+        // 2 : ondernemingsnummer in aanvraag
+        // 3 : onbekend ondernemingsnummer
+        // 4 : nationaal nummer
+        // 5 : nationaal nummer in aanvraag
+        // 6 : onbekend nationaal nummer
+        $customer.e('VATStatus').r(_raw($invoice_customer.company_vat != null ? 1 : 0));
+      }
+
+      //Rappel
+      // 0: geen betalingsherinnering
+      // 1: standaard op papier
+      // 2: standaard via e-mail
+      $customer.e('Rappel').r(_raw(1));
+      //Dom
+      // 0: geen gedomicilieerde Facturen
+      // 1: gedomicilieerde Facturen
+      $customer.e('Dom').r(_raw(0));
+      //Due
+      // 0 : contant
+      // 1 : eind maand
+      // 2 : Factuurdatum
+      // 3 : vrij ingave
+      $customer.e('Due').r(_raw(0));
+
+      //$customer.e('AccountSale').r(_raw('')); //de grootboekrekening waarop de klant meestal wordt tegengeboekt
+      //$customer.e('GoodsCode').r(_raw('')); //de goederencode die meestal op de klant van toepassing is
+
+      $sale.e('Customer_Prime').r(_raw($invoice_customer.customer_number));
 
 
-        //fetch the invoice lines
-        // db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_lines, $fields)
-        // {
-          //add to the xml file
-          if($j >= $selected_ids.length) {
-            // ju.send($req, $res, {"result": "ok"});
+      //fetch the invoice lines
+      // db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_lines, $fields)
+      // {
+        //add to the xml file
+        if($j >= $selected_ids.length) {
+          // ju.send($req, $res, {"result": "ok"});
 
-            //create a new zip
-            //put the XML file in the zip file
-            //send the zip back as base64
+          //create a new zip
+          //put the XML file in the zip file
+          //send the zip back as base64
 
-            zip.file('Klanten.xml', $customer_builder.end({pretty: true}));
-            zip.file('Facturen.xml', $invoice_builder.end({pretty: true}));
+          zip.file('Klanten.xml', $customer_builder.end({pretty: true}));
+          zip.file('Facturen.xml', $invoice_builder.end({pretty: true}));
 
-            // LOG.d(TAG, $invoice_builder.end({pretty: true}));
-            // LOG.d(TAG, $customer_builder.end({pretty: true}));
+          // LOG.d(TAG, $invoice_builder.end({pretty: true}));
+          // LOG.d(TAG, $customer_builder.end({pretty: true}));
 
-            ju.send($req, $res, {
-              'base64': zip.generate({type:'base64'}),
-              'name': 'Export.zip'
-            });
-          }
-        // });
-      });
+          ju.send($req, $res, {
+            'base64': zip.generate({type:'base64'}),
+            'name': 'Export.zip'
+          });
+        }
     });
   }
 });
@@ -658,11 +750,16 @@ function sendEmailToAWV($_invoice, $_invoice_data, $_company, $dossier, $towing_
 
 function convertUnixTStoDateFormat($unix_ts)
 {
+  return formatTimestamp($unix_ts, "dd/mm/yyyy");
+}
+
+function formatTimestamp($unix_ts, $format)
+{
   if($unix_ts)
   {
     $_date = new Date($unix_ts * 1000);
 
-    return dateFormat($_date, "dd/mm/yyyy");
+    return dateFormat($_date, $format);
   }
 
   return "";
