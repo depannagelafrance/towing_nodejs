@@ -109,6 +109,17 @@ const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?
 const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTIVITY(?,?,?,?);";
 const SQL_REMOVE_TOWING_VOUCHER_ACTIVITY    = "CALL R_REMOVE_TOWING_VOUCHER_ACTIVITY(?,?,?);";
 const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS("
+                                                   + "?," //IN p_id BIGINT,
+                      														 + "?," //IN p_tvp_id BIGINT,
+                      														 + "?," //IN p_foreign_vat BOOL,
+                      														 + "?," //IN p_amount_excl_vat DOUBLE(10,2),
+                                                   + "?," //IN p_amount_incl_vat DOUBLE(10,2),
+                                                   + "?," //IN p_amount_paid_cash DOUBLE(10,2),
+                                                   + "?," //IN p_amount_paid_bankdeposit DOUBLE(10,2),
+                                                   + "?," //IN p_amount_paid_maestro DOUBLE(10,2),
+                                                   + "?," //IN p_amount_paid_visa DOUBLE(10,2),
+                                                   + "?);"; //IN p_token VARCHAR(255)";
 
 const SQL_UPDATE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_UPDATE_TOWING_ADDITIONAL_COST(?, ?, ?, ?, ?, ?); ";
 const SQL_REMOVE_TOWING_VOUCHER_ADDITIONAL_COST     = "CALL R_REMOVE_TOWING_ADDITIONAL_COST(?, ?, ?); ";
@@ -979,6 +990,34 @@ router.put('/:dossier/:token', function($req, $res) {
               //fire and forget
             });
           }
+
+
+          // -------------------------------------------------------------------
+          // UPDATE PAYMENT DETAILS
+          // -------------------------------------------------------------------
+          if($voucher.towing_payment_details)
+          {
+            $voucher.towing_payment_details.forEach(function($detail) {
+              var $params = [
+                $detail.id,
+                $detail.towing_voucher_payment_id,
+                $detail.foreign_vat,
+                $detail.amount_excl_vat,
+                $detail.amount_incl_vat,
+                $detail.amount_paid_cash,
+                $detail.amount_paid_bankdeposit,
+                $detail.amount_paid_maestro,
+                $detail.amount_paid_visa,
+                $token
+              ];
+
+              db.one(SQL_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS, $params, function($error, $result, $fields) {
+                //fire and forget
+              })
+            });
+          }
+
+
 
           // -------------------------------------------------------------------
           // UPDATE TOWING VOUCHER
