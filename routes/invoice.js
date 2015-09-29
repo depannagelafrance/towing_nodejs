@@ -48,7 +48,7 @@ const SQL_ADD_ATTACHMENT_TO_VOUCHER       = "CALL R_ADD_ANY_DOCUMENT("
                                                + "?," //content
                                                + "?);"; //token
 const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VOUCHER(?,?); ";
-const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?,?,?,?,?,?,?); ";
+const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?); ";
 const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
 const SQL_INVOICE_ATT_LINK_WITH_DOCUMENT    = "CALL R_INVOICE_ATT_LINK_WITH_DOCUMENT(?,?,?); ";
 
@@ -463,14 +463,14 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
   var $voucher_id   = ju.requiresInt('voucher_id', $req.params);
   var $message      = ju.valueOf('message', $req.body);
 
-  var $customer_amount = ju.valueOf('customer_amount', $req.body);
-  var $customer_ptype = ju.valueOf('customer_ptype', $req.body);
-
-  var $collector_amount = ju.valueOf('collector_amount', $req.body);
-  var $collector_ptype = ju.valueOf('collector_ptype', $req.body);
-
-  var $assurance_amount = ju.valueOf('assurance_amount', $req.body);
-  var $assurance_ptype = ju.valueOf('assurance_ptype', $req.body);
+  // var $customer_amount = ju.valueOf('customer_amount', $req.body);
+  // var $customer_ptype = ju.valueOf('customer_ptype', $req.body);
+  //
+  // var $collector_amount = ju.valueOf('collector_amount', $req.body);
+  // var $collector_ptype = ju.valueOf('collector_ptype', $req.body);
+  //
+  // var $assurance_amount = ju.valueOf('assurance_amount', $req.body);
+  // var $assurance_ptype = ju.valueOf('assurance_ptype', $req.body);
 
 
   db.one(SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER, [$voucher_id, $token], function($error, $batch_result, $fields) {
@@ -483,9 +483,9 @@ router.post('/voucher/:voucher_id/:token', function($req, $res) {
         //start a new invoice batch
         var $batch_params = [
           $voucher_id, $invoice_batch_id,
-          $customer_amount, $customer_ptype,
-          $collector_amount, $collector_ptype,
-          $assurance_amount, $assurance_ptype,
+          // $customer_amount, $customer_ptype,
+          // $collector_amount, $collector_ptype,
+          // $assurance_amount, $assurance_ptype,
           $message,
           $token
         ];

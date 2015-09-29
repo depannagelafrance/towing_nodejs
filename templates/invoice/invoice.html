@@ -261,7 +261,7 @@
                   </div>
                 <% } %>
                   <%
-                      var $_invoice_open = invoice.cal_amount_unpaid;
+                      var $_invoice_open = invoice.invoice_vat_foreign_country ?  invoice.invoice_total_excl_vat : invoice.invoice_total_incl_vat; //invoice.cal_amount_unpaid;
 
                       if (invoice.invoice_amount_paid != null && invoice.invoice_amount_paid > 0)
                       {

@@ -596,54 +596,91 @@ function d(val) {
 
         <div class="l-2-col l-paytotal cf margined">
             <div class="padded">
+              <%
+                var pcash = 0.0;
+                var pbank = 0.0;
+                var pvisa = 0.0;
+                var pmaestro = 0.0;
+                var unpaid = 0.0;
+                var total = 0.0;
+                var guarantee_insurance = 0.0;
+                var amount_customer = 0.0;
+
+                towing_payment_details.forEach(function($detail) {
+                  if($detail.category !== 'INSURANCE') {
+                    pcash += $detail.amount_paid_cash;
+                    pbank += $detail.amount_paid_bankdeposit;
+                    pvisa += $detail.amount_paid_visa;
+                    pmaestro += $detail.amount_paid_maestro;
+                  }
+
+                  if($detail.foreign_vat === 1) {
+                    unpaid += $detail.amount_unpaid_excl_vat;
+                    total += $detail.amount_excl_vat;
+
+                    if($detail.category == 'INSURANCE')
+                      guarantee_insurance = $detail.amount_excl_vat;
+                    else
+                      amount_customer += $detail.amount_excl_vat;
+                  } else {
+                    unpaid += $detail.amount_unpaid_incl_vat;
+                    total += $detail.amount_incl_vat;
+
+                    if($detail.category == 'INSURANCE')
+                      guarantee_insurance = $detail.amount_incl_vat;
+                    else
+                      amount_customer += $detail.amount_incl_vat;
+                  }
+              }); %>
                 <table class="table-focus">
                     <tbody>
                     <tr>
                         <td class="padded-large bordered">ALGEMEEN TOTAAL <%=$vat_tag%>  BTW</td>
-                        <td class="padded-large bordered currency">&euro; <%=$_voucher_total ? $_voucher_total.toFixed(2) : '' %></td>
+                        <td class="padded-large bordered currency">&euro; <%= total.toFixed(2)  %></td>
                     </tr>
                     <tr>
                         <td class="padded-large bordered">GARANTIE ASSISTANCE</td>
-                        <td class="padded-large bordered currency">&euro; <%= towing_payments.amount_guaranteed_by_insurance ? towing_payments.amount_guaranteed_by_insurance.toFixed(2) : ''%></td>
+                        <td class="padded-large bordered currency">&euro; <%= guarantee_insurance.toFixed(2) %></td>
                     </tr>
                     <tr>
                         <td class="padded-large bordered">TEN LASTE VAN DE KLANT</td>
-                        <td class="padded-large bordered currency">&euro; <%= towing_payments.amount_customer ? towing_payments.amount_customer.toFixed(2) : ''%></td>
+                        <td class="padded-large bordered currency">&euro; <%= amount_customer.toFixed(2) %></td>
                     </tr>
                     <tr>
                         <td colspan="2" class="padded-large bordered text-center text-bold">BETALINGSWIJZE</td>
                     </tr>
-                    <% if(towing_payments.paid_in_cash) { %>
+
+                    <% if(pcash > 0) { %>
                       <tr>
                           <td class="padded-large bordered">&#9746; Contant</td>
-                          <td class="padded-large bordered currency">&euro; <%= towing_payments.paid_in_cash ? towing_payments.paid_in_cash.toFixed(2) : ''%></td>
+                          <td class="padded-large bordered currency">&euro; <%= pcash.toFixed(2) %></td>
                       </tr>
                     <% } %>
 
-                    <% if(towing_payments.paid_by_bank_deposit) { %>
+                    <% if(pbank > 0) { %>
                       <tr>
                           <td class="padded-large bordered">&#9746; Overschrijving</td>
-                          <td class="padded-large bordered currency">&euro; <%= towing_payments.paid_by_bank_deposit ? towing_payments.paid_by_bank_deposit.toFixed(2) : ''%></td>
+                          <td class="padded-large bordered currency">&euro; <%= pbank.toFixed(2) %></td>
                       </tr>
                     <% } %>
 
-                    <% if(towing_payments.paid_by_debit_card) { %>
+                    <% if(pmaestro > 0) { %>
                       <tr>
                           <td class="padded-large bordered">&#9746; Bancontact</td>
-                          <td class="padded-large bordered currency">&euro; <%= towing_payments.paid_by_debit_card ? towing_payments.paid_by_debit_card.toFixed(2) : ''%></td>
+                          <td class="padded-large bordered currency">&euro; <%= pmaestro.toFixed(2) %></td>
                       </tr>
                     <% } %>
 
-                    <% if(towing_payments.paid_by_credit_card) { %>
+                    <% if(pvisa > 0) { %>
                       <tr>
                           <td class="padded-large bordered">&#9746; Kredietkaart</td>
-                          <td class="padded-large bordered currency">&euro; <%= towing_payments.paid_by_credit_card ? towing_payments.paid_by_credit_card.toFixed(2) : ''%></td>
+                          <td class="padded-large bordered currency">&euro; <%= pvisa.toFixed(2) %></td>
                       </tr>
                     <% } %>
 
                     <tr>
                         <td class="padded-large bordered text-bold">OPENSTAAND SALDO</td>
-                        <td class="padded-large bordered currency text-bold">&euro; <%= towing_payments.cal_amount_unpaid ? towing_payments.cal_amount_unpaid.toFixed(2) : ''%></td>
+                        <td class="padded-large bordered currency text-bold">&euro; <%= unpaid.toFixed(2)%></td>
                     </tr>
 
                     <% if(is_covered_by_insurance) { %>
