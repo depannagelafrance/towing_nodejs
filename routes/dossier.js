@@ -73,6 +73,7 @@ const SQL_UPDATE_TOWING_VOUCHER             = "CALL R_UPDATE_TOWING_VOUCHER("
                                                   + "from_unixtime(?)," //p_recipient_signature
                                                   + "from_unixtime(?)," //p_vehicule_collected
                                                   + "?," //p_causer_not_present
+                                                  + "?," //p_police_not_present
                                                   + "from_unixtime(?)," //p_cic
                                                   + "?," //p_additional_info
                                                   + "?"  //p_token
@@ -899,6 +900,7 @@ router.put('/:dossier/:token', function($req, $res) {
           var $signa_arrival            = _.isNaN(parseFloat($voucher.signa_arrival)) ? null : parseFloat($voucher.signa_arrival);
           var $cic                      = _.isNaN(parseFloat($voucher.cic)) ? null : parseFloat($voucher.cic);
           var $causer_not_present       = _.isNaN(parseFloat($voucher.causer_not_present)) ? null : parseFloat($voucher.causer_not_present);
+          var $police_not_present       = _.isNaN(parseFloat($voucher.police_not_present)) ? null : parseFloat($voucher.police_not_present);
           var $additional_info          = $voucher.additional_info;
 
           var $actions                  = $voucher.actions;
@@ -1044,7 +1046,7 @@ router.put('/:dossier/:token', function($req, $res) {
                          $towing_id, $towed_by, $towing_vehicle_id, $towed_by_vehicule,
                          $towing_called, $towing_arrival, $towing_start,
                          $towing_completed, $police_signature_date, $recipient_signature_date,
-                         $vehicule_collected, $causer_not_present, $cic, $additional_info, $token];
+                         $vehicule_collected, $causer_not_present, $police_not_present, $cic, $additional_info, $token];
 
            db.one(SQL_UPDATE_TOWING_VOUCHER, $params3, function($error, $result, $fields){
              if(++$i == $vouchers.length) {
