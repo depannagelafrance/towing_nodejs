@@ -51,6 +51,7 @@ const SQL_CREATE_INVOICE_BATCH_FOR_VOUCHER = "CALL R_CREATE_INVOICE_BATCH_FOR_VO
 const SQL_START_INVOICE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_BATCH_FOR_VOUCHER(?,?,?,?); ";
 const SQL_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER  = "CALL R_START_INVOICE_STORAGE_BATCH_FOR_VOUCHER(?,?,?); ";
 const SQL_INVOICE_ATT_LINK_WITH_DOCUMENT    = "CALL R_INVOICE_ATT_LINK_WITH_DOCUMENT(?,?,?); ";
+const SQL_INVOICE_ADD_DOCUMENT              = "CALL R_INVOICE_ADD_DOCUMENT(?,?,?,?,?,?); ";
 
 const SQL_FETCH_INVOICE_BY_ID             = "CALL R_INVOICE_FETCH_COMPANY_INVOICE(?,?);";
 const SQL_FETCH_INVOICE_CUSTOMER          = "CALL R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER(?,?); ";
@@ -605,6 +606,13 @@ function createPDFInvoice($invoice, $_company, $token, $req, $res)
           }
           else
           {
+            $template_vars.call_date = null;
+            $template_vars.call_number = null
+            $template_vars.vehicule = null;
+            $template_vars.vehicule_licenceplate = null;
+            $template_vars.default_depot = null;
+            $template_vars.vehicule_collected = null;
+
             renderInvoicePdf($template, $template_vars, $_invoice, $_company, $token, $req, $res);
           }
         });
@@ -647,16 +655,26 @@ function renderInvoicePdf($template, $template_vars, $_invoice, $_company, $toke
           }
           else
           {
+            LOG.d(TAG, 'Reading contents of file: ' + folder + filename);
+
             fs.readFile(folder + filename, "base64", function(a_error, data)
             {
               if($_invoice.towing_voucher_id != null)
               {
+                LOG.d(TAG, 'It seems that a towing voucher id was set');
+                //this is a document which needs to be added to a towing voucher
                 db.one(SQL_ADD_ATTACHMENT_TO_VOUCHER, [$_invoice.towing_voucher_id, filename, "application/pdf", data.length, data, $token], function($error, $att, $fields)
                 {
-                  db.one(SQL_INVOICE_ATT_LINK_WITH_DOCUMENT, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){});
+                  db.one(SQL_INVOICE_ATT_LINK_WITH_DOCUMENT, [$_invoice.id, $att.document_id, $token], function($error, $result, fields){
+                      fetchTowingVoucherReportAndMail($_invoice, data, $_company, $token, $req, $res);
+                  });
                 });
-
-                fetchTowingVoucherReportAndMail($_invoice, data, $_company, $token, $req, $res);
+              } else {
+                LOG.d(TAG, 'This is a freeform invoice');
+                //this is a freeform invoice
+                db.one(SQL_INVOICE_ADD_DOCUMENT, [$_invoice.id, filename, "application/pdf", data.length, data, $token], function($error, $result, fields){
+                      //fetchTowingVoucherReportAndMail($_invoice, data, $_company, $token, $req, $res);
+                });
               }
 
               // delete the file
@@ -681,15 +699,15 @@ function renderInvoicePdf($template, $template_vars, $_invoice, $_company, $toke
 function fetchTowingVoucherReportAndMail($_invoice, $_invoice_data, $_company, $token, $req, $res) {
   // console.log($_invoice);
 
-  //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
-  dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $req, $res, function($towing_voucher_filename, $towing_voucher_base64, $dossier)
+  if($_invoice.towing_voucher_id != null)
   {
-    //send mail if linked to a towing voucher
-    if($_invoice.towing_voucher_id != null)
+    //CREATE A TOWING VOUCHER PDF AND SEND IT TO AWV
+    dossier.createTowingVoucherReport($_invoice.dossier_id, $_invoice.towing_voucher_id, 'towing', $token, $req, $res, function($towing_voucher_filename, $towing_voucher_base64, $dossier)
     {
+      //send mail if linked to a towing voucher
       sendEmailToAWV($_invoice, $_invoice_data, $_company, $dossier, $towing_voucher_filename, $towing_voucher_base64)
-    }
-  });
+    });
+  }
 }
 
 function sendEmailToAWV($_invoice, $_invoice_data, $_company, $dossier, $towing_voucher_filename, $towing_voucher_base64)

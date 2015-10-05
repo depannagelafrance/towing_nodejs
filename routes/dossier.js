@@ -94,6 +94,7 @@ const SQL_FETCH_ALL_VOUCHERS_BY_FILTER                = "CALL R_FETCH_ALL_VOUCHE
 const SQL_FETCH_ALL_ALLOTMENTS_BY_DIRECTION           = "CALL R_FETCH_ALL_ALLOTMENTS_BY_DIRECTION(?,?,?); ";
 const SQL_FETCH_ALL_COMPANIES_BY_ALLOTMENT            = "CALL R_FETCH_ALL_COMPANIES_BY_ALLOTMENT(?,?); ";
 const SQL_FETCH_ALL_DOSSIER_TRAFFIC_LANES             = "CALL R_FETCH_ALL_DOSSIER_TRAFFIC_LANES(?,?);";
+const SQL_FETCH_TOWING_PAYMENT_DETAILS_BY_VOUCHER     = "CALL R_FETCH_TOWING_PAYMENT_DETAILS_BY_VOUCHER(?,?); ";
 
 const SQL_FETCH_TOWING_DEPOT                = "CALL R_FETCH_TOWING_DEPOT(?, ?); ";
 const SQL_UPDATE_TOWING_DEPOT               = "CALL R_UPDATE_TOWING_DEPOT(?,?,?,?,?,?,?,?,?,?); ";
@@ -108,7 +109,7 @@ const SQL_UPDATE_TOWING_CAUSER              = "CALL R_UPDATE_TOWING_CAUSER(?,?,?
 
 const SQL_UPDATE_TOWING_VOUCHER_ACTIVITY    = "CALL R_UPDATE_TOWING_VOUCHER_ACTIVITY(?,?,?,?);";
 const SQL_REMOVE_TOWING_VOUCHER_ACTIVITY    = "CALL R_REMOVE_TOWING_VOUCHER_ACTIVITY(?,?,?);";
-const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_TOWING_VOUCHER_PAYMENTS    = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENTS(?,?,?);";
 const SQL_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS = "CALL R_UPDATE_TOWING_VOUCHER_PAYMENT_DETAILS("
                                                    + "?," //IN p_id BIGINT,
                       														 + "?," //IN p_tvp_id BIGINT,
@@ -297,7 +298,18 @@ router.get('/list/additional_costs/:dossier/:voucher/:token', function($req, $re
   db.many(SQL_FETCH_ALL_TOWING_VOUCHER_ADDITIONAL_COSTS, [$voucher_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
-})
+});
+
+router.get('/list/payment_details/:dossier/:voucher/:token', function($req, $res) {
+  var $dossier_id = ju.requiresInt('dossier', $req.params);
+  var $voucher_id = ju.requiresInt('voucher', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  //fetch the towing activities information
+  db.many(SQL_FETCH_TOWING_PAYMENT_DETAILS_BY_VOUCHER, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
 
 router.get('/list/available_allotments/direction/:direction/:token', function($req, $res) {
   var $direction  = ju.requiresInt('direction', $req.params);
