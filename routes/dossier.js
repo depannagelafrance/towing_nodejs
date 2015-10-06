@@ -135,6 +135,7 @@ const SQL_ADD_INSURANCE_DOCUMENT              = "CALL R_ADD_INSURANCE_DOCUMENT(?
 const SQL_ADD_ANY_DOCUMENT                    = "CALL R_ADD_ANY_DOCUMENT(?,?,?,?,?,?)";
 const SQL_ADD_VEHICLE_DAMAGE_DOCUMENT         = "CALL R_ADD_VEHICLE_DAMAGE_DOCUMENT(?,?,?,?,?,?)";
 const SQL_FETCH_ALL_VOUCHER_ATTACHMENTS       = "CALL R_FETCH_ALL_VOUCHER_DOCUMENTS(?, ?); ";
+const SQL_REMOVE_TOWING_VOUCHER_ATTACHMENT    = "CALL R_REMOVE_TOWING_VOUCHER_ATTACHMENT(?,?,?);";
 
 const SQL_LINK_AWV_LETTER_BATCH_WITH_VOUCHER  = "CALL R_LINK_AWV_LETTER_BATCH_WITH_VOUCHER(?,?,?); ";
 const SQL_ADD_AWV_LETTER_BATCH                = "CALL R_ADD_AWV_LETTER_BATCH(?,?); ";
@@ -533,6 +534,16 @@ router.get('/voucher/attachment/:voucher_id/:token', function($req, $res) {
   var $token      = ju.requires('token', $req.params);
 
   db.many(SQL_FETCH_ALL_VOUCHER_ATTACHMENTS, [$voucher_id, $token], function($error, $result, $fields) {
+    ju.send($req, $res, $result);
+  });
+});
+
+router.delete('/voucher/attachment/:voucher_id/:doc_id/:token', function($req, $res) {
+  var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+  var $document_id = ju.requiresInt('doc_id', $req.params);
+  var $token      = ju.requires('token', $req.params);
+
+  db.one(SQL_REMOVE_TOWING_VOUCHER_ATTACHMENT, [$voucher_id, $document_id, $token], function($error, $result, $fields) {
     ju.send($req, $res, $result);
   });
 });
