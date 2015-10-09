@@ -591,7 +591,7 @@ function createPDFInvoice($invoice, $_company, $token, $req, $res)
             }
 
             db.one(SQL_FETCH_INVOICE_BATCH_INFO, $batch_info_params, function($error, $batch_info, $fields) {
-              $template_vars.call_date = $batch_info.call_date;
+              $template_vars.call_date = convertUnixTStoDateFormat($batch_info.call_date, "dd/mm/yyyy");
               $template_vars.call_number = $batch_info.call_number;
               $template_vars.vehicule = $batch_info.vehicule + ' ' + $batch_info.vehicule_type;
               $template_vars.vehicule_licenceplate = $batch_info.vehicule_licenceplate;

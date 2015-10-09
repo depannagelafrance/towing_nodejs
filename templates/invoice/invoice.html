@@ -201,7 +201,7 @@
         <div class="cf">
             <div id="info_invoice">
                 <div class="info_padded"><label class="bold">PA Nummer: </label><%=call_number%></div>
-                <div class="info_padded"><label class="bold">Datum oproep: </label><%=call_date%></div>
+                <div class="info_padded"><label class="bold">Datum oproep: </label><%=call_date != null && call_date != '' ? call_date : ''%></div>
             </div>
             <div id="info_key">
                 <div class="info_padded"><label class="bold">Voertuig: </label><%=vehicule%></div>
