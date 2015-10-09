@@ -155,12 +155,12 @@ router.put('/:invoice_id/:token', function($req, $res) {
 
   var $invoice_params = [
       $invoice_id, //IN p_id BIGINT,
-    	$invoice.invoice_structured_reference, //IN p_ref VARCHAR(20),
+      $invoice.invoice_structured_reference, //IN p_ref VARCHAR(20),
       $invoice.insurance_dossiernr, // IN p_insurance_dossiernr VARCHAR(45),
       $invoice.invoice_amount_paid, //IN p_paid DOUBLE(5,2),
       $invoice.invoice_payment_type, //IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),
       $invoice.invoice_message, //IN p_message TEXT,
-    	$token //IN p_token VARCHAR(255)
+      $token //IN p_token VARCHAR(255)
   ];
 
   db.one(SQL_UPDATE_COMPANY_INVOICE, $invoice_params, function($error, $result, $fields) {
@@ -168,10 +168,10 @@ router.put('/:invoice_id/:token', function($req, $res) {
 
     var $customer_params = [
        $ic.id, //IN p_id 				BIGINT,
-		   $ic.customer_number, //IN p_cust_number 	VARCHAR(45),
-		   $ic.company_name, //IN p_company_name 	VARCHAR(255),
-		   $ic.company_vat, //IN p_company_vat 	VARCHAR(45),
-		   $ic.first_name, //IN p_first_name		VARCHAR(45),
+	   $ic.customer_number, //IN p_cust_number 	VARCHAR(45),
+	   $ic.company_name, //IN p_company_name 	VARCHAR(255),
+	   $ic.company_vat, //IN p_company_vat 	VARCHAR(45),
+	   $ic.first_name, //IN p_first_name		VARCHAR(45),
        $ic.last_name, //IN p_last_name		VARCHAR(45),
        $ic.street, //IN p_street			VARCHAR(255),
        $ic.street_number, //IN p_street_nr		VARCHAR(45),
