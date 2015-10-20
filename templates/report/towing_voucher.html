@@ -605,6 +605,7 @@ function d(val) {
                 var total = 0.0;
                 var guarantee_insurance = 0.0;
                 var amount_customer = 0.0;
+                var has_unpaid = true;
 
                 towing_payment_details.forEach(function($detail) {
                   if($detail.category !== 'INSURANCE') {
@@ -614,7 +615,7 @@ function d(val) {
                     pmaestro += $detail.amount_paid_maestro;
                   }
 
-                  if($detail.foreign_vat === 1) {
+                  if($detail.foreign_vat == 1) {
                     unpaid += $detail.amount_unpaid_excl_vat;
                     total += $detail.amount_excl_vat;
 
@@ -631,7 +632,12 @@ function d(val) {
                     else
                       amount_customer += $detail.amount_incl_vat;
                   }
-              }); %>
+                });
+
+                if(unpaid - guarantee_insurance > 0) {
+                    had_unpaid = false;
+                }
+                %>
                 <table class="table-focus">
                     <tbody>
                     <tr>
@@ -678,10 +684,12 @@ function d(val) {
                       </tr>
                     <% } %>
 
+                    <% if(has_unpaid) { ?>
                     <tr>
                         <td class="padded-large bordered text-bold">OPENSTAAND SALDO</td>
                         <td class="padded-large bordered currency text-bold">&euro; <%= unpaid.toFixed(2)%></td>
                     </tr>
+                    <% } %>
 
                     <% if(is_covered_by_insurance) { %>
                     <tr>
