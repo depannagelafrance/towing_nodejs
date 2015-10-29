@@ -2,6 +2,8 @@
 var _ = require('underscore');
 var express = require('express');
 var nodemailer = require('nodemailer');
+var JSZip = require('jszip');
+var xmlbuilder = require('xmlbuilder');
 
 var db = require('../util/database.js');
 var ju = require('../util/json.js');
@@ -357,51 +359,236 @@ router.post('/customer/:token', function ($req, $res) {
     var $invoice_excluded = ju.intValueOf('invoice_excluded', $req.body);
     var $is_insurance = ju.intValueOf('is_insurance', $req.body);
     var $is_collector = ju.intValueOf('is_collector', $req.body);
+    var $vat_validated = true;
 
-    vies.checkVat($vat, function ($result, $error) {
-        if (!$error) {
-            if (!$name || $name == '') {
-                $name = $result.name;
+    if ($vat && $vat != '') {
+        vies.checkVat($vat, function ($result, $error) {
+            if (!$error) {
+                if (!$name || $name == '') {
+                    $name = $result.name;
+                }
+
+                if (!$street || $street == '') {
+                    if ($result.address_data) {
+                        $street = $result.address_data.street;
+                        $street_number = $result.address_data.street_number;
+                        $zip = $result.address_data.zip;
+                        $city = $result.address_data.city;
+                        $country = $result.address_data.country;
+                    } else {
+                        $street = $result.address;
+                    }
+                }
+            }
+            else {
+                ju.send($req, $res, $error);
+                $vat_validated = false;
             }
 
-            if (!$street || $street == '') {
-                if ($result.address_data) {
-                    $street = $result.address_data.street;
-                    $street_number = $result.address_data.street_number;
-                    $zip = $result.address_data.zip;
-                    $city = $result.address_data.city;
-                    $country = $result.address_data.country;
-                } else {
-                    $street = $result.address;
+            if ($vat_validated) {
+                /**
+                 IN p_type ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
+                 IN p_customer_number VARCHAR(45),
+                 IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
+                 IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
+                 IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
+                 IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+                 IN p_token VARCHAR(255)
+                 */
+
+                var $params = ['CUSTOMER', $customer_number,
+                    $name, $vat,
+                    $first_name, $last_name,
+                    $street, $street_number, $street_pobox, $city, $zip, $country,
+                    $invoice_excluded, $is_insurance, $is_collector,
+                    $token];
+
+                db.one(SQL_CREATE_CUSTOMER, $params, function ($error, $result, $fields) {
+                    ju.send($req, $res, $result);
+                });
+            }
+        });
+    } else {
+        /**
+         IN p_type ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
+         IN p_customer_number VARCHAR(45),
+         IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
+         IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
+         IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
+         IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+         IN p_token VARCHAR(255)
+         */
+
+        var $params = ['CUSTOMER', $customer_number,
+            $name, $vat,
+            $first_name, $last_name,
+            $street, $street_number, $street_pobox, $city, $zip, $country,
+            $invoice_excluded, $is_insurance, $is_collector,
+            $token];
+
+        db.one(SQL_CREATE_CUSTOMER, $params, function ($error, $result, $fields) {
+            ju.send($req, $res, $result);
+        });
+    }
+});
+
+router.post('/customer/upload/:token', function ($req, $res) {
+    var $token = ju.requires('token', $req.params);
+    var $xml = ju.requires('xml', $req.body);
+
+    var parseString = require('xml2js').parseString;
+
+    parseString($xml, function (err, result) {
+        if (err) {
+            ju.send($req, $res, err)
+        } else {
+            result.ImportExpMPlus.Customers.forEach(function (customers) {
+                customers.Customer.forEach(function (customer) {
+                    console.log(customer);
+                    var $prime = customer.Prime[0];
+                    //var $alfa = customer.Alfa[0];
+                    var $name = customer.Name[0];
+                    var $country = (customer.Country ? customer.Country[0] : null);
+                    var $street = (customer.Street ? customer.Street[0] : null);
+                    var $zip = (customer.ZipCode ? customer.ZipCode[0] : null);
+                    var $city = (customer.City ? customer.City[0] : null);
+                    var $vat = (customer.VATNumber ? customer.Country[0] + customer.VATNumber[0] : null);
+                    //var $phone = customer.Phone[0];
+
+                    db.one(SQL_CREATE_CUSTOMER, ['CUSTOMER', $prime,
+                        $name, $vat,
+                        null, null, //first_name, last_name
+                        $street, null /*$street_number*/, null /*$street_pobox*/, $city, $zip, $country,
+                        0 /*$invoice_excluded*/, 0 /*$is_insurance*/, 0 /*$is_collector*/,
+                        $token], function ($error, $result, $fields) {
+                        //fire and forget
+                    });
+                });
+            });
+
+            ju.send($req, $res, 'OK');
+        }
+    });
+});
+
+//
+// -- PREPARE THE EXPORT FOR EXPERT-M
+//
+router.post('/customer/export/expertm/:token', function ($req, $res) {
+    //var $selected_ids = ju.requires('invoices', $req.body);
+    var $token = ju.requires('token', $req.params);
+    var $i = 0;
+
+    var $customer_builder = xmlbuilder.create('ImportExpMPlus');
+    var $customers = $customer_builder.e('Customers');
+
+    var $j = 0;
+
+    var zip = new JSZip();
+
+    var $token = $req.params.token;
+
+    db.many(SQL_ALL_CUSTOMERS, [$token], function ($error, $result, $fields) {
+        for ($i = 0; $i < $result.length; $i++) {
+            var $customer = $customers.e('Customer');
+            var $invoice_customer = $result[$i];
+
+            $j++;
+
+            // -- -------------
+            // -- CUSTOMER
+            // -- -------------
+            $customer.e('Prime').r(_raw($invoice_customer.customer_number)); //customer_number
+            if ($invoice_customer.company_name != null && $invoice_customer.company_name != "") {
+                $customer.e('Alfa').r(_raw($invoice_customer.company_name.substring(0, 1).toUpperCase())); //customer_number
+                $customer.e('Name').r(_raw($invoice_customer.company_name));
+            }
+            else {
+                if ($invoice_customer.last_name != null) {
+                    $customer.e('Alfa').r(_raw($invoice_customer.last_name.substring(0, 1).toUpperCase())); //customer_number
+                    $customer.e('Name').r(_raw($invoice_customer.last_name + ' ' + $invoice_customer.first_name));
                 }
             }
 
-            /**
-             IN p_type ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
-             IN p_customer_number VARCHAR(45),
-             IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
-             IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
-             IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
-             IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
-             IN p_token VARCHAR(255)
-             */
+            $customer.e('Country').r(_raw($invoice_customer.country));
+            $customer.e('Street').r(_raw($invoice_customer.street));
+            $customer.e('HouseNumber').r(_raw($invoice_customer.street_number));
+            $customer.e('MailboxNumber').r(_raw($invoice_customer.street_pobox));
+            $customer.e('ZipCode').r(_raw($invoice_customer.zip));
+            $customer.e('City').r(_raw($invoice_customer.city));
+            $customer.e('Language').r(1); //1 = NL, 2 = FR, 3 = EN, 4 = DE
+            $customer.e('CurrencyCode').r('EUR');
 
-            db.one(SQL_CREATE_CUSTOMER, ['CUSTOMER', $customer_number,
-                $name, $vat,
-                $first_name, $last_name,
-                $street, $street_number, $street_pobox, $city, $zip, $country,
-                $invoice_excluded, $is_insurance, $is_collector,
-                $token], function ($error, $result, $fields) {
-                ju.send($req, $res, $result);
-            });
+            $customer.e('VATNumber').r(_raw($invoice_customer.company_vat));
+
+            if ($invoice_customer.company_vat != null) {
+                $customer.e('CountryVATNumber').r($invoice_customer.company_vat.substring(0, 2).toUpperCase());
+
+                //VATCode
+                // 0 : niet btw plichtig
+                // 1 : btw plichtig
+                // 2 : kleine onderneming
+                $customer.e('VATCode').r(_raw($invoice_customer.company_vat != null ? 1 : 0));
+                //VATStatus
+                // 0 : geen nummer
+                // 1 : ondernemingsnummer
+                // 2 : ondernemingsnummer in aanvraag
+                // 3 : onbekend ondernemingsnummer
+                // 4 : nationaal nummer
+                // 5 : nationaal nummer in aanvraag
+                // 6 : onbekend nationaal nummer
+                $customer.e('VATStatus').r(_raw($invoice_customer.company_vat != null ? 1 : 0));
+            }
+
+            //Rappel
+            // 0: geen betalingsherinnering
+            // 1: standaard op papier
+            // 2: standaard via e-mail
+            $customer.e('Rappel').r(_raw(1));
+            //Dom
+            // 0: geen gedomicilieerde Facturen
+            // 1: gedomicilieerde Facturen
+            $customer.e('Dom').r(_raw(0));
+            //Due
+            // 0 : contant
+            // 1 : eind maand
+            // 2 : Factuurdatum
+            // 3 : vrij ingave
+            $customer.e('Due').r(_raw(0));
+
+            //$customer.e('AccountSale').r(_raw('')); //de grootboekrekening waarop de klant meestal wordt tegengeboekt
+            //$customer.e('GoodsCode').r(_raw('')); //de goederencode die meestal op de klant van toepassing is
+
+
+            //add to the xml file
+            if ($j >= $result.length) {
+                // ju.send($req, $res, {"result": "ok"});
+
+                //create a new zip
+                //put the XML file in the zip file
+                //send the zip back as base64
+
+                zip.file('Klanten.xml', $customer_builder.end({pretty: true}));
+
+                // LOG.d(TAG, $invoice_builder.end({pretty: true}));
+                // LOG.d(TAG, $customer_builder.end({pretty: true}));
+
+                ju.send($req, $res, {
+                    'base64': zip.generate({type: 'base64'}),
+                    'name': 'Export.zip'
+                });
+            }
         }
-        else {
-            ju.send($req, $res, $error);
-        }
+        ;
     });
-
-
 });
+
+function _raw($val) {
+    if ($val == null)
+        return '';
+
+    return $val;
+}
 
 router.put('/customer/:id/:token', function ($req, $res) {
     var $id = ju.requiresInt('id', $req.params);
@@ -422,30 +609,54 @@ router.put('/customer/:id/:token', function ($req, $res) {
     var $is_insurance = ju.intValueOf('is_insurance', $req.body);
     var $is_collector = ju.intValueOf('is_collector', $req.body);
 
-    vies.checkVat($vat, function ($result, $error) {
-        if (!$error) {
-            /**
-             IN p_id BIGINT,
-             IN p_customer_number VARCHAR(45),
-             IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
-             IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
-             IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
-             IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
-             IN p_token VARCHAR(255)
-             */
+    if ($vat && $vat != '') {
+        vies.checkVat($vat, function ($result, $error) {
+            if ($error) {
+                ju.send($req, $res, $error);
+            } else {
+                /**
+                 IN p_id BIGINT,
+                 IN p_customer_number VARCHAR(45),
+                 IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
+                 IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
+                 IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
+                 IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+                 IN p_token VARCHAR(255)
+                 */
 
-            db.one(SQL_UPDATE_CUSTOMER, [$id, $customer_number, $name, $vat,
-                $first_name, $last_name,
-                $street, $street_number, $street_pobox, $city, $zip, $country,
-                $invoice_excluded, $is_insurance, $is_collector,
-                $token], function ($error, $result, $fields) {
-                ju.send($req, $res, $result);
-            });
-        }
-        else {
-            ju.send($req, $res, $error);
-        }
-    });
+                var $params = [$id, $customer_number, $name, $vat,
+                    $first_name, $last_name,
+                    $street, $street_number, $street_pobox, $city, $zip, $country,
+                    $invoice_excluded, $is_insurance, $is_collector,
+                    $token];
+
+                db.one(SQL_UPDATE_CUSTOMER, $params, function ($error, $result, $fields) {
+                    ju.send($req, $res, $result);
+                });
+            }
+        });
+    } else {
+        /**
+         IN p_id BIGINT,
+         IN p_customer_number VARCHAR(45),
+         IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
+         IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
+         IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
+         IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+         IN p_token VARCHAR(255)
+         */
+
+        var $params = [$id, $customer_number, $name, $vat,
+            $first_name, $last_name,
+            $street, $street_number, $street_pobox, $city, $zip, $country,
+            $invoice_excluded, $is_insurance, $is_collector,
+            $token];
+
+        db.one(SQL_UPDATE_CUSTOMER, $params, function ($error, $result, $fields) {
+            ju.send($req, $res, $result);
+        });
+    }
+
 });
 
 router.delete('/customer/:id/:token', function ($req, $res) {
