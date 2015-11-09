@@ -321,8 +321,8 @@ router.delete('/calendar/:id/:token', function ($req, $res) {
 
 const SQL_ALL_CUSTOMERS = "CALL R_FETCH_ALL_CUSTOMERS(?);";
 const SQL_CUSTOMER_BY_ID = "CALL R_FETCH_CUSTOMER_BY_ID(?,?);";
-const SQL_CREATE_CUSTOMER = "CALL R_ADD_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-const SQL_UPDATE_CUSTOMER = "CALL R_UPDATE_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_CREATE_CUSTOMER = "CALL R_ADD_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+const SQL_UPDATE_CUSTOMER = "CALL R_UPDATE_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 const SQL_DELETE_CUSTOMER = "CALL R_DELETE_CUSTOMER(?,?);";
 
 router.get('/customer/:token', function ($req, $res) {
@@ -355,7 +355,7 @@ router.post('/customer/:token', function ($req, $res) {
     var $zip = ju.valueOf('zip', $req.body);
     var $country = ju.valueOf('country', $req.body);
     var $customer_number = ju.valueOf('customer_number', $req.body);
-    var $type = ju.valueOf('type', $req.body);
+    var $invoice_to = ju.valueOf('invoice_to', $req.body);
     var $invoice_excluded = ju.intValueOf('invoice_excluded', $req.body);
     var $is_insurance = ju.intValueOf('is_insurance', $req.body);
     var $is_collector = ju.intValueOf('is_collector', $req.body);
@@ -392,7 +392,8 @@ router.post('/customer/:token', function ($req, $res) {
                  IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
                  IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
                  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
-                 IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+                 IN p_invoice_excluded TINYINT(1), IN p_invoice_to ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
+                 IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
                  IN p_token VARCHAR(255)
                  */
 
@@ -400,7 +401,7 @@ router.post('/customer/:token', function ($req, $res) {
                     $name, $vat,
                     $first_name, $last_name,
                     $street, $street_number, $street_pobox, $city, $zip, $country,
-                    $invoice_excluded, $is_insurance, $is_collector,
+                    $invoice_excluded, $invoice_to, $is_insurance, $is_collector,
                     $token];
 
                 db.one(SQL_CREATE_CUSTOMER, $params, function ($error, $result, $fields) {
@@ -415,7 +416,8 @@ router.post('/customer/:token', function ($req, $res) {
          IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
          IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
          IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
-         IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+         IN p_invoice_excluded TINYINT(1), IN p_invoice_to ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
+         IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
          IN p_token VARCHAR(255)
          */
 
@@ -423,7 +425,7 @@ router.post('/customer/:token', function ($req, $res) {
             $name, $vat,
             $first_name, $last_name,
             $street, $street_number, $street_pobox, $city, $zip, $country,
-            $invoice_excluded, $is_insurance, $is_collector,
+            $invoice_excluded, $invoice_to, $is_insurance, $is_collector,
             $token];
 
         db.one(SQL_CREATE_CUSTOMER, $params, function ($error, $result, $fields) {
@@ -604,7 +606,7 @@ router.put('/customer/:id/:token', function ($req, $res) {
     var $zip = ju.valueOf('zip', $req.body);
     var $country = ju.valueOf('country', $req.body);
     var $customer_number = ju.valueOf('customer_number', $req.body);
-    var $type = ju.valueOf('type', $req.body);
+    var $invoice_to = ju.valueOf('invoice_to', $req.body);
     var $invoice_excluded = ju.intValueOf('invoice_excluded', $req.body);
     var $is_insurance = ju.intValueOf('is_insurance', $req.body);
     var $is_collector = ju.intValueOf('is_collector', $req.body);
@@ -620,14 +622,16 @@ router.put('/customer/:id/:token', function ($req, $res) {
                  IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
                  IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
                  IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
-                 IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+                 IN p_invoice_excluded TINYINT(1), IN p_invoice_to ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
+                 IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
                  IN p_token VARCHAR(255)
                  */
 
                 var $params = [$id, $customer_number, $name, $vat,
                     $first_name, $last_name,
                     $street, $street_number, $street_pobox, $city, $zip, $country,
-                    $invoice_excluded, $is_insurance, $is_collector,
+                    $invoice_excluded, $invoice_to,
+                    $is_insurance, $is_collector,
                     $token];
 
                 db.one(SQL_UPDATE_CUSTOMER, $params, function ($error, $result, $fields) {
@@ -642,14 +646,16 @@ router.put('/customer/:id/:token', function ($req, $res) {
          IN p_name VARCHAR(255), IN p_vat VARCHAR(45),
          IN p_first_name VARCHAR(255), IN p_last_name VARCHAR(255),
          IN p_street VARCHAR(255), IN p_street_number VARCHAR(45), IN p_street_pobox VARCHAR(45), IN p_zip VARCHAR(45), IN p_city VARCHAR(45), IN p_country VARCHAR(255),
-         IN p_invoice_excluded TINYINT(1), IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
+         IN p_invoice_excluded TINYINT(1), IN p_invoice_to ENUM('CUSTOMER', 'COLLECTOR', 'INSURANCE', 'OTHER'),
+         IN p_is_insurance TINYINT(1), IN p_is_collector TINYINT(1),
          IN p_token VARCHAR(255)
          */
 
         var $params = [$id, $customer_number, $name, $vat,
             $first_name, $last_name,
             $street, $street_number, $street_pobox, $city, $zip, $country,
-            $invoice_excluded, $is_insurance, $is_collector,
+            $invoice_excluded, $invoice_to,
+            $is_insurance, $is_collector,
             $token];
 
         db.one(SQL_UPDATE_CUSTOMER, $params, function ($error, $result, $fields) {
