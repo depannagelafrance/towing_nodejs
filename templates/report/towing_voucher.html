@@ -634,7 +634,7 @@ function d(val) {
                   }
                 });
 
-                if(unpaid - guarantee_insurance > 0) {
+                if(unpaid.toFixed(2) == guarantee_insurance.toFixed(2)) {
                     has_unpaid = false;
                 }
                 %>
