@@ -295,11 +295,12 @@ function _raw($val) {
     return $val;
 }
 
+const SQL_INVOICE_FETCH_FOR_EXPORT = "CALL R_INVOICE_FETCH_FOR_EXPORT(?);";
+
 //
 // -- PREPARE THE EXPORT FOR EXPERT-M
 //
 router.post('/export/expertm/:token', function ($req, $res) {
-    var $selected_ids = ju.requires('invoices', $req.body);
     var $token = ju.requires('token', $req.params);
     var $i = 0;
 
@@ -310,64 +311,100 @@ router.post('/export/expertm/:token', function ($req, $res) {
 
     var zip = new JSZip();
 
-    for ($i = 0; $i < $selected_ids.length; $i++) {
-        var $invoice_id = $selected_ids[$i];
 
-        findInvoiceById($invoice_id, $token, function ($invoice) {
-            var $sale = $sales.e('Sale');
-            var $invoice_customer = $invoice.invoice_customer;
+    db.many(SQL_INVOICE_FETCH_FOR_EXPORT, [$token], function($error, $result, $fields) {
+        for ($i = 0; $i < $result.length; $i++) {
+            var $invoice_id = $result[$i].id;
 
-            // console.log($invoice);
+            findInvoiceById($invoice_id, $token, function ($invoice) {
+                var $sale = $sales.e('Sale');
+                var $invoice_customer = $invoice.invoice_customer;
 
-            $j++;
+                // console.log($invoice);
 
-            // -- -------------
-            // -- SALES
-            // -- -------------
-            // $sale.e('Journal_Prime').r(_raw($invoice_customer.customer_number));
-            $sale.e('Year_Alfa').r(_raw(formatTimestamp($invoice.invoice_date, 'yyyy')));// 2008
-            //DocType
-            // 30: Creditnota
-            // 10: Factuur
-            $sale.e('DocType').r(_raw($invoice.invoice_type == 'CN' ? 30 : 10));
-            $sale.e('DocNumber').r(_raw($invoice.invoice_number));
-            // $sale.e('AccountingPeriod').r(1);
-            $sale.e('VATMonth').r(_raw(formatTimestamp($invoice.invoice_date, 'yyyymm'))); // 200801
-            $sale.e('DocDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_date)));  // 10/01/2018
-            $sale.e('DueDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_due_date)));  // 10/02/2018
-            $sale.e('OurRef').r(_raw($invoice.invoice_number));   //
-            $sale.e('YourRef').r('');  //
-            $sale.e('Amount').r(_raw($invoice.invoice_total_excl_vat));  //
-            $sale.e('CurrencyCode').r('EUR'); //
-            $sale.e('VATAmount').r(_raw($invoice.invoice_total_vat));
-            $sale.e('Ventil').r(4); //4: 21%
+                $j++;
 
-            $sale.e('Customer_Prime').r(_raw($invoice_customer.customer_number));
+                // -- -------------
+                // -- SALES
+                // -- -------------
+                // $sale.e('Journal_Prime').r(_raw($invoice_customer.customer_number));
+                $sale.e('Year_Alfa').r(_raw(formatTimestamp($invoice.invoice_date, 'yyyy')));// 2008
+                //DocType
+                // 30: Creditnota
+                // 10: Factuur
+                $sale.e('DocType').r(_raw($invoice.invoice_type == 'CN' ? 30 : 10));
+                $sale.e('DocNumber').r(_raw($invoice.invoice_number));
+                // $sale.e('AccountingPeriod').r(1);
+                $sale.e('VATMonth').r(_raw(formatTimestamp($invoice.invoice_date, 'yyyymm'))); // 200801
+                $sale.e('DocDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_date)));  // 10/01/2018
+                $sale.e('DueDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_due_date)));  // 10/02/2018
+                $sale.e('OurRef').r(_raw($invoice.invoice_number));   //
+                $sale.e('YourRef').r('');  //
+                $sale.e('Amount').r(_raw($invoice.invoice_total_incl_vat.toFixed(2)));  //
+                $sale.e('CurrencyCode').r('EUR'); //
+                $sale.e('VATAmount').r(_raw($invoice.invoice_total_vat.toFixed(2)));
+                $sale.e('Ventil').r(4); //4: 21%
+
+                $sale.e('Customer_Prime').r(_raw($invoice_customer.customer_number));
+
+                //Status
+                // 0: not imported
+                // 1: imported
+                $sale.e('Status').r('0');
+
+                var $details = $sale.e('Details');
+                var $detailTotal = $details.e('Detail');
+                var $vatTotal = $details.e('Detail');
+                var $exclVatTotal = $details.e('Detail');
+
+                $detailTotal.e('Account').r(400000);
+                $detailTotal.e('Amount').r(_raw($invoice.invoice_total_incl_vat.toFixed(2)));
+                $detailTotal.e('DebCre').r(1); //1: D
+                $detailTotal.e('Ventil').r(0); //0: totaal lijn
+                $detailTotal.e('Unit1').r(0);
+                $detailTotal.e('Unit2').r(0);
+
+                $vatTotal.e('Account').r(700000);
+                $vatTotal.e('Amount').r(_raw($invoice.invoice_total_vat.toFixed(2)));
+                $vatTotal.e('DebCre').r(-1); //-1: CREDIT
+                $vatTotal.e('Ventil').r(4); //4: btw
+                $vatTotal.e('Unit1').r(0);
+                $vatTotal.e('Unit2').r(0);
+
+                $exclVatTotal.e('Account').r(451000);
+                $exclVatTotal.e('Amount').r(_raw($invoice.invoice_total_excl_vat.toFixed(2)));
+                $exclVatTotal.e('DebCre').r(-1); //-1: CREDIT
+                $exclVatTotal.e('Ventil').r(11); //11: bedrag excl btw
+                $exclVatTotal.e('Unit1').r(0);
+                $exclVatTotal.e('Unit2').r(0);
 
 
-            //fetch the invoice lines
-            // db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_lines, $fields)
-            // {
-            //add to the xml file
-            if ($j >= $selected_ids.length) {
-                // ju.send($req, $res, {"result": "ok"});
 
-                //create a new zip
-                //put the XML file in the zip file
-                //send the zip back as base64
 
-                zip.file('Facturen.xml', $invoice_builder.end({pretty: true}));
+                //fetch the invoice lines
+                // db.many(SQL_FETCH_BATCH_INVOICE_LINES, [$invoice.id, $invoice.invoice_batch_run_id], function($error, $invoice_lines, $fields)
+                // {
+                //add to the xml file
+                if ($j >= $result.length) {
+                    // ju.send($req, $res, {"result": "ok"});
 
-                // LOG.d(TAG, $invoice_builder.end({pretty: true}));
-                // LOG.d(TAG, $customer_builder.end({pretty: true}));
+                    //create a new zip
+                    //put the XML file in the zip file
+                    //send the zip back as base64
 
-                ju.send($req, $res, {
-                    'base64': zip.generate({type: 'base64'}),
-                    'name': 'Export.zip'
-                });
-            }
-        });
-    }
+                    zip.file('Facturen.xml', $invoice_builder.end({pretty: true}));
+
+                    // LOG.d(TAG, $invoice_builder.end({pretty: true}));
+                    // LOG.d(TAG, $customer_builder.end({pretty: true}));
+
+                    ju.send($req, $res, {
+                        'base64': zip.generate({type: 'base64'}),
+                        'name': 'Export.zip'
+                    });
+                }
+            });
+        }
+    });
 });
 
 
