@@ -13,6 +13,23 @@ var JSZip = require('jszip');
 var xmlbuilder = require('xmlbuilder');
 var nodemailer = require('nodemailer');
 
+var numeral = require('numeral');
+// load a language
+numeral.language('nl_BE', {
+    delimiters: {
+        thousands: '.',
+        decimal: ','
+    },
+    currency: {
+        symbol: '€'
+    }
+});
+
+// switch between languages
+numeral.language('nl_BE');
+
+//console.log(numeral(n).format('0,000.0'));
+
 var db = require('../util/database.js');
 var ju = require('../util/json.js');
 var LOG = require('../util/logger.js');
@@ -22,6 +39,9 @@ var settings = require('../settings/settings.js');
 
 var company = require('../model/company.js');
 var dossier = require('../model/dossier.js');
+
+
+
 
 
 var TAG = 'invoice.js';
@@ -63,7 +83,6 @@ const SQL_UPDATE_COMPANY_INVOICE_LINE = "CALL R_INVOICE_UPDATE_INVOICE_LINE(?,?,
 const SQL_INVOICE_DELETE_INVOICE_LINE = "CALL R_INVOICE_DELETE_INVOICE_LINE(?,?,?);";
 const SQL_CREATE_COMPANY_INVOICE_LINE = "CALL R_INVOICE_CREATE_INVOICE_LINE(?,?,?,?,?,?);";
 const SQL_INVOICE_CREDIT_INVOICE = "CALL R_INVOICE_CREDIT_INVOICE(?,?); ";
-
 
 const PAGESETTINGS = {
     general: {
@@ -295,6 +314,11 @@ function _raw($val) {
     return $val;
 }
 
+function _currency($val) {
+    return numeral($val).format('0.00');
+}
+
+
 const SQL_INVOICE_FETCH_FOR_EXPORT = "CALL R_INVOICE_FETCH_FOR_EXPORT(?);";
 
 //
@@ -340,9 +364,9 @@ router.post('/export/expertm/:token', function ($req, $res) {
                 $sale.e('DueDate').r(_raw(convertUnixTStoDateFormat($invoice.invoice_due_date)));  // 10/02/2018
                 $sale.e('OurRef').r(_raw($invoice.invoice_number));   //
                 $sale.e('YourRef').r('');  //
-                $sale.e('Amount').r(_raw($invoice.invoice_total_incl_vat.toFixed(2)));  //
+                $sale.e('Amount').r(_currency($invoice.invoice_total_incl_vat));  //
                 $sale.e('CurrencyCode').r('EUR'); //
-                $sale.e('VATAmount').r(_raw($invoice.invoice_total_vat.toFixed(2)));
+                $sale.e('VATAmount').r(_currency($invoice.invoice_total_vat));
                 $sale.e('Ventil').r(4); //4: 21%
 
                 $sale.e('Customer_Prime').r(_raw($invoice_customer.customer_number));
@@ -358,21 +382,21 @@ router.post('/export/expertm/:token', function ($req, $res) {
                 var $exclVatTotal = $details.e('Detail');
 
                 $detailTotal.e('Account').r(400000);
-                $detailTotal.e('Amount').r(_raw($invoice.invoice_total_incl_vat.toFixed(2)));
+                $detailTotal.e('Amount').r(_currency($invoice.invoice_total_incl_vat));
                 $detailTotal.e('DebCre').r(1); //1: D
                 $detailTotal.e('Ventil').r(0); //0: totaal lijn
                 $detailTotal.e('Unit1').r(0);
                 $detailTotal.e('Unit2').r(0);
 
                 $vatTotal.e('Account').r(700000);
-                $vatTotal.e('Amount').r(_raw($invoice.invoice_total_vat.toFixed(2)));
+                $vatTotal.e('Amount').r(_currency($invoice.invoice_total_vat));
                 $vatTotal.e('DebCre').r(-1); //-1: CREDIT
                 $vatTotal.e('Ventil').r(4); //4: btw
                 $vatTotal.e('Unit1').r(0);
                 $vatTotal.e('Unit2').r(0);
 
                 $exclVatTotal.e('Account').r(451000);
-                $exclVatTotal.e('Amount').r(_raw($invoice.invoice_total_excl_vat.toFixed(2)));
+                $exclVatTotal.e('Amount').r(_currency($invoice.invoice_total_excl_vat));
                 $exclVatTotal.e('DebCre').r(-1); //-1: CREDIT
                 $exclVatTotal.e('Ventil').r(11); //11: bedrag excl btw
                 $exclVatTotal.e('Unit1').r(0);

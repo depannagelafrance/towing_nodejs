@@ -61,7 +61,6 @@ app.use('/invoice',   invoice);
 app.use('/cron',      cron);
 
 
-
 // -- CONFIGURE ERROR HANDLING --
 
 //production error handler
