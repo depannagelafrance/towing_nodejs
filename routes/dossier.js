@@ -68,6 +68,7 @@ const SQL_UPDATE_TOWING_VOUCHER = "CALL R_UPDATE_TOWING_VOUCHER("
     + "from_unixtime(?)," //p_towing_arrival
     + "from_unixtime(?)," //p_towing_start
     + "from_unixtime(?)," //p_towing_end
+    + "?," //p_police_name
     + "from_unixtime(?)," //p_police_signature
     + "from_unixtime(?)," //p_recipient_signature
     + "from_unixtime(?)," //p_vehicule_collected
@@ -872,6 +873,7 @@ router.put('/:dossier/:token', function ($req, $res) {
                     var $warranty_holder = $voucher.insurance_warranty_held_by;
                     var $collector_id = _.isNaN(parseFloat($voucher.collector_id)) ? null : $voucher.collector_id;
                     var $police_signature_date = _.isNaN(parseFloat($voucher.police_signature_dt)) ? null : parseFloat($voucher.police_signature_dt);
+                    var $police_name = $voucher.police_name;
                     var $recipient_signature_date = _.isNaN(parseFloat($voucher.recipient_signature_dt)) ? null : parseFloat($voucher.recipient_signature_dt);
                     var $vehicule = $voucher.vehicule;
                     var $vehicule_type = $voucher.vehicule_type;
@@ -909,7 +911,7 @@ router.put('/:dossier/:token', function ($req, $res) {
 
                         if ($voucher[$categoryPrefixes[$ii]]) {
                             var $_reg_date = (_.isNaN(parseFloat($voucher[$categoryPrefixes[$ii]])) ? null : parseFloat($voucher[$categoryPrefixes[$ii]]));
-                            
+
                             var $latLong = {
                                 'category': $categoryPrefixes[$ii],
                                 'registration_date' : $_reg_date,
@@ -1076,7 +1078,7 @@ router.put('/:dossier/:token', function ($req, $res) {
                         $signa_id, $signa_by, $signa_by_vehicule, $signa_arrival,
                         $towing_id, $towed_by, $towing_vehicle_id, $towed_by_vehicule,
                         $towing_called, $towing_arrival, $towing_start,
-                        $towing_completed, $police_signature_date, $recipient_signature_date,
+                        $towing_completed, $police_name, $police_signature_date, $recipient_signature_date,
                         $vehicule_collected, $causer_not_present, $police_not_present, $cic, $additional_info, $token];
 
                     db.one(SQL_UPDATE_TOWING_VOUCHER, $params3, function ($error, $result, $fields) {
