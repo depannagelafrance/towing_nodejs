@@ -146,7 +146,9 @@ const SQL_FETCH_ALL_EMAIL_COMMUNICATION = "CALL R_FETCH_ALL_EMAIL_COMMUNICATIONS
 const SQL_FETCH_ALL_EMAIL_RECIPIENTS = "CALL R_FETCH_ALL_DOSSIER_COMM_RECIPIENTS(?,?); ";
 const SQL_ADD_DOSSIER_COMMUNICATION = "CALL R_CREATE_DOSSIER_COMMUNICATION(?,?,?,?,?,?); ";
 const SQL_ADD_DOSSIER_COMM_RECIPIENT = "CALL R_CREATE_DOSSIER_COMM_RECIPIENT(?, ?, ?, ?); ";
+
 const SQL_CREATE_TOWING_LOCATION_TRACKING = "CALL R_CREATE_TOWING_LOCATION_TRACKING(?,?,from_unixtime(?),?,?,?);";
+const SQL_FETCH_ALL_TOWING_VOUCHER_LOC_TRACKINGS = "CALL R_FETCH_ALL_TOWING_VOUCHER_LOC_TRACKINGS(?, ?);";
 
 const SQL_ADD_ATTACHMENT_TO_VOUCHER = "CALL R_ADD_ANY_DOCUMENT("
     + "?," //voucher_id
@@ -394,6 +396,14 @@ router.get('/list/awv/letter/batches/:token', function ($req, $res) {
     });
 });
 
+router.get('/list/voucher/tracking/:voucher_id/:token', function($req, $res) {
+    var $voucher_id = ju.requiresInt('voucher_id', $req.params);
+    var $token = ju.requires('token', $req.params);
+
+    db.many(SQL_FETCH_ALL_TOWING_VOUCHER_LOC_TRACKINGS, [$voucher_id, $token], function ($error, $result, $fields) {
+        ju.send($req, $res, $result);
+    });
+});
 
 // -- GET A DOSSIER BY ID
 function fetchDossierById($req, $res, $dossier_id, $token) {
