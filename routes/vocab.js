@@ -26,7 +26,11 @@ const SQL_ALL_VEHICLES = "CALL R_FETCH_ALL_VEHICLES(?)";
 
 const SQL_ADD_DIRECTION_INDICATOR = "CALL R_ADD_DIRECTION_INDICATOR(?,?,?,?,?,?,?,?);";
 const SQL_UPDATE_DIRECTION_INDICATOR = "CALL R_UPDATE_DIRECTION_INDICATOR(?,?,?,?,?,?,?,?,?);";
-const SQL_REMOVE_DIRECTION_INDICATOR = "CALL R_DELETE_DIRECTION_INDICATOR(?,?);";
+const SQL_REMOVE_DIRECTION_INDICATOR = "CALL R_DELETE_DIRECTION_INDICATOR(?,?,?);";
+
+const SQL_ADD_DIRECTION = "CALL R_ADD_DIRECTION(?,?);";
+const SQL_UPDATE_DIRECTION = "CALL R_UPDATE_DIRECTION(?,?,?);";
+const SQL_REMOVE_DIRECTION = "CALL R_DELETE_DIRECTION_INDICATOR(?,?);";
 
 
 // -- FACILITATORS
@@ -50,6 +54,36 @@ router.get('/collectors/:token', function ($req, $res) {
 router.get('/directions/:token', function ($req, $res) {
     fetchVocabularies($req, $res, SQL_ALL_DIRECTIONS);
 });
+
+router.post('/directions/:token', function ($req, $res) {
+    var $token = ju.requires('token', $req.params);
+    var $name = ju.requires('name', $req.body);
+
+    db.one(SQL_ADD_DIRECTION, [$name, $token], function ($error, $result, $fields) {
+        ju.send($req, $res, $result);
+    });
+});
+
+router.put('/directions/:direction/:token', function ($req, $res) {
+    var $token = ju.requires('token', $req.params);
+    var $direction = ju.requiresInt('direction', $req.params);
+
+    var $name = ju.requires('name', $req.body);
+
+    db.one(SQL_UPDATE_DIRECTION, [$direction, $name, $token], function ($error, $result, $fields) {
+        ju.send($req, $res, $result);
+    });
+});
+
+router.delete('/directions/:direction/:token', function ($req, $res) {
+    var $token = ju.requires('token', $req.params);
+    var $direction = ju.requiresInt('direction', $req.params);
+
+    db.one(SQL_REMOVE_DIRECTION, [$direction, $token], function ($error, $result, $fields) {
+        ju.send($req, $res, $result);
+    });
+});
+
 
 router.get('/direction/:direction/:token', function ($req, $res) {
     var $token = ju.requires('token', $req.params);
@@ -117,7 +151,7 @@ router.delete('/indicators/:direction/:indicator/:token', function ($req, $res) 
     var $direction = ju.requiresInt('direction', $req.params);
     var $indicator = ju.requiresInt('indicator', $req.params);
 
-    db.many(SQL_REMOVE_DIRECTION_INDICATOR, [$indicator, $direction, $token], function ($error, $result, $fields) {
+    db.one(SQL_REMOVE_DIRECTION_INDICATOR, [$indicator, $direction, $token], function ($error, $result, $fields) {
         ju.send($req, $res, $result);
     });
 });
