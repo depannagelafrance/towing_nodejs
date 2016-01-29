@@ -77,7 +77,7 @@ const SQL_FETCH_INVOICE_BY_ID = "CALL R_INVOICE_FETCH_COMPANY_INVOICE(?,?);";
 const SQL_FETCH_INVOICE_CUSTOMER = "CALL R_INVOICE_FETCH_COMPANY_INVOICE_CUSTOMER(?,?); ";
 const SQL_FETCH_INVOICE_LINES_BY_INVOICE = "CALL R_INVOICE_FETCH_COMPANY_INVOICE_LINES(?,?);";
 
-const SQL_UPDATE_COMPANY_INVOICE = "CALL R_INVOICE_UPDATE_INVOICE(?,?,?,?,?,?,?); ";
+const SQL_UPDATE_COMPANY_INVOICE = "CALL R_INVOICE_UPDATE_INVOICE(?,?,?,?,?,?,?,?); ";
 const SQL_UPDATE_COMPANY_INVOICE_CUSTOMER = "CALL R_INVOICE_UPDATE_INVOICE_CUSTOMER(?,?,?,?,?,?,?,?,?,?,?,?,?);";
 const SQL_UPDATE_COMPANY_INVOICE_LINE = "CALL R_INVOICE_UPDATE_INVOICE_LINE(?,?,?,?,?,?,?);";
 const SQL_INVOICE_DELETE_INVOICE_LINE = "CALL R_INVOICE_DELETE_INVOICE_LINE(?,?,?);";
@@ -169,6 +169,7 @@ router.put('/:invoice_id/:token', function ($req, $res) {
     var $invoice_params = [
         $invoice_id, //IN p_id BIGINT,
         $invoice.invoice_structured_reference, //IN p_ref VARCHAR(20),
+        $invoice.invoice_doc_ref,
         $invoice.insurance_dossiernr, // IN p_insurance_dossiernr VARCHAR(45),
         $invoice.invoice_amount_paid, //IN p_paid DOUBLE(5,2),
         $invoice.invoice_payment_type, //IN p_ptype ENUM('OTHER','CASH','BANKDEPOSIT','MAESTRO','VISA','CREDITCARD'),

@@ -446,7 +446,7 @@ router.post('/customer/upload/:token', function ($req, $res) {
         } else {
             result.ImportExpMPlus.Customers.forEach(function (customers) {
                 customers.Customer.forEach(function (customer) {
-                    console.log(customer);
+
                     var $prime = customer.Prime[0];
                     //var $alfa = customer.Alfa[0];
                     var $name = customer.Name[0];
